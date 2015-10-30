@@ -12,6 +12,7 @@
 
 #include "talloc.h"
 #include "debugging/tdebug.h"
+#include "ttime.h"
 
 //------------- Thread --------------//
 
@@ -76,14 +77,9 @@ int TThreadJoin(TThread *t)
 	return retval;
 }
 
-void TThreadSleep(int ms)
+void TThreadSleep(TUInt32 ms)
 {
-#ifdef _WINDOWS
-	Sleep(ms);
-#else
-	usleep(ms);
-#endif
-	
+	TTimeSleep(ms);
 }
 
 //------------- Mutex ---------------//
@@ -195,7 +191,7 @@ void TCVFree(TCV *v)
 	}
 }
 
-int TCVSleep(TCV *v, size_t msec)
+int TCVSleep(TCV *v, TUInt32 msec)
 {
 #ifdef _WINDOWS
 	SleepConditionVariableCS(&v->var, &v->m->mutex, msec);

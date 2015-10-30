@@ -1,19 +1,56 @@
 
-#ifndef _included_terra_particle_h
-#define _included_terra_particle_h
+#ifndef _included_terra_thread_h
+#define _included_terra_thread_h
 
-//------------- Thread --------------//
+/**
+* Terra Thread
+*
+*   The purpose of this file is to provide threading
+*   functionality.
+*
+*   It currently provides threads, mutexes
+*   and condition variables.
+*
+*/
+
+//------------- TThread ---------------//
 
 typedef struct _TThread TThread;
 
-TThread *TThreadCreate(TThreadFunc fn, void *data);
+/**
+* Creates a thread and returns a handle
+*
+* @param fn                  the function the thread will execute
+* @param data                the data to be provided to the function
+*
+* @return                    a handle to a thread
+*
+*/
+TThread *TThreadCreate(TThreadFunc fn, TPtr data);
+
+
+/**
+* Wait for the thread to exit, destroy the handle and returns
+* the result.
+*
+* @param t                   The thread handle
+*
+* @return                    the output of the thread function
+*
+*/
 int TThreadJoin(TThread *t);
 
-void TThreadSleep(int ms);
+/**
+* Let the thread sleep for a specified amount of time
+*
+* @param ms                  The amount of time for the thread to sleep (in millisecond)
+*
+*/
+void TThreadSleep(TUInt32 ms);
 
-//------------- Mutex ---------------//
+//------------- TMutex ----------------//
 
-enum T_MUTEX_TYPET {
+enum T_MUTEX_TYPE {
 	T_MUTEX_NORMAL = 0,
 	T_MUTEX_RECURSIVE,
 	T_MUTEX_ERRORCHECK,
@@ -22,21 +59,88 @@ enum T_MUTEX_TYPET {
 
 typedef struct _TMutex TMutex;
 
-TMutex *TMutexNew(int type);
-void TMutexFree(TMutex *m);
+/**
+* Creates a new mutex
+*
+* @param type                The mutex type
+*
+* @return                    a mutex handle
+*
+*/
+TMutex *TMutexNew(enum T_MUTEX_TYPE type);
 
-void TMutexLock(TMutex *m);
-void TMutexUnlock(TMutex *m);
+/**
+* Free a mutex
+*
+* @param handle              The mutex handle
+*
+*/
+void TMutexFree(TMutex *handle);
+
+/**
+* Enter critical section
+*
+* @param handle              The mutex handle
+*
+*/
+void TMutexLock(TMutex *handle);
+
+/**
+* Leave critical section
+*
+* @param handle              The mutex handle
+*
+*/
+void TMutexUnlock(TMutex *handle);
 
 //------- Condition Variable --------//
 
 typedef struct _TCV TCV;
 
-TCV *TCVNew(TMutex *m);
-void TCVFree(TCV *v);
+/**
+* Creates a new condition variable
+*
+* @param handle              a mutex handle
+*
+* @return                    a condition variable context
+*
+*/
+TCV *TCVNew(TMutex *handle);
 
-int  TCVSleep(TCV *v, size_t msec);
-void TCVWake(TCV *v);
-void TCVWakeSingle(TCV *v);
+/**
+* Free a condition variable
+*
+* @param context             a condition variable context
+*
+*/
+void TCVFree(TCV *context);
+
+/**
+* Let the thread sleep until a certain amount of time elapsed
+* or another thread wakes it.
+*
+* @param context             a condition variable context
+* @param msec                the sleep timeout
+*
+* @return                    an error code
+*
+*/
+int  TCVSleep(TCV *context, TUInt32 msec);
+
+/**
+* Wake all threads
+*
+* @param context             a condition variable context
+*
+*/
+void TCVWake(TCV *context);
+
+/**
+* Wake a single thread
+*
+* @param context             a condition variable context
+*
+*/
+void TCVWakeSingle(TCV *context);
 
 #endif
