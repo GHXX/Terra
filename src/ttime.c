@@ -83,7 +83,7 @@ double TTimeFetchTime()
 	return tCurrentTime;
 }
 
-void TTimeSleep(size_t msec) {
+void TTimeSleep(TUInt32 msec) {
 #ifdef _WINDOWS
 	Sleep(msec);
 #else
@@ -92,6 +92,12 @@ void TTimeSleep(size_t msec) {
 }
 
 //------------- TTimer ---------------//
+
+struct TTimer {
+	double start, stop;
+	double accumulation;
+	TUInt8 running;
+};
 
 TTimer *TTimerNew(void)
 {

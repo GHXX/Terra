@@ -13,6 +13,8 @@
 *
 */
 
+//------------- TTime ----------------//
+
 /**
 * Initialize The time measurement functions
 */
@@ -40,15 +42,11 @@ double TTimeFetchTime();
 * @param msec                The amount of sleep time, in millisecond
 *
 */
-void TTimeSleep(size_t msec);
+void TTimeSleep(TUInt32 msec);
 
 //------------- TTimer ---------------//
 
-typedef struct TTimer {
-	double start, stop;
-	double accumulation;
-	TUInt8 running;
-} TTimer;
+typedef struct TTimer TTimer;
 
 /**
 * Create a new timer
