@@ -13,6 +13,8 @@ const char *TErrorMessages[] = {
 	"Permission denied",
 	"Invalid Input",
 	"Operation not supported",
+	"Size exceeded",
+	"Not Initialized",
 };
 
 void TErrorReport(int code)

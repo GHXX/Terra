@@ -106,6 +106,42 @@ TTimer *TTimerNew(void)
 	return t;
 }
 
+void TTimerInit(TTimer *context)
+{
+	memset(context, 0, sizeof(TTimer));
+}
+
+void TTimerFree(TTimer *context)
+{
+	TFree(context);
+}
+
+void TTimerStart(TTimer *context)
+{
+	context->start = TTimeComputeTime();
+	context->running = 1;
+}
+
+void TTimerStop(TTimer *context)
+{
+	context->stop = TTimeComputeTime();
+	context->running = 0;
+	context->accumulation += context->stop - context->start;
+}
+
+double TTimerElapsed(TTimer *context)
+{
+	return (context->running ? TTimeComputeTime() : context->stop) - context->start;
+}
+
+double TTimerGetAccumulatedTime(TTimer *context)
+{
+	if (context->running)
+		return context->accumulation + (TTimeComputeTime() - context->start);
+
+	return context->accumulation;
+}
+
 #ifdef __cplusplus
 }
 #endif

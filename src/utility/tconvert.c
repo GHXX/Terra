@@ -141,12 +141,14 @@ char convertToChar(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (char)*(TUInt32 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (char)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (char)*(TUInt64 *)data;
 	}
+#endif
 	else if (type == T_DATA_FLOAT) {
 		return (char)*(float *)data;
 	}
@@ -183,12 +185,14 @@ TInt8 convertToInt8(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TInt8)*(TUInt32 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (TInt8)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (TInt8)*(TUInt64 *)data;
 	}
+#endif
 	else if (type == T_DATA_FLOAT) {
 		return (TInt8)*(float *)data;
 	}
@@ -228,12 +232,14 @@ TUInt8 convertToUInt8(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TUInt8)*(TUInt32 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (TUInt8)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (TUInt8)*(TUInt64 *)data;
 	}
+#endif
 	else if (type == T_DATA_FLOAT) {
 		return (TUInt8)*(float *)data;
 	}
@@ -267,12 +273,14 @@ TInt16 convertToInt16(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TInt16)*(TUInt32 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (TInt16)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (TInt16)*(TUInt64 *)data;
 	}
+#endif
 	else if (type == T_DATA_FLOAT) {
 		return (TInt16)*(float *)data;
 	}
@@ -309,12 +317,14 @@ TUInt16 convertToUInt16(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TUInt16)*(TUInt32 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (TUInt16)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (TUInt16)*(TUInt64 *)data;
 	}
+#endif
 	else if (type == T_DATA_FLOAT) {
 		return (TUInt16)*(float *)data;
 	}
@@ -351,12 +361,14 @@ TInt32 convertToInt32(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT16) {
 		return (TInt32)*(TUInt16 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (TInt32)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (TInt32)*(TUInt64 *)data;
 	}
+#endif
 	else if (type == T_DATA_FLOAT) {
 		return (TInt32)*(float *)data;
 	}
@@ -393,12 +405,14 @@ TUInt32 convertToUInt32(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT16) {
 		return (TUInt32)*(TUInt16 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (TUInt32)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (TUInt32)*(TUInt64 *)data;
 	}
+#endif
 	else if (type == T_DATA_FLOAT) {
 		return (TUInt32)*(float *)data;
 	}
@@ -410,6 +424,7 @@ TUInt32 convertToUInt32(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
+#ifdef _X86_64
 TInt64 convertToInt64(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_INT64) {
 		return *(TInt64 *)data;
@@ -493,6 +508,7 @@ TUInt64 convertToUInt64(TCPtr data, TUInt16 type) {
 	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
+#endif
 
 float convertToFloat(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_FLOAT) {
@@ -525,12 +541,14 @@ float convertToFloat(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (float)*(TUInt32 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (float)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (float)*(TUInt64 *)data;
 	}
+#endif
 
 	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
@@ -570,12 +588,14 @@ double convertToDouble(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (double)*(TUInt32 *)data;
 	}
+#ifdef _X86_64
 	else if (type == T_DATA_INT64) {
 		return (double)*(TInt64 *)data;
 	}
 	else if (type == T_DATA_UINT64) {
 		return (double)*(TUInt64 *)data;
 	}
+#endif
 
 	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;

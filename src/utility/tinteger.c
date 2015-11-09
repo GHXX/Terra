@@ -7,15 +7,15 @@
 
 int *TIntegerToPtr(int data)
 {
-	int *i = (int *) TAlloc(sizeof(int));
+	int *i = TAllocData(int);
 	if(!i) return 0;
 	*i = data;
 	return i;
 }
 
-size_t *TIntegerToPtrU(size_t data)
+TSize *TIntegerToPtrU(TSize data)
 {
-	size_t *i = (size_t *) TAlloc(sizeof(size_t));
+	TSize *i = TAllocData(TSize);
 	if(!i) return 0;
 	*i = data;
 	return i;

@@ -137,6 +137,7 @@ TInt32 convertToInt32(TCPtr data, TUInt16 type);
 */
 TUInt32 convertToUInt32(TCPtr data, TUInt16 type);
 
+#ifdef _X86_64
 /**
 * Converts data to a 64-bit integer representation.
 *
@@ -158,6 +159,7 @@ TInt64 convertToInt64(TCPtr data, TUInt16 type);
 *
 */
 TUInt64 convertToUInt64(TCPtr data, TUInt16 type);
+#endif
 
 /**
 * Converts data to a float representation.

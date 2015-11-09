@@ -14,9 +14,9 @@ typedef struct {
 	void *data;
 } HeapNode;
 
-HeapNode *THeapNodeNew(int priority, void *data)
+HeapNode *THeapNodeNew(int priority, TPtr data)
 {
-	HeapNode *node = (HeapNode *) malloc(sizeof(HeapNode));
+	HeapNode *node = TAllocData(HeapNode);
 	node->priority = priority;
 	node->data = data;
 	return node;
@@ -26,19 +26,19 @@ void THeapNodeFree(HeapNode *node, TFreeFunc func)
 {
 	if(node) {
 		if(func) func(node->data);
-		free(node);
+		TFree(node);
 	}
 }
 
 struct _THeap {
 	TArray data;
-	size_t count;
+	TSize count;
 	int type;
 };
 
 THeap *THeapNew(int type)
 {
-	THeap *h = (THeap *) TAlloc(sizeof(THeap));
+	THeap *h = TAllocData(THeap);
 	if(!h) return 0;
 
 	TArrayInit(&h->data,0);
@@ -52,7 +52,7 @@ void THeapFree(THeap *h, TFreeFunc func)
 {
 	if(h) {
 		THeapEmpty(h,func);
-		free(h);
+		TFree(h);
 	}
 }
 
@@ -62,64 +62,64 @@ void THeapEmpty(THeap *h, TFreeFunc func)
 	h->count = 0;
 }
 
-void THeapPush(THeap *h, int priority, void *data)
+void THeapPush(THeap *h, int priority, TPtr data)
 {
-	HeapNode *node = THeapNodeNew(priority,data), *p;
-	unsigned int index,parent;
+	HeapNode *node = THeapNodeNew(priority, data), *p;
+	unsigned int index, parent;
 
-	for(index = h->count++; index; index = parent)
+	for (index = h->count++; index; index = parent)
 	{
 		parent = (index - 1) >> 1;
-		p = (HeapNode *) TArrayGet(&h->data,parent);
-		if (h->type ? CMP(p,node) : DCMP(p,node)) break;
-		TArrayInsert(&h->data,p,index);
+		p = (HeapNode *)TArrayGet(&h->data, parent);
+		if (h->type ? CMP(p, node) : DCMP(p, node)) break;
+		TArrayInsert(&h->data, p, index);
 	}
-	TArrayInsert(&h->data,node,index);
+	TArrayInsert(&h->data, node, index);
 }
 
-void *THeapPop(THeap *h)
+TPtr THeapPop(THeap *h)
 {
 	unsigned int index = 0, swap, other;
 	
-	HeapNode *temp = (HeapNode *) TArrayGet(&h->data,0), *s, *o;
+	HeapNode *temp = (HeapNode *)TArrayGet(&h->data, 0), *s, *o;
 	void *data = temp->data;
 
-	THeapNodeFree(temp,0);
+	THeapNodeFree(temp, 0);
  
 	// Reorder the elements
 	while(1) {
 		// Find the child to swap with
 		swap = (index << 1) + 1;
 		if (swap >= h->count) break; // If there are no children, the heap is reordered
-		s = (HeapNode *) TArrayGet(&h->data,swap);
+		s = (HeapNode *)TArrayGet(&h->data, swap);
 
 		other = swap + 1;
 		if (other < h->count) {
-			o = (HeapNode *) TArrayGet(&h->data,other);
-			if (h->type ? CMP(o,s) : DCMP(o,s)) {
+			o = (HeapNode *)TArrayGet(&h->data, other);
+			if (h->type ? CMP(o, s) : DCMP(o, s)) {
 				swap = other;
 				s = o;
 			}
 		}
  
-		TArrayInsert(&h->data,s,index);
+		TArrayInsert(&h->data, s, index);
 		index = swap;
 	}
-	TArrayRemove(&h->data,index);
+	TArrayRemove(&h->data, index);
 
 	h->count--;
 
 	return data;
 }
 
-size_t THeapNumElements(THeap *h)
+TSize THeapNumElements(THeap *h)
 {
 	return h->count;
 }
 
 void THeapPrint(THeap *h, TIterFunc func)
 {
-	size_t i = 0, limit = h->data.len;
+	TSize i = 0, limit = h->data.len;
 	HeapNode *data;
 
 	printf("THeap content: ");

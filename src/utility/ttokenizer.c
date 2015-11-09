@@ -15,7 +15,7 @@ struct TTokenizer {
 	const char *separators;
 
 	char *buffer;
-	size_t bsize, tsize;
+	TSize bsize, tsize;
 	int offset;
 };
 
@@ -72,7 +72,7 @@ const char *prepareToken(TTokenizer context) {
 
 			// advance the buffer
 			{
-				size_t remainingSize = (context->bsize - context->offset) - 1;
+				TSize remainingSize = (context->bsize - context->offset) - 1;
 				memcpy(context->buffer,ptr,remainingSize * sizeof(char));
 				TRWReadBlock(context->content, context->buffer + remainingSize, context->offset);
 				context->offset = 0;

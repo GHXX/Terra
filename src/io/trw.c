@@ -13,28 +13,32 @@
 
 #define TRW_READ_ONLY_FLAG 1
 
+struct _TRW {
+	TRWOps operations;
+	TRWContent content;
+};
+
 struct TRWFile {
 	FILE *f;
 	unsigned char autoclose;
 };
 
-static size_t TRWFileSize(TRW *context)
+static TSize TRWFileSize(TRW *context)
 {
 	int now;
-	size_t size = 0;
-	struct TRWFile *content;
+	TSize size = 0;
+
 	if(!context->content) return 0;
-	content = (struct TRWFile *) context->content;
 
 	now = context->operations.tell(context);
-	fseek(content->f, 0, SEEK_END);
+	context->operations.seek(context, 0, SEEK_END);
 	size = context->operations.tell(context);
-	fseek(content->f, now, SEEK_SET);
+	context->operations.seek(context, now, SEEK_SET);
 
-	return size;
+	return size - now;
 }
 
-static int TRWFileSeek(TRW *context, int offset, int origin)
+static int TRWFileSeek(TRW *context, TSize offset, int origin)
 {
 	struct TRWFile *content;
 	if(!context->content) return 0;
@@ -52,7 +56,7 @@ static int TRWFileTell(TRW *context)
 	return ftell(content->f);
 }
 
-static char TRWFileEOF(TRW *context)
+static unsigned char TRWFileEOF(TRW *context)
 {
 	struct TRWFile *content;
 	if(!context->content) return 0;
@@ -61,7 +65,7 @@ static char TRWFileEOF(TRW *context)
 	return feof(content->f);
 }
 
-static size_t TRWFileRead(TRW *context, void *buffer, size_t size)
+static TSize TRWFileRead(TRW *context, TPtr buffer, TSize size)
 {
 	struct TRWFile *content;
 	if(!context->content || !buffer || !size) return 0;
@@ -72,7 +76,7 @@ static size_t TRWFileRead(TRW *context, void *buffer, size_t size)
 	return fread(buffer, 1, size, content->f);
 }
 
-static size_t TRWFileWrite(TRW *context, const void *buffer, size_t size)
+static TSize TRWFileWrite(TRW *context, TCPtr buffer, TSize size)
 {
 	struct TRWFile *content;
 	if(!context->content || !buffer || !size) return 0;
@@ -106,12 +110,14 @@ static TRWOps TRWFileOps = {
 //--- Default Buffer Operations ------------------------------//
 
 struct TRWBuffer {
-	char *buffer;
-	int size;
-	int offset;
+	unsigned char *buffer;
+	TSize size;
+	TSize offset;
+
+	unsigned char autofree;
 };
 
-static size_t TRWBufferSize(TRW *context)
+static TSize TRWBufferSize(TRW *context)
 {
 	struct TRWBuffer *content;
 	if(!context->content) return 0;
@@ -120,7 +126,7 @@ static size_t TRWBufferSize(TRW *context)
 	return content->size - content->offset;
 }
 
-static int TRWBufferSeek(TRW *context, int offset, int origin)
+static int TRWBufferSeek(TRW *context, TSize offset, int origin)
 {
 	struct TRWBuffer *content;
 	if(!context->content) return 0;
@@ -134,7 +140,7 @@ static int TRWBufferSeek(TRW *context, int offset, int origin)
 	} else {
 		content->offset = offset;
 	}
-	content->offset = TCLAMP(content->offset,0,content->size);
+	content->offset = TCLAMP(content->offset, 0, content->size);
 
 	return 0;
 }
@@ -148,7 +154,7 @@ static int TRWBufferTell(TRW *context)
 	return content->offset;
 }
 
-static char TRWBufferEOF(TRW *context)
+static unsigned char TRWBufferEOF(TRW *context)
 {
 	struct TRWBuffer *content;
 	if(!context->content) return 0;
@@ -157,34 +163,51 @@ static char TRWBufferEOF(TRW *context)
 	return content->offset >= content->size;
 }
 
-static size_t TRWBufferRead(TRW *context, void *buffer, size_t size)
+static TSize TRWBufferRead(TRW *context, TPtr buffer, TSize size)
 {
-	size_t cpysize;
+	TSize cpysize;
 	struct TRWBuffer *content;
 	if(!context->content || !buffer || !size) return 0;
 	content = (struct TRWBuffer *) context->content;
 
 	if(content->offset >= content->size) return 0;
 
-	cpysize = TMIN(size,(size_t) (content->size - content->offset));
-	memcpy(buffer,content->buffer + content->offset, sizeof(char) * cpysize);
+	cpysize = TMIN(size, (TSize) sizeof(unsigned char) * (content->size - content->offset));
+	memcpy(buffer,content->buffer + content->offset, cpysize);
 	content->offset += cpysize + 1;
 
 	return cpysize;
 }
 
-static size_t TRWBufferWrite(TRW *context, const void *buffer, size_t size)
+static TSize TRWBufferWrite(TRW *context, TCPtr buffer, TSize size)
 {
-	size_t cpysize;
 	struct TRWBuffer *content;
 	if(!context->content || !buffer || !size) return 0;
 	content = (struct TRWBuffer *) context->content;
 
-	cpysize = TMIN(size,(size_t) (content->size - content->offset));
-	memcpy(content->buffer + content->offset,buffer, sizeof(char) * cpysize);
-	content->offset += cpysize + 1;
+	if (content->offset + size > content->size) {
+		//attempt to increase buffer size
+		unsigned char *newBuffer = TRAlloc(content->buffer, content->offset + size);
+		if (newBuffer) content->buffer = newBuffer;
+		else size = (TSize) sizeof(char) * (content->size - content->offset);
+	}
 
-	return cpysize;
+	memcpy(content->buffer + content->offset, buffer, size);
+	content->offset = TCLAMP(size + 1, 0, content->size);
+
+	return size;
+}
+
+static int TRWBufferClose(TRW *context)
+{
+	struct TRWBuffer *content;
+	if (!context->content) return 0;
+	content = (struct TRWBuffer *) context->content;
+
+	if (content->autofree)
+		TFree(content->buffer);
+
+	return 0;
 }
 
 static TRWOps TRWBufferOps = {
@@ -194,7 +217,7 @@ static TRWOps TRWBufferOps = {
 	TRWBufferEOF,
 	TRWBufferRead,
 	TRWBufferWrite,
-	0,
+	TRWBufferClose,
 };
 
 //--- Terra Read Write ------------------------------//
@@ -209,7 +232,7 @@ TRW *TRWFromFile(const char *filename, const char *mode)
 {
 	if(!filename || !mode) return 0;
 
-	return TRWFromFilePointer(fopen(filename,mode),1);
+	return TRWFromFilePointer(fopen(filename, mode), 1);
 }
 
 TRW *TRWFromFilePointer(FILE *f, unsigned char autoclose)
@@ -218,10 +241,10 @@ TRW *TRWFromFilePointer(FILE *f, unsigned char autoclose)
 	struct TRWFile *file;
 	if(!f) return 0;
 
-	trw = (TRW *) TAlloc(sizeof(TRW));
+	trw = TAllocData(TRW);
 	if(!trw) return 0;
 
-	file = (struct TRWFile *) TAlloc(sizeof(struct TRWFile));
+	file = TAllocData(struct TRWFile);
 	if(!file) {
 		TFree(trw);
 		return 0;
@@ -234,23 +257,23 @@ TRW *TRWFromFilePointer(FILE *f, unsigned char autoclose)
 	trw->operations = TRWFileOps;
 
 #ifdef _WINDOWS
-	if(f->_flag&TRW_READ_ONLY_FLAG)
+	if (f->_flag&TRW_READ_ONLY_FLAG)
 		trw->operations.write = 0;
 #endif
 
 	return trw;
 }
 
-TRW *TRWFromMem(char *buffer, int size)
+TRW *TRWFromMem(unsigned char *buffer, TSize size, unsigned char autofree)
 {
 	TRW *trw;
 	struct TRWBuffer *buf;
 	if(!buffer || size <= 0) return 0;
 
-	trw = (TRW *) TAlloc(sizeof(TRW));
+	trw = TAllocData(TRW);
 	if(!trw) return 0;
 
-	buf = (struct TRWBuffer *) TAlloc(sizeof(struct TRWBuffer));
+	buf = TAllocData(struct TRWBuffer);
 	if(!buf) {
 		TFree(trw);
 		return 0;
@@ -259,6 +282,7 @@ TRW *TRWFromMem(char *buffer, int size)
 	buf->buffer = buffer;
 	buf->size = size;
 	buf->offset = 0;
+	buf->autofree = autofree;
 
 	trw->content = buf;
 	trw->operations = TRWBufferOps;
@@ -266,12 +290,12 @@ TRW *TRWFromMem(char *buffer, int size)
 	return trw;
 }
 
-TRW *TRWFromConstMem(const char *buffer, int size)
+TRW *TRWFromConstMem(const unsigned char *buffer, TSize size)
 {
 	TRW *trw;
 	if(!buffer || size <= 0) return 0;
 
-	trw = TRWFromMem((char *)buffer,size);
+	trw = TRWFromMem((char *)buffer, size, 1);
 	if(!trw) return 0;
 
 	trw->operations.write = 0;
@@ -279,16 +303,16 @@ TRW *TRWFromConstMem(const char *buffer, int size)
 	return trw;
 }
 
-TRW *TRWFromContent(TRWContent content)
+TRW *TRWFromContent(TRWContent content, const TRWOps ops)
 {
 	TRW *trw;
 	if(!content) return 0;
 
-	trw = (TRW *) TAlloc(sizeof(TRW));
+	trw = TAllocData(TRW);
 	if(!trw) return 0;
 
 	trw->content = content;
-	memset(&trw->operations,0,sizeof(TRWOps));
+	trw->operations = ops;
 
 	return trw;
 }
@@ -304,14 +328,14 @@ void TRWFree(TRW *context)
 	}
 }
 
-void TRWSetOps(TRW *context, const TRWOps *ops)
+void TRWSetOps(TRW *context, const TRWOps ops)
 {
 	if(context) {
-		context->operations = *ops;
+		context->operations = ops;
 	}
 }
 
-size_t TRWSize(TRW *context)
+TSize TRWSize(TRW *context)
 {
 	if(context) {
 		if(context->operations.size) {
@@ -326,11 +350,11 @@ size_t TRWSize(TRW *context)
 	return 0;
 }
 
-int TRWSeek(TRW *context, int offset, int origin)
+int TRWSeek(TRW *context, TSize offset, int origin)
 {
 	if(context) {
 		if(context->operations.seek) {
-			return context->operations.seek(context,offset,origin);
+			return context->operations.seek(context, offset, origin);
 		}
 
 		TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
@@ -356,7 +380,7 @@ int TRWTell(TRW *context)
 	return 0;
 }
 
-char TRWEOF(TRW *context)
+unsigned char TRWEOF(TRW *context)
 {
 	if(context) {
 		if(context->operations.eof) {
@@ -376,7 +400,7 @@ unsigned char TRWRead8(TRW *context)
 	if(context) {
 		if(context->operations.read) {
 			unsigned char buf;
-			context->operations.read(context,&buf,sizeof(char));
+			context->operations.read(context, &buf, sizeof(char));
 			return buf;
 		}
 
@@ -393,7 +417,7 @@ unsigned short TRWRead16(TRW *context)
 	if(context) {
 		if(context->operations.read) {
 			unsigned short buf;
-			context->operations.read(context,&buf,sizeof(short));
+			context->operations.read(context, &buf, sizeof(short));
 			return buf;
 		}
 
@@ -410,7 +434,7 @@ unsigned int TRWRead32(TRW *context)
 	if(context) {
 		if(context->operations.read) {
 			unsigned int buf;
-			context->operations.read(context,&buf,sizeof(int));
+			context->operations.read(context, &buf, sizeof(int));
 			return buf;
 		}
 
@@ -427,7 +451,7 @@ unsigned long long TRWRead64(TRW *context)
 	if(context) {
 		if(context->operations.read) {
 			unsigned long long buf;
-			context->operations.read(context,&buf,sizeof(long long));
+			context->operations.read(context, &buf, sizeof(long long));
 			return buf;
 		}
 
@@ -439,11 +463,11 @@ unsigned long long TRWRead64(TRW *context)
 	return 0;
 }
 
-size_t TRWReadBlock(TRW *context, char *buffer, size_t count)
+TSize TRWReadBlock(TRW *context, unsigned char *buffer, TSize count)
 {
 	if(context && buffer && count) {
 		if(context->operations.read) {
-			size_t end = context->operations.read(context,buffer,count);
+			size_t end = context->operations.read(context, buffer, count);
 			buffer[TMIN(end,count-1)] = '\0';
 			return end;
 		}
@@ -460,7 +484,7 @@ int TRWWrite8(TRW *context, unsigned char data)
 {
 	if(context) {
 		if(context->operations.write) {
-			return context->operations.write(context,&data,sizeof(char));
+			return context->operations.write(context, &data, sizeof(char));
 		}
 
 		TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
@@ -475,7 +499,7 @@ int TRWWrite16(TRW *context, unsigned short data)
 {
 	if(context) {
 		if(context->operations.write) {
-			return context->operations.write(context,&data,sizeof(short));
+			return context->operations.write(context, &data, sizeof(short));
 		}
 
 		TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
@@ -490,7 +514,7 @@ int TRWWrite32(TRW *context, unsigned int data)
 {
 	if(context) {
 		if(context->operations.write) {
-			return context->operations.write(context,&data,sizeof(int));
+			return context->operations.write(context, &data, sizeof(int));
 		}
 
 		TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
@@ -505,7 +529,7 @@ int TRWWrite64(TRW *context, unsigned long long data)
 {
 	if(context) {
 		if(context->operations.write) {
-			return context->operations.write(context,&data,sizeof(long long));
+			return context->operations.write(context, &data, sizeof(long long));
 		}
 
 		TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
@@ -516,11 +540,27 @@ int TRWWrite64(TRW *context, unsigned long long data)
 	return 1;
 }
 
-int TRWWriteBlock(TRW *context, const void *buffer, size_t size)
+int TRWWriteBlock(TRW *context, const unsigned char *buffer, TSize size)
 {
 	if(context && buffer && size) {
 		if(context->operations.write) {
-			return context->operations.write(context,buffer,sizeof(char) * size);
+			return context->operations.write(context, buffer, size);
+		}
+
+		TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+		return 0;
+	}
+
+	TErrorReport(T_ERROR_NULL_POINTER);
+	return 0;
+}
+
+int TRWWriteString(TRW *context, const char *buffer, TSize size)
+{
+	if (context && buffer) {
+		if (context->operations.write) {
+			if (!size) size = sizeof(char) * strlen(buffer);
+			return context->operations.write(context, buffer, size);
 		}
 
 		TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
@@ -535,9 +575,9 @@ void TRWWrite(TRW *context, const char *format,...)
 {
 	if(context && format) {
 		va_list list;
-		va_start(list,format);
+		va_start(list, format);
 
-		TRWWriteV(context,format,list);
+		TRWWriteV(context, format, list);
 
 		va_end(list);
 		return;
@@ -552,8 +592,8 @@ void TRWWriteV(TRW *context, const char *format, va_list list)
 	if(context && format) {
 		if(context->operations.write) {
 			char buffer[256];
-			int res = vsnprintf(buffer,sizeof(buffer),format,list);
-			context->operations.write(context,buffer,res);
+			int res = vsnprintf(buffer, sizeof(buffer), format, list);
+			context->operations.write(context, buffer, res);
 
 			if(res > sizeof(buffer)) {
 				//TODO

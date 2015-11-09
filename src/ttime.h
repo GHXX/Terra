@@ -31,7 +31,7 @@ double TTimeComputeTime();
 /**
 * Retrieve the previously computed 
 *
-* @return                    the previously computed time
+* @return                    The previously computed time
 *
 */
 double TTimeFetchTime();
@@ -51,7 +51,7 @@ typedef struct TTimer TTimer;
 /**
 * Create a new timer
 *
-* @return                    a pointer to an initialized timer
+* @return                    A pointer to an initialized timer
 *
 */
 TTimer *TTimerNew(void);
@@ -59,64 +59,53 @@ TTimer *TTimerNew(void);
 /**
 * Initialize/Reset the timer
 *
-* @param context             a pointer to a timer
+* @param context             A pointer to a timer
 *
 */
-static inline void TTimerInit(TTimer *context) { memset(context, 0, sizeof(TTimer)); }
+void TTimerInit(TTimer *context);
 
 /**
 * Free a timer
 *
-* @param context             a pointer to a timer
+* @param context             A pointer to a timer
 *
 */
-static inline void TTimerFree(TTimer *context) { TFree(context); }
+void TTimerFree(TTimer *context);
 
 /**
 * Starts the timer
 *
-* @param context             a pointer to a timer
+* @param context             A pointer to a timer
 *
 */
-static inline void TTimerStart(TTimer *context) { context->start = TTimeComputeTime(); context->running = 1; }
+void TTimerStart(TTimer *context);
 
 /**
 * Stops the timer
 *
-* @param context             a pointer to a timer
+* @param context             A pointer to a timer
 *
 */
-static inline void TTimerStop(TTimer *context) {
-	context->stop = TTimeComputeTime();
-	context->running = 0;
-	context->accumulation += context->stop - context->start;
-}
+void TTimerStop(TTimer *context);
 
 /**
 * Returns the amount of time elapsed since the last time the timer started.
 *
-* @param context             a pointer to a timer
+* @param context             A pointer to a timer
 *
-* @return                    the amount of time elapsed
+* @return                    The amount of time elapsed
 *
 */
-static inline double TTimerElapsed(TTimer *context) {
-	return (context->running ? TTimeComputeTime() : context->stop) - context->start;
-}
+double TTimerElapsed(TTimer *context);
 
 /**
 * Returns the amount of time accumulated since the beginning.
 *
-* @param context             a pointer to a timer
+* @param context             A pointer to a timer
 *
-* @return                    the amount of time accumulated
+* @return                    The amount of time accumulated
 *
 */
-static inline double TTimerGetAccumulatedTime(TTimer *context) {
-	if (context->running)
-		return context->accumulation + (TTimeComputeTime() - context->start);
-		
-	return context->accumulation;
-}
+double TTimerGetAccumulatedTime(TTimer *context);
 
 #endif

@@ -2,7 +2,7 @@
 #ifndef __included_terra_arg_parser_h
 #define __included_terra_arg_parser_h
 
-void TArgParserInit(void);
+void TArgParserInit(int argc, const char **argv);
 void TArgParserDestroy(void);
 
 /**
@@ -10,12 +10,14 @@ void TArgParserDestroy(void);
  *
  * @param name                The name of the argument. Only used for switches.
  * @param type                The type of the argument. Check printf.
- * @param amount              The amount of arguments allowed. '?' or NULL for 0 or 1, '0-9' for fixed or '+' for any.
+ * @param amount              The amount of arguments allowed. '?' for 0 or 1, '0-9' for fixed or '+' for any.
  * @param def                 The default argument if none is provided (unused)
  * @param help                A description of the argument. used when printing usage.
  *
+ * @return                    A value reprensenting the argument
+ *
  */
-void TArgParserAddArgument(const char *name, char type, char amount, char def, const char *help);
+TUInt8 TArgParserAddArgument(const char *name, TUInt8 type, TUInt8 amount, TUInt8 def, const char *help);
 
 /**
  * Output the usage to stdout
@@ -24,28 +26,19 @@ void TArgParserAddArgument(const char *name, char type, char amount, char def, c
 void TArgParserHelp(void);
 
 /**
- * Give the parser the data to parse
+ * Parse and return the next argument.
  *
- * @param argc                The amount of arguments.
- * @param argv                The arguments.
- *
- */
-void TArgParserFeed(int argc, const char **argv);
-
-/**
- * Parse arguments.
- *
- * @return                    The current argument.
+ * @return                    The next argument.
  *
  */
-const char *TArgParserNext(void);
+TUInt8 TArgParserNext(void);
 
 /**
- * Parse argument parameters.
+ * Parse and return the next argument parameter.
  *
  * @return                    The current parameter for the argument.
  *
  */
-const void *TArgParserNextParameter(void);
+TCPtr TArgParserNextParameter(void);
 
 #endif

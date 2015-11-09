@@ -2,7 +2,7 @@
 #ifndef __included_terra_integer_h
 #define __included_terra_integer_h
 
-static inline size_t TIntegerUpperPowerOfTwo(size_t v)
+static inline TSize TIntegerUpperPowerOfTwo(TSize v)
 {
     v--;
     v |= v >> 1;
@@ -10,6 +10,9 @@ static inline size_t TIntegerUpperPowerOfTwo(size_t v)
     v |= v >> 4;
     v |= v >> 8;
     v |= v >> 16;
+#ifdef _X86_64
+	v |= v >> 32;
+#endif
     v++;
 
     return v;
@@ -30,6 +33,6 @@ static inline int TIntegerCompare(const int *a,const int *b)
 }
 
 int *TIntegerToPtr(int data);
-size_t *TIntegerToPtrU(size_t data);
+TSize *TIntegerToPtrU(TSize data);
 
 #endif

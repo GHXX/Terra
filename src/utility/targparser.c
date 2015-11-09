@@ -13,9 +13,9 @@
 typedef struct {
 	const char *name;
 
-	char type;
-	char amount;
-	char def;
+	TUInt8 type;
+	TUInt8 amount;
+	TUInt8 def;
 
 	const char *help;
 
@@ -23,7 +23,7 @@ typedef struct {
 } TArg;
 
 typedef struct {
-	void *param;
+	TPtr param;
 	size_t remainingParams;
 	char paramtype;
 	char paramdef;
@@ -40,9 +40,12 @@ static struct {
 	int idx;
 } TArgParser;
 
-void TArgParserInit(void)
+void TArgParserInit(int argc, const char **argv)
 {
 	memset(&TArgParser,0, sizeof(TArgParser));
+	TArgParser.argFormat = TArrayNew(1);
+	TArgParser.argc = argc - 1;
+	TArgParser.argv = argv + 1;
 }
 
 void TArgParserDestroy(void)
@@ -51,21 +54,28 @@ void TArgParserDestroy(void)
 	TFree(TArgParser.ph.param);
 }
 
-void TArgParserAddArgument(const char *name, char type, char amount, char def, const char *help)
+TUInt8 TArgParserAddArgument(const char *name, TUInt8 type, TUInt8 amount, TUInt8 def, const char *help)
 {
-	TArg *arg = (TArg *) TAlloc(sizeof(TArg));
+	TArg *arg;
+
+	if (TArgParser.argFormat->len > UCHAR_MAX - 2) {
+		TErrorReport(T_ERROR_SIZE_EXCEEDED);
+		return -1;
+	}
+
+	arg = (TArg *) TAlloc(sizeof(TArg));
 	if(arg) {
 		arg->name = name;
 		arg->type = type;
 		arg->amount = amount;
 		arg->def = def;
 		arg->help = help;
-		arg->used = 0;
+		arg->used = 0; 
 
-		if(!TArgParser.argFormat) TArgParser.argFormat = TArrayNew(1);
-
-		TArrayAppend(TArgParser.argFormat, arg);
+		return (TUInt8) TArrayAppend(TArgParser.argFormat, arg);
 	}
+
+	return -1;
 }
 
 void TArgParserHelp(void)
@@ -74,59 +84,55 @@ void TArgParserHelp(void)
 	//fprintf(stdout,"");
 }
 
-void TArgParserFeed(int argc, const char **argv)
-{
-	TArgParser.argc = argc-1;
-	TArgParser.argv = argv+1;
-}
-
 static inline unsigned char TArgParserIsSwitch(const char *arg)
 {
 	return (*arg == '-');
 }
 
-static TArg *TArgParserMatchSwitch(const char *pattern)
+static TArg *TArgParserMatchSwitch(const char *pattern, TUInt8 *index)
 {
 	TArg *c = 0;
 	void **data;
-	size_t len, idx = 0;
+	TUInt8 len, idx = 0;
 
-	if(!TArgParser.argFormat) return 0;
 	data = TArgParser.argFormat->data;
-	len = TArgParser.argFormat->len;
+	len = (TUInt8) TArgParser.argFormat->len;
 	
 	while (idx < len) {
 		c = (TArg *) data[idx++];
-		if(c->name && !strcmp(c->name,pattern))
+		if (c->name && !strcmp(c->name, pattern)) {
+			if (index) *index = idx - 1;
 			return c;
+		}
 	}
 
 	return 0;
 }
 
-static TArg *TArgParserMatchNonSwitch(void)
+static TArg *TArgParserMatchNonSwitch(TUInt8 *index)
 {
 	TArg *c = 0;
 	void **data;
-	size_t len, idx = 0;
+	TUInt8 len, idx = 0;
 
-	if(!TArgParser.argFormat) return 0;
 	data = TArgParser.argFormat->data;
-	len = TArgParser.argFormat->len;
+	len = (TUInt8) TArgParser.argFormat->len;
 	
 	while (idx < len) {
 		c = (TArg *) data[idx++];
-		if(c->name && !TArgParserIsSwitch(c->name))
+		if (c->name && !TArgParserIsSwitch(c->name)) {
+			if (index) *index = idx - 1;
 			return c;
+		}
 	}
 
 	return 0;
 }
 
-static size_t TArgParserNumData(int idx,size_t limit)
+static TUInt32 TArgParserNumData(int idx, TUInt32 limit)
 {
 	int peek = idx;
-	size_t amount = 0;
+	TUInt32 amount = 0;
 
 	while(peek < TArgParser.argc) {
 		if(TArgParserIsSwitch(TArgParser.argv[peek++])) break;
@@ -137,24 +143,24 @@ static size_t TArgParserNumData(int idx,size_t limit)
 	return amount;
 }
 
-static size_t TArgParserAmountLimit(const char format)
+static TUInt32 TArgParserAmountLimit(const char format)
 {
 	if(!format || format == '0') {
 		return 0;
 	} else if(format == '?') {
 		return 1;
-	} else if(format > '0' && format <= '9') {
+	} else if(isDigit(format)) {
 		return format - '0';
 	}
 
 	return TArgParser.argc - TArgParser.idx;
 }
 
-static unsigned char TArgParserIsAmountValid(const char format, size_t amount)
+static unsigned char TArgParserIsAmountValid(const char format, TUInt32 amount)
 {
-	size_t limit = TArgParserAmountLimit(format);
+	TUInt32 limit = TArgParserAmountLimit(format);
 
-	if(format >= '0' && format <= '9')
+	if (isDigit(format))
 		return amount == limit;
 
 	return amount <= limit;
@@ -235,9 +241,9 @@ static inline void TArgParserStoreParam(char type, char def, size_t amount)
 	TArgParser.ph.remainingParams = amount;
 }
 
-const char *TArgParserNext(void)
+TUInt8 TArgParserNext(void)
 {
-	const char *next = 0;
+	TUInt8 arg;
 
 	// maybe we have reached the end already
 	if(!TArgParser.argv || (TArgParser.idx >= TArgParser.argc)) {
@@ -245,7 +251,7 @@ const char *TArgParserNext(void)
 			TFree(TArgParser.ph.param);
 			TArgParser.ph.param = 0;
 		}
-		return next;
+		return -1;
 	}
 
 	if(TArgParser.ph.remainingParams) {
@@ -253,35 +259,37 @@ const char *TArgParserNext(void)
 		TArgParserStoreParam(0,0,0);
 	}
 
-	while((!next) && (TArgParser.idx < TArgParser.argc)) {
+	while((TArgParser.idx < TArgParser.argc)) {
 		TArg *pat;
 
-		next = TArgParser.argv[TArgParser.idx];
+		const char *next = TArgParser.argv[TArgParser.idx];
 		if(!next) {
-			TErrorReport(2);
-			return 0;
+			TErrorReport(T_ERROR_NULL_POINTER);
+			return -1;
 		}
 
 		if(TArgParserIsSwitch(next)) {
 			//argument is a switch
 			//find matching pattern
-			pat = TArgParserMatchSwitch(next);
+			pat = TArgParserMatchSwitch(next, &arg);
 			TArgParser.idx++;
 		} else {
-			pat = TArgParserMatchNonSwitch();
+			pat = TArgParserMatchNonSwitch(&arg);
 		}
 
-		if(TArgParserCheck(pat,next)) return 0;
+		if (TArgParserCheck(pat, next)) return -1;
 
 		{
 			// keep parameters ready
 			size_t limit = TArgParserAmountLimit(pat->amount);
 			size_t amount = TArgParserNumData(TArgParser.idx, limit);
-			if(amount) TArgParserStoreParam(pat->type,pat->def,amount);
+			if (amount) TArgParserStoreParam(pat->type, pat->def, amount);
 		}
+
+		break;
 	}
 
-	return next;
+	return arg;
 }
 
 const void *TArgParserNextParameter(void)

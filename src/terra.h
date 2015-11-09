@@ -51,7 +51,6 @@ static inline void TerraInitialize(FILE *logfile)
 	TIOInitialize();
 	TTimeInitialise();
 	TRandInitialize(42);
-	TArgParserInit();
 }
 
 static inline void TerraDestroy(void)

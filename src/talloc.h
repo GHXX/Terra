@@ -19,7 +19,7 @@
 * @return                    A pointer to the memory allocated
 *
 */
-TPtr TAlloc(TUInt64 size);
+TPtr TAlloc(TSize size);
 
 /**
 * Re-allocate a block of memory
@@ -29,7 +29,7 @@ TPtr TAlloc(TUInt64 size);
 * @return                    A pointer to the memory allocated
 *
 */
-TPtr TRAlloc(TPtr ptr, TUInt64 size);
+TPtr TRAlloc(TPtr ptr, TSize size);
 
 /**
 * De-allocate a block of memory
@@ -48,6 +48,8 @@ void TFree(TPtr ptr);
 * @param _free               The accessor function for de-allocating memory
 *
 */
-void TAllocSet(TPtr(*_alloc)(uint64_t), TPtr(*_ralloc)(TPtr, TUInt64), void(*_free) (TPtr));
+void TAllocSet(TPtr(*_alloc)(uint64_t), TPtr(*_ralloc)(TPtr, TSize), void(*_free) (TPtr));
+
+#define TAllocData(T) (T *) TAlloc(sizeof(T))
 
 #endif

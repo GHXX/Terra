@@ -20,10 +20,10 @@ typedef struct _TThread TThread;
 /**
 * Creates a thread and returns a handle
 *
-* @param fn                  the function the thread will execute
-* @param data                the data to be provided to the function
+* @param fn                  The function the thread will execute
+* @param data                The data to be provided to the function
 *
-* @return                    a handle to a thread
+* @return                    A handle to a thread
 *
 */
 TThread *TThreadCreate(TThreadFunc fn, TPtr data);
@@ -35,7 +35,7 @@ TThread *TThreadCreate(TThreadFunc fn, TPtr data);
 *
 * @param t                   The thread handle
 *
-* @return                    the output of the thread function
+* @return                    The output of the thread function
 *
 */
 int TThreadJoin(TThread *t);
@@ -64,7 +64,7 @@ typedef struct _TMutex TMutex;
 *
 * @param type                The mutex type
 *
-* @return                    a mutex handle
+* @return                    A mutex handle
 *
 */
 TMutex *TMutexNew(enum T_MUTEX_TYPE type);
@@ -100,9 +100,9 @@ typedef struct _TCV TCV;
 /**
 * Creates a new condition variable
 *
-* @param handle              a mutex handle
+* @param handle              A mutex handle
 *
-* @return                    a condition variable context
+* @return                    A condition variable context
 *
 */
 TCV *TCVNew(TMutex *handle);
@@ -110,7 +110,7 @@ TCV *TCVNew(TMutex *handle);
 /**
 * Free a condition variable
 *
-* @param context             a condition variable context
+* @param context             A condition variable context
 *
 */
 void TCVFree(TCV *context);
@@ -119,18 +119,18 @@ void TCVFree(TCV *context);
 * Let the thread sleep until a certain amount of time elapsed
 * or another thread wakes it.
 *
-* @param context             a condition variable context
-* @param msec                the sleep timeout
+* @param context             A condition variable context
+* @param msec                The sleep timeout
 *
-* @return                    an error code
+* @return                    An OS specific error code
 *
 */
-int  TCVSleep(TCV *context, TUInt32 msec);
+int TCVSleep(TCV *context, TUInt32 msec);
 
 /**
 * Wake all threads
 *
-* @param context             a condition variable context
+* @param context             A condition variable context
 *
 */
 void TCVWake(TCV *context);
@@ -138,7 +138,7 @@ void TCVWake(TCV *context);
 /**
 * Wake a single thread
 *
-* @param context             a condition variable context
+* @param context             A condition variable context
 *
 */
 void TCVWakeSingle(TCV *context);

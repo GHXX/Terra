@@ -22,14 +22,14 @@ extern "C" {
 
 struct _TData {
 	TCPtr data;
-	TUInt64 size;
+	TSize size;
 
 	TUInt16 type;
 };
 
 static inline TData *TDataNew(TUInt16 type)
 {
-	TData *content = (TData *)TAlloc(sizeof(TData));
+	TData *content = TAllocData(TData);
 	if (content) {
 		content->data = 0;
 		content->size = 0;
@@ -39,7 +39,7 @@ static inline TData *TDataNew(TUInt16 type)
 	return content;
 }
 
-TData *TDataFromPtr(TPtr data, TUInt64 size)
+TData *TDataFromPtr(TPtr data, TSize size)
 {
 	TData *content = TDataNew(data && size ? T_DATA_UNKNOWN : T_DATA_NULL);
 	if (content && data && size) {
@@ -153,6 +153,7 @@ TData *TDataFromUInt32(TUInt32 data)
 	return content;
 }
 
+#ifdef _X86_64
 TData *TDataFromInt64(TInt64 data)
 {
 	TData *content = TDataNew(T_DATA_INT64);
@@ -182,6 +183,7 @@ TData *TDataFromUInt64(TUInt64 data)
 
 	return content;
 }
+#endif
 
 TData *TDataFromConstString(const char *data)
 {
@@ -325,6 +327,7 @@ TUInt32 TDataToUInt32(const TData *context)
 	return 0;
 }
 
+#ifdef _X86_64
 TInt64 TDataToInt64(const TData *context)
 {
 	if (context) return convertToInt64(context->data, context->type);
@@ -336,6 +339,7 @@ TUInt64 TDataToUInt64(const TData *context)
 	if (context) return convertToUInt64(context->data, context->type);
 	return 0;
 }
+#endif
 
 float TDataToFloat(const TData *context)
 {

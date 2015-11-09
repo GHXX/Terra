@@ -35,12 +35,12 @@ void TProfileDestroy(TProfile *p)
 
 void TProfileStart(TProfile *p)
 {
-	p->timerStart = TTimeGetTime();
+	p->timerStart = TTimeComputeTime();
 }
 
 void TProfileStop(TProfile *p)
 {
-	const double duration = TTimeGetTime() - p->timerStart;
+	const double duration = TTimeComputeTime() - p->timerStart;
 
 	p->currentNumCalls++;
 	

@@ -94,9 +94,9 @@ struct _TMutex {
 	int type;
 };
 
-TMutex *TMutexNew(int type)
+TMutex *TMutexNew(enum T_MUTEX_TYPE type)
 {
-	TMutex *m = (TMutex *) TAlloc(sizeof(TMutex));
+	TMutex *m = TAllocData(TMutex);
 	m->type = type;
 
 #ifdef _WINDOWS

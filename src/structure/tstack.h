@@ -9,13 +9,13 @@ void TStackFree(TStack *stack, TFreeFunc func);
 
 void TStackEmpty(TStack *stack, TFreeFunc func);
 
-void TStackPush(TStack *stack, void *data);
-void *TStackPop(TStack *stack);
+void TStackPush(TStack *stack, TPtr data);
+TPtr TStackPop(TStack *stack);
 
-void *TStackPeek(TStack *stack);
+TPtr TStackPeek(TStack *stack);
 
-void TStackResize(TStack *stack,size_t _size);
+void TStackResize(TStack *stack, TSize _size);
 
-size_t TStackCount(TStack *stack);
+TSize TStackCount(TStack *stack);
 
 #endif

@@ -19,6 +19,16 @@ static inline char *TStringUpr(char *s) {
 	return s;
 }
 
+static inline char isAlphabetCharacter(char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+static inline char isDigit(char c)
+{
+	return (c >= '0' && c <= '9');
+}
+
 int TStringCaseInsensitiveCompare(const char *str1, const char *str2);
 
 char *TStringCopy(const char *text);
@@ -89,7 +99,9 @@ TUInt16 stoui16(const char *str);
 
 TUInt32 stoui32(const char *str);
 
+#ifdef _X86_64
 TInt64 stoi64(const char *str);
 TUInt64 stoui64(const char *str);
+#endif
 
 #endif

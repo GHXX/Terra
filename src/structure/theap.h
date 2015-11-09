@@ -14,10 +14,10 @@ void THeapFree(THeap *h, TFreeFunc func);
 
 void THeapEmpty(THeap *h, TFreeFunc func);
 
-void THeapPush(THeap *h, int priority, void *data);
-void *THeapPop(THeap *h);
+void THeapPush(THeap *h, int priority, TPtr data);
+TPtr THeapPop(THeap *h);
 
-size_t THeapNumElements(THeap *h);
+TSize THeapNumElements(THeap *h);
 
 #ifdef _DEBUG
 void THeapPrint(THeap *h, TIterFunc func);

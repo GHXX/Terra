@@ -2,23 +2,23 @@
 #ifndef __included_terra_rand_h
 #define __included_terra_rand_h
 
-void TRandInitialize(size_t seed);
+void TRandInitialize(TSize seed);
 void TRandDestroy();
 
-void TRandSetSeed(size_t seed);
+void TRandSetSeed(TSize seed);
 
 unsigned char TRandBool(void);
 
-int TRandInteger(int begin,int end);
-size_t TRandUInteger(size_t begin,size_t end);
+int TRandInteger(int begin, int end);
+TSize TRandUInteger(TSize begin, TSize end);
 #define TRandRangeInteger(r) TRandInteger(0,r)
 
-void TRandUniqueIntegersArray(int offset,size_t range,int *intarray,size_t size);
+void TRandUniqueIntegersArray(int offset, TSize range, int *intarray, TSize size);
 
-size_t TRandPickOne(size_t start, size_t end, size_t reject);
+TSize TRandPickOne(TSize start, TSize end, TSize reject);
 
-double TRandDouble(double begin,double end);
+double TRandDouble(double begin, double end);
 
-int TRandNormal(size_t mean, size_t range, size_t clip);
+int TRandNormal(TSize mean, TSize range, TSize clip);
 
 #endif

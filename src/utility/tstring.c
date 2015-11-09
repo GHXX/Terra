@@ -568,6 +568,7 @@ TUInt32 stoui32(const char *str) {
 	return 0;
 };
 
+#ifdef _X86_64
 TInt64 stoi64(const char *str) {
 	size_t len = strlen(str);
 	if (len <= 20) {
@@ -609,3 +610,4 @@ TUInt64 stoui64(const char *str) {
 
 	return 0;
 };
+#endif

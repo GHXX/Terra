@@ -6,9 +6,9 @@
 #include <float.h>
 #include <limits.h>
 
-static size_t tRandSeed = UINT_MAX;
+static TSize tRandSeed = UINT_MAX;
 
-void TRandInitialize(size_t seed)
+void TRandInitialize(TSize seed)
 {
 	TRandSetSeed(seed);
 }
@@ -17,7 +17,7 @@ void TRandDestroy()
 {
 }
 
-void TRandSetSeed(size_t seed)
+void TRandSetSeed(TSize seed)
 {
 	srand(seed);
 	tRandSeed = seed;
@@ -28,29 +28,29 @@ unsigned char TRandBool(void)
 	return (TRandUInteger(0,UINT_MAX) & (1 << 15)) != 0;
 }
 
-int TRandInteger(int begin,int end)
+int TRandInteger(int begin, int end)
 {
 	return (int)(((double)rand() / RAND_MAX) * (end - begin) + begin);
 }
 
-size_t TRandUInteger(size_t begin,size_t end)
+TSize TRandUInteger(TSize begin,TSize end)
 {
-	return (size_t)(((double)rand() / RAND_MAX) * (end - begin) + begin);
+	return (TSize)(((double)rand() / RAND_MAX) * (end - begin) + begin);
 }
 
-void TRandUniqueIntegersArray(int offset,size_t range,int *intarray,size_t size)
+void TRandUniqueIntegersArray(int offset, TSize range, int *intarray, TSize size)
 {
 	if(!intarray) return;
 
 	if(range >= size)
 	{
-		size_t *integers = (size_t *) malloc(sizeof(size_t)*range);
-		size_t i = 0;
+		TSize *integers = (TSize *)malloc(sizeof(TSize)*range);
+		TSize i = 0;
 		for(; i < range; ++i) integers[i] = i;
 
 		for (i = 0; i < size; ++i) {
-			size_t r = TRandInteger(0,range);
-			size_t value = integers[r];
+			TSize r = TRandInteger(0,range);
+			TSize value = integers[r];
 			integers[r] = integers[--range];
 
 			intarray[i] = value + offset;
@@ -60,7 +60,7 @@ void TRandUniqueIntegersArray(int offset,size_t range,int *intarray,size_t size)
 	}
 }
 
-size_t TRandPickOne(size_t start, size_t end, size_t reject)
+TSize TRandPickOne(TSize start, TSize end, TSize reject)
 {
 	if (reject == start)		start++;
 	else if (reject == end-1)	end--;
@@ -70,12 +70,12 @@ size_t TRandPickOne(size_t start, size_t end, size_t reject)
 	return TRandInteger(start,end);
 }
 
-double TRandDouble(double begin,double end)
+double TRandDouble(double begin, double end)
 {
 	return (((double)rand() / RAND_MAX) * (end - begin) + begin);
 }
 
-int TRandNormal(size_t mean, size_t range, size_t clip)
+int TRandNormal(TSize mean, TSize range, TSize clip)
 {
 	//TODO : fix this
 	// Central limit theorm - Maybe upgrade to Box-Muller later
