@@ -17,8 +17,17 @@
 
 #define inline _inline
 #define snprintf _snprintf
+
+#ifdef _WIN64
+#define _X86_64
+#endif
+
 #elif defined(__linux) || defined(__linux__)
 #define _LINUX 1
+
+#ifdef __x86_64
+#define _X86_64
+#endif
 #endif
 
 #ifdef _MSC_VER
@@ -29,9 +38,7 @@
 #define stricmp _stricmp
 #endif
 
-#ifndef __unused_param
-#define __unused_param __attribute__ ((unused))
-#endif
+#define UNREFERENCED_PARAMETER(P) (P)
 
 #define TMAX(a,b)     ((a > b) ?  a : b)
 #define TMIN(a,b)     ((a < b) ?  a : b)
@@ -61,8 +68,15 @@ typedef signed short TInt16;
 typedef unsigned short TUInt16;
 typedef signed int TInt32;
 typedef unsigned int TUInt32;
+
+#ifdef _X86_64
 typedef signed long long TInt64;
 typedef unsigned long long TUInt64;
+
+typedef TUInt64 TSize;
+#else
+typedef TUInt32 TSize;
+#endif
 
 typedef void(*TFreeFunc) (TPtr);
 
