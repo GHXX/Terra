@@ -12,7 +12,7 @@ void stack_test_all(void)
 	int i;
 
 	//init
-	TStack stack = TStackNew();
+	TStack *stack = TStackNew();
 	TAssert(stack);
 
 	for(i = 0; i < 1000; ++i)

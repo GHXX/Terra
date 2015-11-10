@@ -4,6 +4,8 @@
 #include "utility/tfilesys.h"
 #include "terror.h"
 
+#include "utility/tstring.h"
+
 #include "test_utils.h"
 
 #include "reader_test.h"
@@ -44,9 +46,9 @@ void test_rw_buffer(void)
 	const char data[] = "amazing sample";
 	TRW *testrw;
 	char buf[32];
-	char *cpy = strdup(data);
+	char *cpy = TStringCopy(data);
 
-	testrw = TRWFromMem(cpy,sizeof(data));
+	testrw = TRWFromMem(cpy, sizeof(data), 1);
 	TAssert(testrw);
 	TAssert(TRWSize(testrw) == sizeof(data));
 
@@ -61,7 +63,6 @@ void test_rw_buffer(void)
 	TAssert(!strcmp("4m4z1ng sample",buf));
 
 	TRWFree(testrw);
-	free(cpy);
 }
 
 void rw_test(void)

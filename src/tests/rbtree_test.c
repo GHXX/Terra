@@ -7,9 +7,9 @@
 
 #include "test_utils.h"
 
-void rbtree_test_iteration(const TRBTree tree)
+void rbtree_test_iteration(const TRBTree *tree)
 {
-	TRBTreeIterator iter;
+	TRBTreeIterator *iter;
 	int *key, *data;
 	int i = 0;
 
@@ -36,7 +36,7 @@ void rbtree_test_iteration(const TRBTree tree)
 
 void rbtree_test_all(void)
 {
-	TRBTree tree;
+	TRBTree *tree;
 	int i;
 	unsigned char f = 0;
 	int testv = 50;

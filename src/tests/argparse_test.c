@@ -3,14 +3,18 @@
 
 #include "test_utils.h"
 
+static TUInt8 inputArg;
+static TUInt8 pArg;
+static TUInt8 mathArg;
+
 void argparse_arguments(void)
 {
-	TArgParserAddArgument("input",'c','1','z',0);
-	TArgParserAddArgument("-p",'s','1',0,0);
-	TArgParserAddArgument("--math",0,'0',0,0);
+	inputArg = TArgParserAddArgument("input", 'c', '1', 'z', 0);
+	pArg = TArgParserAddArgument("-p", 's', '1', 0, 0);
+	mathArg = TArgParserAddArgument("--math", 0, '0', 0, 0);
 }
 
-void argparse_feed(void)
+void argparse_init(void)
 {
 	static const char *content[] = {
 		"Terra.exe",
@@ -19,35 +23,34 @@ void argparse_feed(void)
 		"a",
 		"--math"
 	};
-	TArgParserFeed(4,content+1);
+	TArgParserInit(5,content);
 }
 
 void argparse_run(void)
 {
 	const void *data;
-	const char *out = 0;
+	TUInt8 out = 0;
 
 	while((out = TArgParserNext())) {
-		if(!strcmp(out,"--math")) {
+		if (out == inputArg) {
 			data = TArgParserNextParameter();
 			TAssert(!data);
-		} else if (!strcmp(out,"-p")) {
+		} else if (out == pArg) {
 			data = TArgParserNextParameter();
 			TAssert(data);
-			TAssert(!strcmp("bleh",(const char *) data));
+			TAssert(!strcmp("bleh", (const char *)data));
 		} else if (out) {
-			printf("%s\n",out);
+			printf("%s\n", out);
 		}
 	}
-	printf("%s",TErrorGetString());
+	printf("%s", TErrorGetString());
 }
 
 void argparse_test(void)
 {
-	TArgParserInit();
+	argparse_init();
 
 	argparse_arguments();
-	argparse_feed();
 
 	argparse_run();
 
