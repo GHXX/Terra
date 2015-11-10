@@ -7,6 +7,8 @@
 #ifndef _WINDOWS
 #include <X11/Xlib.h>
 #include <dirent.h>
+
+#include "utility/ttokenizer.h"
 #endif
 
 //--- TScreen ------------------------------//
@@ -16,7 +18,6 @@ int monitorEnum(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM p)
 {
 	struct Data {
 		TScreen *screens;
-		TUInt8 count;
 	} *data = (struct Data *) p;
 
 	TScreen *s = data->screens;
@@ -25,43 +26,53 @@ int monitorEnum(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM p)
 		rect->left, rect->top,
 		rect->right - rect->left, rect->bottom - rect->top);
 
-	data->count++;
 	data->screens++;
 
 	return 1;
 }
 #endif
 
-TScreens TScreensGetInf(void)
+TScreens *TScreensGetInf(void)
 {
-	TScreens scrs = { 0 };
+	TScreens *scrs = TAllocData(TScreens);
+	if (scrs) {
 #ifdef _WINDOWS
-	struct Data {
-		TScreen *screens;
-		TUInt8 count;
-	} data = { scrs.screens, 0 };
+		struct Data {
+			TScreen *screens;
+		} data = { 0 };
 
-	EnumDisplayMonitors(NULL,NULL,(MONITORENUMPROC) monitorEnum,(LPARAM) &data);
-	scrs.numScreens = data.count;
+		scrs->numScreens = GetSystemMetrics(SM_CMONITORS);
+		data.screens = scrs->screens = TAlloc(sizeof(TScreen) * scrs->numScreens);
+
+		EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)monitorEnum, (LPARAM)&data);
 #else
-	Display *dspl = XOpenDisplay(0);
+		Display *dspl = XOpenDisplay(0);
 
-	if(dspl) {
-		int i = 0, count = XScreenCount(dspl);
-		
-		scrs.numscreens = count;
-		
-		for(; i < count; i++) {
-			scrs.screens[i].dimensions.x = scrs.screens[i].dimensions.y = 0;
-			scrs.screens[i].dimensions.w = XDisplayWidth(dspl,i);
-			scrs.screens[i].dimensions.h = XDisplayHeight(dspl,i);
+		if(dspl) {
+			int i = 0, count = XScreenCount(dspl);
+
+			scrs.numscreens = count;
+
+			for(; i < count; i++) {
+				scrs.screens[i].dimensions.x = scrs.screens[i].dimensions.y = 0;
+				scrs.screens[i].dimensions.w = XDisplayWidth(dspl,i);
+				scrs.screens[i].dimensions.h = XDisplayHeight(dspl,i);
+			}
+
+			XCloseDisplay(dspl);
 		}
-
-		XCloseDisplay(dspl);
-	}
 #endif
+	}
 
 	return scrs;
+}
+
+void TScreensFree(TScreens *context)
+{
+	if (context) {
+		TFree(context->screens);
+		TFree(context);
+	}
 }
 
 //--- TMouse -------------------------------//
@@ -94,21 +105,54 @@ TCPU TCPUGetInf(void)
 	SYSTEM_INFO siSysInfo;
 	GetSystemInfo(&siSysInfo);
 
-	if (siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-		tcpu.architecture = TCPU_AMD64;
-	else if (siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM)
-		tcpu.architecture = TCPU_ARM;
-	else if (siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
-		tcpu.architecture = TCPU_ITANIUM;
-	else if (siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-		tcpu.architecture = TCPU_INTEL;
-
-	tcpu.numProcessors = (TUInt8) siSysInfo.dwNumberOfProcessors;
+	tcpu.numCores = (TUInt8)siSysInfo.dwNumberOfProcessors;
 
 	tcpu.supportedFeatures.SSE = IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
 	tcpu.supportedFeatures.SSE2 = IsProcessorFeaturePresent(PF_XMMI64_INSTRUCTIONS_AVAILABLE);
-	tcpu.supportedFeatures.SSE3 = IsProcessorFeaturePresent(PF_SSE3_INSTRUCTIONS_AVAILABLE);
-	tcpu.supportedFeatures.AVX = IsProcessorFeaturePresent(PF_XSAVE_ENABLED);
+	tcpu.supportedFeatures.SSSE3 = IsProcessorFeaturePresent(PF_SSE3_INSTRUCTIONS_AVAILABLE);
+	//tcpu.supportedFeatures.AVX = IsProcessorFeaturePresent(PF_XSAVE_ENABLED);
+
+#else
+	TRW *cpuinfoFile = TRWFromFile("/proc/cpuinfo", "rb");
+	if (cpuinfoFile) {
+
+		TTokenizer *tokenizer = TTokenizerNew(cpuinfoFile);
+		if (tokenizer) {
+			const char *field, *content;
+			int numCores = 0;
+			unsigned char hyperthreading = 0;
+
+			TTokenizerSetSeparators(tokenizer, ":\n\t\r");
+
+			while ((field = TTokenizerNext(tokenizer))) {
+				content = TTokenizerNext(tokenizer);
+				if (strstr(field,"processor")) {
+					tcpu.numCores += numCores * hyperthreading;
+					numCores = 0;
+					hyperthreading = 0;
+				} else if (strstr(field, "cpu cores")) {
+					numCores = atoi(content);
+				} else if(strstr(field, "flags")) {
+					if(strstr(content, "sse"))
+						tcpu.supportedFeatures.SSE = 1;
+
+					if(strstr(content, "sse2"))
+						tcpu.supportedFeatures.SSE2 = 1;
+
+					if(strstr(content, "ssse3"))
+						tcpu.supportedFeatures.SSSE3 = 1;
+
+					if(strstr(content, "ht"))
+						hyperthreading = 2;
+				}
+			}
+			tcpu.numCores += numCores * hyperthreading;
+
+			TTokenizerFree(tokenizer);
+		}
+
+		TRWFree(cpuinfoFile);
+	}
 #endif
 
 	return tcpu;
@@ -142,28 +186,44 @@ static inline void getDriveData(TDrive *tdrive, const char *root)
 #endif
 }
 
-TDrives TDrivesGetInf(void)
+TDrives *TDrivesGetInf(void)
 {
-	TDrives tdrives = { 0 };
+	TDrives *tdrives = TAllocData(TDrives);
 
+	if (tdrives) {
 #ifdef _WINDOWS
-	DWORD drives = GetLogicalDrives();
-	TUInt8 i = 0;
-	char driveRoot[] = "A:\\";
+		DWORD drives = GetLogicalDrives();
+		TUInt8 i = 0;
+		TDrive *ptr;
+		char driveRoot[] = "A:\\";
 
-	for (; i < 26; i++)
-	{
-		if (drives & (1 << i))
+		//count the number of drives
+		for (; i < 26; ++i) if (drives & (1 << i)) tdrives->numDrives++;
+
+		//add the drives to the structure
+		ptr = tdrives->drives = TAlloc(sizeof(TDrive) * tdrives->numDrives);
+		for (i = 0; i < 26; i++)
 		{
-			TDrive *drive = &tdrives.drives[tdrives.numDrives++];
-			drive->letter = 'A' + i;
-			driveRoot[0] = drive->letter;
-			getDriveData(drive, driveRoot);
+			if (drives & (1 << i))
+			{
+				ptr->letter = 'A' + i;
+				driveRoot[0] = ptr->letter;
+				getDriveData(ptr, driveRoot);
+				ptr++;
+			}
 		}
-	}
 #endif
+	}
 
 	return tdrives;
+}
+
+void TDrivesFree(TDrives *context)
+{
+	if (context) {
+		TFree(context->drives);
+		TFree(context);
+	}
 }
 
 TDrive TDriveGetInf(const char *root)

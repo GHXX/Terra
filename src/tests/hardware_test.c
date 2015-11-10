@@ -10,13 +10,15 @@
 
 void hardware_test_screen_inf(void)
 {
-	TScreens scrs = TScreensGetInf();
+	TScreens *scrs = TScreensGetInf();
 	TSize i = 0;
 
-	printf("  Screens: amount: %d\n",scrs.numScreens);
+	printf("  Screens: amount: %d\n",scrs->numScreens);
 
-	for (; i < scrs.numScreens; ++i)
-		printf("    screen %d: width: %d, height: %d\n", i, scrs.screens[i].dimensions.w, scrs.screens[i].dimensions.h);
+	for (; i < scrs->numScreens; ++i)
+		printf("    screen %d: width: %d, height: %d\n", i, scrs->screens[i].dimensions.w, scrs->screens[i].dimensions.h);
+
+	TScreensFree(scrs);
 }
 
 void hardware_test_mouse_inf(void)
@@ -40,10 +42,9 @@ void hardware_test_mouse_inf(void)
 void hardware_test_cpu_inf(void)
 {
 	TCPU tcpu = TCPUGetInf();
-	const char *archs[] = { "Unknown", "Intel", "AMD64", "ARM", "Itanium" };
 	unsigned char sep = 0;
 
-	printf("  CPU: Architecture : %s, Number Of Processors : %ld.\n", archs[tcpu.architecture], tcpu.numProcessors);
+	printf("  CPU: Number Of Logical Cores : %ld.\n", tcpu.numCores);
 	printf("       Supported toolsets: ");
 	
 	if (tcpu.supportedFeatures.SSE) {
@@ -59,19 +60,11 @@ void hardware_test_cpu_inf(void)
 		sep = 1;
 	}
 
-	if (tcpu.supportedFeatures.SSE3) {
+	if (tcpu.supportedFeatures.SSSE3) {
 		if (sep)
 			printf(", sse3");
 		else
 			printf("sse3");
-		sep = 1;
-	}
-
-	if (tcpu.supportedFeatures.AVX) {
-		if (sep)
-			printf(", avx");
-		else
-			printf("avx");
 		sep = 1;
 	}
 
@@ -90,16 +83,16 @@ void hardware_test_drive_inf(void)
 {
 	const char *sizes[] = { "Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
 	TDrive drive;
-	TDrives drives = TDrivesGetInf();
+	TDrives *drives = TDrivesGetInf();
 	TSize i = 0;
 
-	printf("  Drives: amount: %d\n", drives.numDrives);
+	printf("  Drives: amount: %d\n", drives->numDrives);
 
-	for (; i < drives.numDrives; ++i) {
+	for (; i < drives->numDrives; ++i) {
 		TUInt8 bestSize = 0;
 		const char *size;
 
-		drive = drives.drives[i];
+		drive = drives->drives[i];
 
 		while ((float)(drive.capacity / 1024) >= 1) {
 			bestSize++;
@@ -110,6 +103,8 @@ void hardware_test_drive_inf(void)
 
 		printf("    Drive %c: capacity: %llu%s, available: %llu%s\n", drive.letter, drive.capacity, size, drive.available, size);
 	}
+
+	TDrivesFree(drives);
 
 	drive = TDriveGetInf("C:\\");
 	printf("    C: capacity: %llu, available: %llu\n", drive.capacity, drive.available);
