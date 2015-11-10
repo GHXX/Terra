@@ -4,12 +4,14 @@
 
 #include "tdefine.h"
 
+#include "ttuple.h"
+
 typedef struct {
 	int x,y;
-	size_t w,h;
+	TSize w,h;
 } TRectangle;
 
-static inline void TRectangleSet(TRectangle *r,int x, int y, size_t w, size_t h)
+static inline void TRectangleSet(TRectangle *r,int x, int y, TSize w, TSize h)
 {
 	r->x = x;
 	r->y = y;
@@ -72,7 +74,7 @@ static inline void TRectangleMove(TRectangle *r, int x, int y)
 	r->y = y;
 }
 
-static inline void TRectangleResize(TRectangle *r, size_t w, size_t h)
+static inline void TRectangleResize(TRectangle *r, TSize w, TSize h)
 {
 	r->w = w;
 	r->h = h;

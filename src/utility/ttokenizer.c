@@ -73,7 +73,7 @@ const char *prepareToken(TTokenizer context) {
 			// advance the buffer
 			{
 				TSize remainingSize = (context->bsize - context->offset) - 1;
-				memcpy(context->buffer,ptr,remainingSize * sizeof(char));
+				memcpy(context->buffer, ptr, remainingSize * sizeof(char));
 				TRWReadBlock(context->content, context->buffer + remainingSize, context->offset);
 				context->offset = 0;
 				remainingSize = context->bsize - 1;

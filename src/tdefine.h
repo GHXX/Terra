@@ -68,11 +68,10 @@ typedef signed short TInt16;
 typedef unsigned short TUInt16;
 typedef signed int TInt32;
 typedef unsigned int TUInt32;
-
-#ifdef _X86_64
 typedef signed long long TInt64;
 typedef unsigned long long TUInt64;
 
+#ifdef _X86_64
 typedef TUInt64 TSize;
 #else
 typedef TUInt32 TSize;
