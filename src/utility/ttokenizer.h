@@ -4,7 +4,7 @@
 
 #include "io/trw.h"
 
-typedef struct TTokenizer *TTokenizer;
+typedef struct TTokenizer TTokenizer;
 
 /**
  * Create a new tokenizer
@@ -13,7 +13,7 @@ typedef struct TTokenizer *TTokenizer;
  * @return                    A tokenizer structure.
  *
  */
-TTokenizer TTokenizerNew(TRW *input);
+TTokenizer *TTokenizerNew(TRW *input);
 
 /**
  * Free a tokenizer
@@ -21,7 +21,7 @@ TTokenizer TTokenizerNew(TRW *input);
  * @param context             The tokenizer structure.
  *
  */
-void TTokenizerFree(TTokenizer context);
+void TTokenizerFree(TTokenizer *context);
 
 /**
  * Set the separators used to split tokens
@@ -30,7 +30,7 @@ void TTokenizerFree(TTokenizer context);
  * @param separators          The separators.
  *
  */
-void TTokenizerSetSeparators(TTokenizer context, const char *separators);
+void TTokenizerSetSeparators(TTokenizer *context, const char *separators);
 
 /**
  * Returns the next token
@@ -40,6 +40,6 @@ void TTokenizerSetSeparators(TTokenizer context, const char *separators);
  * @return                    The next token.
  *
  */
-const char *TTokenizerNext(TTokenizer context);
+const char *TTokenizerNext(TTokenizer *context);
 
 #endif

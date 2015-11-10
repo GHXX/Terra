@@ -19,10 +19,10 @@ struct TTokenizer {
 	int offset;
 };
 
-TTokenizer TTokenizerNew(TRW *input)
+TTokenizer *TTokenizerNew(TRW *input)
 {
 	if(input) {
-		TTokenizer tokenizer = (TTokenizer) TAlloc(sizeof(struct TTokenizer));
+		TTokenizer *tokenizer = TAllocData(TTokenizer);
 		if(tokenizer) {
 			memset(tokenizer,0,sizeof(struct TTokenizer));
 			tokenizer->content = input;
@@ -37,21 +37,21 @@ TTokenizer TTokenizerNew(TRW *input)
 	return 0;
 }
 
-void TTokenizerFree(TTokenizer context) {
+void TTokenizerFree(TTokenizer *context) {
 	if(context) {
 		TFree(context->buffer);
 		TFree(context);
 	}
 }
 
-void TTokenizerSetSeparators(TTokenizer context, const char *separators) {
+void TTokenizerSetSeparators(TTokenizer *context, const char *separators) {
 	if(!context) TError(T_ERROR_INVALID_INPUT);	
 
 	if(!separators) separators = TTokenizerDefaultSeparators;
 	context->separators = separators;
 }
 
-const char *prepareToken(TTokenizer context) {
+const char *prepareToken(TTokenizer *context) {
 	char *ptr;
 	size_t next;
 	
@@ -89,7 +89,7 @@ const char *prepareToken(TTokenizer context) {
 	return ptr;
 }
 
-const char *TTokenizerNext(TTokenizer context) {
+const char *TTokenizerNext(TTokenizer *context) {
 	if(!context) {
 		TErrorReport(T_ERROR_NULL_POINTER);
 		return 0;
