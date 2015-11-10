@@ -51,12 +51,13 @@ TScreens *TScreensGetInf(void)
 		if(dspl) {
 			int i = 0, count = XScreenCount(dspl);
 
-			scrs.numscreens = count;
+			scrs->numScreens = count;
+			scrs->screens = TAlloc(sizeof(TScreen) * scrs->numScreens);
 
 			for(; i < count; i++) {
-				scrs.screens[i].dimensions.x = scrs.screens[i].dimensions.y = 0;
-				scrs.screens[i].dimensions.w = XDisplayWidth(dspl,i);
-				scrs.screens[i].dimensions.h = XDisplayHeight(dspl,i);
+				scrs->screens[i].dimensions.x = scrs->screens[i].dimensions.y = 0;
+				scrs->screens[i].dimensions.w = XDisplayWidth(dspl,i);
+				scrs->screens[i].dimensions.h = XDisplayHeight(dspl,i);
 			}
 
 			XCloseDisplay(dspl);
@@ -122,12 +123,12 @@ TCPU TCPUGetInf(void)
 			int numCores = 0;
 			unsigned char hyperthreading = 0;
 
-			TTokenizerSetSeparators(tokenizer, ":\n\t\r");
+			TTokenizerSetSeparators(tokenizer, "\:\n\t\r");
 
 			while ((field = TTokenizerNext(tokenizer))) {
 				content = TTokenizerNext(tokenizer);
 				if (strstr(field,"processor")) {
-					tcpu.numCores += numCores * hyperthreading;
+					tcpu.numCores += numCores + (numCores * hyperthreading);
 					numCores = 0;
 					hyperthreading = 0;
 				} else if (strstr(field, "cpu cores")) {
@@ -143,10 +144,10 @@ TCPU TCPUGetInf(void)
 						tcpu.supportedFeatures.SSSE3 = 1;
 
 					if(strstr(content, "ht"))
-						hyperthreading = 2;
+						hyperthreading = 1;
 				}
 			}
-			tcpu.numCores += numCores * hyperthreading;
+			tcpu.numCores += numCores + (numCores * hyperthreading);
 
 			TTokenizerFree(tokenizer);
 		}
@@ -232,3 +233,4 @@ TDrive TDriveGetInf(const char *root)
 	getDriveData(&tdrive, root);
 	return tdrive;
 }
+

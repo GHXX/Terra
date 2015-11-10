@@ -44,7 +44,7 @@ void hardware_test_cpu_inf(void)
 	TCPU tcpu = TCPUGetInf();
 	unsigned char sep = 0;
 
-	printf("  CPU: Number Of Logical Cores : %ld.\n", tcpu.numCores);
+	printf("  CPU: Number Of Logical Cores : %d.\n", tcpu.numCores);
 	printf("       Supported toolsets: ");
 	
 	if (tcpu.supportedFeatures.SSE) {
@@ -62,9 +62,9 @@ void hardware_test_cpu_inf(void)
 
 	if (tcpu.supportedFeatures.SSSE3) {
 		if (sep)
-			printf(", sse3");
+			printf(", ssse3");
 		else
-			printf("sse3");
+			printf("ssse3");
 		sep = 1;
 	}
 
@@ -81,6 +81,7 @@ void hardware_test_ram_inf(void)
 
 void hardware_test_drive_inf(void)
 {
+#ifdef _WINDOWS
 	const char *sizes[] = { "Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
 	TDrive drive;
 	TDrives *drives = TDrivesGetInf();
@@ -111,6 +112,7 @@ void hardware_test_drive_inf(void)
 
 	drive = TDriveGetInf("Invalid");
 	printf("    invalid drive: capacity: %llu, available: %llu\n", drive.capacity, drive.available);
+#endif
 }
 
 

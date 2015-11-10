@@ -181,7 +181,7 @@ char *TStringReplace(const char *source, const char *match, const char *replacem
 	return result;
 }
 
-unsigned char TStringReplaceInplace(char *source, const char *match, const char *replacement, size_t limit) {
+TUInt8 TStringReplaceInplace(char *source, const char *match, const char *replacement, size_t limit) {
 	size_t repllen = 0;
 
 	if(source == 0 || match == 0 || replacement == 0)
@@ -471,13 +471,14 @@ TInt8 stoi8(const char *str) {
 		TInt8 convert = 0;
 		TInt8 offset = 1;
 		TUInt8 negative = str[0] == '-';
-		char i;
+		TUInt8 i;
 
 		if (negative) { str = str + 1; len--; }
 
-		for (i = (char)len - 1; i >= 0; i--) {
-			if (str[i] < '0' || str[i] > '9') return 0;
-			convert += (str[i] - '0') * offset;
+		for (i = (TUInt8)len - 1; i >= 0; i--) {
+			char c = str[i];
+			if (c < '0' || c > '9') return 0;
+			convert += (c - '0') * offset;
 			offset *= 10;
 		}
 
@@ -493,9 +494,9 @@ TUInt8 stoui8(const char *str) {
 	if (len < 4) {
 		TInt8 convert = 0;
 		TInt8 offset = 1;
-		char i;
+		TUInt8 i;
 
-		for (i = (char)len - 1; i >= 0; i--) {
+		for (i = (TUInt8)len - 1; i >= 0; i--) {
 			if (str[i] < '0' || str[i] > '9') return 0;
 			convert += (str[i] - '0') * offset;
 			offset *= 10;
@@ -513,11 +514,11 @@ TInt16 stoi16(const char *str) {
 		TInt16 convert = 0;
 		TInt16 offset = 1;
 		TUInt8 negative = str[0] == '-';
-		char i;
+		TUInt8 i;
 
 		if (negative) { str = str + 1; len--; }
 
-		for (i = (char)len - 1; i >= 0; i--) {
+		for (i = (TUInt8)len - 1; i >= 0; i--) {
 			if (str[i] < '0' || str[i] > '9') return 0;
 			convert += (str[i] - '0') * offset;
 			offset *= 10;
@@ -535,9 +536,9 @@ TUInt16 stoui16(const char *str) {
 	if (len < 6) {
 		TUInt16 convert = 0;
 		TUInt16 offset = 1;
-		char i;
+		TUInt8 i;
 
-		for (i = (char)len - 1; i >= 0; i--) {
+		for (i = (TUInt8)len - 1; i >= 0; i--) {
 			if (str[i] < '0' || str[i] > '9') return 0;
 			convert += (str[i] - '0') * offset;
 			offset *= 10;
@@ -554,9 +555,9 @@ TUInt32 stoui32(const char *str) {
 	if (len < 11) {
 		TUInt32 convert = 0;
 		TUInt32 offset = 1;
-		char i;
+		TUInt8 i;
 
-		for (i = (char)len - 1; i >= 0; i--) {
+		for (i = (TUInt8)len - 1; i >= 0; i--) {
 			if (str[i] < '0' || str[i] > '9') return 0;
 			convert += (str[i] - '0') * offset;
 			offset *= 10;
@@ -575,11 +576,11 @@ TInt64 stoi64(const char *str) {
 		TInt64 convert = 0;
 		TInt64 offset = 1;
 		TUInt8 negative = str[0] == '-';
-		char i;
+		TUInt8 i;
 
 		if (negative) { str = str + 1; len--; }
 
-		for (i = (char)len - 1; i >= 0; i--) {
+		for (i = (TUInt8)len - 1; i >= 0; i--) {
 			if (str[i] < '0' || str[i] > '9') return 0;
 			convert += (str[i] - '0') * offset;
 			offset *= 10;
@@ -597,9 +598,9 @@ TUInt64 stoui64(const char *str) {
 	if (len < 21) {
 		TUInt64 convert = 0;
 		TUInt64 offset = 1;
-		char i;
+		TUInt8 i;
 
-		for (i = (char)len - 1; i >= 0; i--) {
+		for (i = (TUInt8)len - 1; i >= 0; i--) {
 			if (str[i] < '0' || str[i] > '9') return 0;
 			convert += (str[i] - '0') * offset;
 			offset *= 10;
@@ -611,3 +612,4 @@ TUInt64 stoui64(const char *str) {
 	return 0;
 };
 #endif
+

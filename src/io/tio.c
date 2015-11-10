@@ -81,16 +81,16 @@ TRW *TIOGetRW(const char *filename,const char *mode)
 	return trw;
 }
 
-char *TIOGetBufferedFile(const char *filename, const char *mode, unsigned int *size)
+unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, unsigned int *size)
 {
-	char *buffer = 0;
+	unsigned char *buffer = 0;
 	unsigned int finalsize = 0;
-	
+
 	TRW *trw = TIOGetRW(filename,mode);
 	if(!trw) return 0;
 
 	finalsize = TRWSize(trw);
-	buffer = (char *) TAlloc(sizeof(char) * finalsize);
+	buffer = TAlloc(sizeof(unsigned char) * finalsize);
 	*size = TRWReadBlock(trw, buffer, finalsize);
 
 	TRWFree(trw);
@@ -115,3 +115,4 @@ void TIOClearSearchPath(void)
 	TSListFree(searchpaths,TFree);
 	TIOAddSearchPath(TIOGetApplicationPath());
 }
+

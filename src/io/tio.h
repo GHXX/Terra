@@ -12,7 +12,7 @@ void TIOParseArchive(const char *filename);
 
 FILE *TIOGetFile(const char *filename,const char *mode);
 TRW *TIOGetRW(const char *filename,const char *mode);
-char *TIOGetBufferedFile(const char *filename, const char *mode, size_t *size);
+unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, size_t *size);
 
 void TIOAddSearchPath(const char *path);
 void TIORemoveLastSearchPath(void);

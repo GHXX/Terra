@@ -8,6 +8,8 @@
 #include "talloc.h"
 #include "terror.h"
 
+#include <stdint.h>
+
 static inline int TArrayGrow(TArray *arr, TSize minsize)
 {
 	TSize newSize;

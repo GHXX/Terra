@@ -10,6 +10,8 @@
 
 #include "tstring.h"
 
+#include <limits.h>
+
 typedef struct {
 	const char *name;
 

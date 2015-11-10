@@ -7,7 +7,7 @@
 #include "terror.h"
 
 static const char *TTokenizerDefaultSeparators = " \n\t\r";
-static const size_t TTokenizerBufferMaxSize = 512;
+static const TSize TTokenizerBufferMaxSize = 512;
 
 struct TTokenizer {
 	TRW *content;
@@ -45,21 +45,28 @@ void TTokenizerFree(TTokenizer *context) {
 }
 
 void TTokenizerSetSeparators(TTokenizer *context, const char *separators) {
-	if(!context) TError(T_ERROR_INVALID_INPUT);	
+	if(!context) { TError(T_ERROR_INVALID_INPUT); }
 
-	if(!separators) separators = TTokenizerDefaultSeparators;
+	if(!separators)	separators = TTokenizerDefaultSeparators;
 	context->separators = separators;
 }
 
 const char *prepareToken(TTokenizer *context) {
 	char *ptr;
-	size_t next;
-	
+	TSize next;
+
 	do {
 		ptr = context->buffer + context->offset;
+
+		//remove starting separators
+		while(*ptr && strchr(context->separators, *ptr)) {
+			ptr++;
+			context->offset++;
+		}
+
 		next = strcspn(ptr, context->separators);
 		if(*(ptr+next) == 0) {
-			if(!context->tsize) {
+			if(TRWEOF(context->content)) {
 				//reached the end
 				return !next ? 0 : ptr;
 			}
@@ -74,14 +81,15 @@ const char *prepareToken(TTokenizer *context) {
 			{
 				TSize remainingSize = (context->bsize - context->offset) - 1;
 				memcpy(context->buffer, ptr, remainingSize * sizeof(char));
-				TRWReadBlock(context->content, context->buffer + remainingSize, context->offset);
+				TRWReadBlock(context->content, (unsigned char *)context->buffer + remainingSize, context->offset);
 				context->offset = 0;
 				remainingSize = context->bsize - 1;
 				next = 0;
 			}
 		} else {
 			*(ptr+next) = 0;
-			context->tsize -= next + 1;
+			if(context->tsize)
+				context->tsize -= next + 1;
 			context->offset += next + 1;
 		}
 	} while(!next);
@@ -95,17 +103,19 @@ const char *TTokenizerNext(TTokenizer *context) {
 		return 0;
 	}
 
-	if(!context->tsize) {
+	if(TRWEOF(context->content)) {
 		//nothing in there
 		return 0;
 	}
 
 	if(!context->buffer) {
-		context->bsize = TMIN(context->tsize + 1,TTokenizerBufferMaxSize);
+		context->bsize = TTokenizerBufferMaxSize;
+		if(context->tsize && context->tsize < context->bsize)
+			context->bsize = context->tsize;
 		context->buffer = TAlloc(context->bsize * sizeof(char));
-		
+
 		//feed buffer
-		TRWReadBlock(context->content, context->buffer, context->bsize);
+		TRWReadBlock(context->content, (unsigned char *) context->buffer, context->bsize);
 	}
 
 	return prepareToken(context);

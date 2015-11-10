@@ -28,6 +28,8 @@
 #ifdef __x86_64
 #define _X86_64
 #endif
+
+#define __STDC_LIMIT_MACROS 1
 #endif
 
 #ifdef _MSC_VER

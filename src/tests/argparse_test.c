@@ -40,7 +40,7 @@ void argparse_run(void)
 			TAssert(data);
 			TAssert(!strcmp("bleh", (const char *)data));
 		} else if (out) {
-			printf("%s\n", out);
+			printf("%d\n", out);
 		}
 	}
 	printf("%s", TErrorGetString());

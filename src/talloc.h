@@ -2,6 +2,8 @@
 #ifndef __included_terra_alloc_h
 #define __included_terra_alloc_h
 
+#include "tdefine.h"
+
 /**
 * Terra Memory Allocation
 *
@@ -43,12 +45,12 @@ void TFree(TPtr ptr);
 * Set Accessors to memory allocation functions. Use default function
 * if a parameter is set to null.
 *
-* @param _alloc              The accessor function for allocating memory
-* @param _ralloc             The accessor function for re-allocating memory
-* @param _free               The accessor function for de-allocating memory
+* @param allocFunc           The accessor function for allocating memory
+* @param rallocFunc          The accessor function for re-allocating memory
+* @param freeFunc            The accessor function for de-allocating memory
 *
 */
-void TAllocSet(TPtr(*_alloc)(uint64_t), TPtr(*_ralloc)(TPtr, TSize), void(*_free) (TPtr));
+void TAllocSet(TPtr(*allocFunc)(TSize), TPtr(*rallocFunc)(TPtr, TSize), void(*freeFunc) (TPtr));
 
 #define TAllocData(T) (T *) TAlloc(sizeof(T))
 

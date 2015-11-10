@@ -16,7 +16,7 @@ void test_rw_file(void)
 	const char filename[] = "test_file_for_testing";
 	TRW *testrw;
 	unsigned char character = 0;
-	char buffer[32];
+	unsigned char buffer[32];
 
 	test_create_file(filename,data);
 
@@ -30,7 +30,7 @@ void test_rw_file(void)
 
 	TRWReadBlock(testrw,buffer,32);
 
-	TAssert(!strcmp(data+1,buffer));
+	TAssert(!strcmp(data+1, (char *)buffer));
 
 	TRWSeek(testrw,0,SEEK_SET);
 
@@ -45,22 +45,22 @@ void test_rw_buffer(void)
 {
 	const char data[] = "amazing sample";
 	TRW *testrw;
-	char buf[32];
+	unsigned char buf[32];
 	char *cpy = TStringCopy(data);
 
-	testrw = TRWFromMem(cpy, sizeof(data), 1);
+	testrw = TRWFromMem((unsigned char *) cpy, sizeof(data), 1);
 	TAssert(testrw);
 	TAssert(TRWSize(testrw) == sizeof(data));
 
-	TRWReadBlock(testrw,buf,32);
-	TAssert(!strcmp(cpy,buf));
+	TRWReadBlock(testrw, buf, 32);
+	TAssert(!strcmp(cpy, (char *)buf));
 
 	TRWSeek(testrw,0,SEEK_SET);
-	TRWWriteBlock(testrw,"4m4z1ng", 6);
+	TRWWriteBlock(testrw, (const unsigned char *)"4m4z1ng", 6);
 	TRWSeek(testrw,0,SEEK_SET);
-	TRWReadBlock(testrw,buf,32);
+	TRWReadBlock(testrw, buf, 32);
 
-	TAssert(!strcmp("4m4z1ng sample",buf));
+	TAssert(!strcmp("4m4z1ng sample", (char *)buf));
 
 	TRWFree(testrw);
 }

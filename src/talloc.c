@@ -37,13 +37,13 @@ void TFree(TPtr ptr)
 	tfree(ptr);
 }
 
-void TAllocSet(TPtr (*_alloc)(TSize), TPtr (*_ralloc)(TPtr , TSize),void (*_free) (TPtr ))
+void TAllocSet(TPtr (*allocFunc)(TSize), TPtr (*rallocFunc)(TPtr , TSize),void (*freeFunc) (TPtr ))
 {
-	if(!_alloc) _alloc = allocDef;
-	if(!_ralloc) _ralloc = rAllocDef;
-	if(!_free) _free = free;
+	if(!allocFunc) allocFunc = allocDef;
+	if(!rallocFunc) rallocFunc = rAllocDef;
+	if(!freeFunc) freeFunc = free;
 
-	talloc = _alloc;
-	tralloc = _ralloc;
-	tfree = _free;
+	talloc = allocFunc;
+	tralloc = rallocFunc;
+	tfree = freeFunc;
 }

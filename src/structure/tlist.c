@@ -12,7 +12,7 @@ TListNode *TListNodeNew(void *data) {
 
 	node->next = node->previous = 0;
 	node->data = data;
-    return node;
+	return node;
 }
 
 static TListNode *TListFetch(TList *list,size_t index)
@@ -26,10 +26,10 @@ static TListNode *TListFetch(TList *list,size_t index)
 		list->previousindex = index;
 		list->previous = list->head;
 	}
-	
-    while (list->previous && index) {
-        list->previous = list->previous->next;
-        index -= 1;
+
+	while (list->previous && index) {
+		list->previous = list->previous->next;
+		index -= 1;
 	}
 
 	return list->previous;
@@ -74,11 +74,11 @@ int TListInsert(TList *list,void *data, size_t index)
 	TListNode *newnode = TListNodeNew(data);
 	if(!newnode) return 1;
 
-    if (!list->head) {
-        list->head = list->end = newnode;
+	if (!list->head) {
+		list->head = list->end = newnode;
 		list->previousindex = 0;
 	} else if (index >= list->len) {
-        list->end->next = newnode;
+		list->end->next = newnode;
 		newnode->previous = list->end;
 		list->end = newnode;
 		list->previousindex = list->len;
@@ -89,7 +89,7 @@ int TListInsert(TList *list,void *data, size_t index)
 		list->previousindex = 0;
 	} else {
 		TListNode *location = TListFetch(list,index);       
-        newnode->next = location;
+		newnode->next = location;
 		newnode->previous = location->previous;
 		location->previous = newnode->previous->next = newnode;
 		list->previousindex = index;
@@ -125,7 +125,7 @@ void *TListForeachData(TList *list, TDataIterFunc func, void *user_data)
 
 void *TListGet(TList *list,size_t index) {
 	TListNode *n = TListFetch(list,index);
-    
+
 	return n ? n->data : 0;
 }
 
@@ -133,12 +133,12 @@ int TListFind(TList *list,void *data)
 {
 	size_t idx = 0;
 	TListNode *n = list->head;
-	
+
 	while (n) {
 		if(n->data == data) break;
 		n = n->next; idx += 1;
 	}
-    
+
 	return n ? idx : -1;
 }
 
@@ -155,30 +155,30 @@ void *TListPopIndex(TList *list, size_t index) {
 		data = n->data;
 		TListRemovePtr(list,n);
 	}
-	
+
 	return data;
 }
 
 void TListRemove(TList *list, void *data) {
-    TListNode *n = list->head;
-    
-    while (n) {
+	TListNode *n = list->head;
+
+	while (n) {
 		if(n->data == data) break;
 		n = n->next;
 	}
-	
+
 	if(n) TListRemovePtr(list,n);
 }
 
 void TListRemoveIndex(TList *list, size_t index) {
-    TListNode *n = TListFetch(list,index);
-	
-    if(n) TListRemovePtr(list,n);
+	TListNode *n = TListFetch(list,index);
+
+	if(n) TListRemovePtr(list,n);
 }
 
 void TListRemovePtr(TList *list, TListNode *ptr) {
 	if (!list || !list->head || !ptr) return;
-    
+
 	if(ptr->next) ptr->next->previous = ptr->previous;
 	else list->end = ptr->previous;
 
@@ -198,13 +198,13 @@ TSListNode *TSListNodeNew(const void *data) {
 
 	node->next = 0;
 	node->data = data;
-    return node;
+	return node;
 }
 
 static TSListNode *TSListFetch(TSList *list,size_t index)
 {
 	if (index >= list->len) return 0;
-	
+
 	if(index >= list->previousindex) {
 		index-=list->previousindex;
 		list->previousindex += index;
@@ -213,11 +213,11 @@ static TSListNode *TSListFetch(TSList *list,size_t index)
 		list->previous = list->head;
 	}
 
-    while (list->previous && index) {
-        list->previous = list->previous->next;
-        index -= 1;
+	while (list->previous && index) {
+		list->previous = list->previous->next;
+		index -= 1;
 	}
-    
+
 	return list->previous;
 }
 
@@ -263,11 +263,11 @@ int TSListInsert(TSList *list, const void *data, size_t index)
 	TSListNode *newnode = TSListNodeNew(data);
 	if(!newnode) return 1;
 
-    if (!list->head) {
+	if (!list->head) {
 		list->head = list->end = newnode;
 		list->previousindex = 0;
 	} else if (index >= list->len) {
-        list->end = list->end->next = newnode;
+		list->end = list->end->next = newnode;
 		list->previousindex = list->len;
 	} else if (!index) {
 		newnode->next = list->head;
@@ -305,12 +305,11 @@ void TSListConcat(TSList *list,const TSList *list2)
 
 int TSListFind(const TList *list, const void *data)
 {
-	TSListNode * cur = (TSListNode *) list->head, *origin = 0;
+	TSListNode * cur = (TSListNode *) list->head;
 	int idx = 0;
-    
-    while (cur && cur->data != data) {
-		origin = cur;
-        cur = cur->next;
+
+	while (cur && cur->data != data) {
+		cur = cur->next;
 		idx++;
 	}
 
@@ -431,19 +430,19 @@ void *TSListPopIndex(TSList *list, size_t index) {
 			TSListRemovePtrFrom(list,0);
 		}
 	}
-	
+
 	return (void *) data;
 }
 
 void TSListRemove(TSList *list, const void *data) {
 	if(list) {
 		TSListNode *cur = list->head, *origin = 0;
-    
+
 		while (cur && cur->data != data) {
 			origin = cur;
 			cur = cur->next;
 		}
-	
+
 		if (cur) TSListRemovePtrFrom(list,origin);
 	}
 }
@@ -451,12 +450,12 @@ void TSListRemove(TSList *list, const void *data) {
 void TSListRemovePtr(TSList *list, TSListNode *ptr) {
 	if(list && ptr) {
 		TSListNode *cur = list->head, *origin = 0;
-    
+
 		while (cur && cur != ptr) {
 			origin = cur;
 			cur = cur->next;
 		}
-    
+
 		if (cur) TSListRemovePtrFrom(list,origin);
 	}
 }
@@ -464,7 +463,7 @@ void TSListRemovePtr(TSList *list, TSListNode *ptr) {
 void TSListRemoveIndex(TSList *list, size_t index) {
 	if(list) {
 		TSListNode *n = TSListFetch(list,index-1);
-    
+
 		if(n) if(n->next) TSListRemovePtrFrom(list,n);
 	}
 }
@@ -482,13 +481,13 @@ void TSListRemoveIndexes(TSList *list, size_t start, size_t range)
 }
 
 void TSListRemovePtrFrom(TSList *list, TSListNode *origin) {
-    if (!origin) {
-        if (list->end == list->head) list->end = 0;
-        list->head = list->head->next;
-        list->len -= 1;
+	if (!origin) {
+		if (list->end == list->head) list->end = 0;
+		list->head = list->head->next;
+		list->len -= 1;
 		if(list->previousindex == 0) list->previous = list->head;
 		else list->previousindex -= 1;
-        return;
+		return;
 	}
 
 	if(origin->next) {
