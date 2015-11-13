@@ -37,14 +37,9 @@ TMouse TMouseGetInf(void);
 
 //--- TCPU ---------------------------------//
 
-typedef struct {
-	TUInt8 numCores;
-	struct {
-		unsigned char SSE : 1;
-		unsigned char SSE2 : 1;
-		unsigned char SSSE3 : 1;
-	} supportedFeatures;
-} TCPU;
+#include <libcpuid.h>
+
+typedef struct cpu_id_t TCPU;
 
 TCPU TCPUGetInf(void);
 
@@ -59,12 +54,21 @@ TRAM TRAMGetInf(void);
 
 //--- TDrive -------------------------------//
 
+enum TDRIVE_TYPES {
+	TDRIVE_UNKNOWN,
+	TDRIVE_INTERNAL,
+	TDRIVE_REMOVABLE,
+	TDRIVE_OPTICAL,
+};
+
 typedef struct {
 #ifdef _WINDOWS
 	char letter;
 #endif
 	TUInt64 capacity;
 	TUInt64 available;
+
+	TUInt8 type;
 } TDrive;
 
 typedef struct {

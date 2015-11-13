@@ -42,30 +42,13 @@ void hardware_test_mouse_inf(void)
 void hardware_test_cpu_inf(void)
 {
 	TCPU tcpu = TCPUGetInf();
-	unsigned char sep = 0;
+	int i;
 
-	printf("  CPU: Number Of Logical Cores : %d.\n", tcpu.numCores);
-	printf("       Supported toolsets: ");
-	
-	if (tcpu.supportedFeatures.SSE) {
-		printf(" sse");
-		sep = 1;
-	}
+	printf("  CPU: Number Of Logical Cores : %d.\n", tcpu.total_logical_cpus);
+	printf("       Supported toolsets:");
 
-	if (tcpu.supportedFeatures.SSE2) {
-		if (sep)
-			printf(", sse2");
-		else
-			printf("sse2");
-		sep = 1;
-	}
-
-	if (tcpu.supportedFeatures.SSSE3) {
-		if (sep)
-			printf(", ssse3");
-		else
-			printf("ssse3");
-		sep = 1;
+	for (i = 0; i < NUM_CPU_FEATURES; ++i) {
+		if (tcpu.flags[i]) printf(" %s", cpu_feature_str(i));
 	}
 
 	printf("\n");
@@ -83,6 +66,7 @@ void hardware_test_drive_inf(void)
 {
 #ifdef _WINDOWS
 	const char *sizes[] = { "Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+	const char *types[] = { "Unknown", "Internal", "Removable", "Optical" };
 	TDrive drive;
 	TDrives *drives = TDrivesGetInf();
 	TSize i = 0;
@@ -91,18 +75,26 @@ void hardware_test_drive_inf(void)
 
 	for (; i < drives->numDrives; ++i) {
 		TUInt8 bestSize = 0;
-		const char *size;
+		const char *sizet, *sizea;
+		TUInt64 av, ca;
 
 		drive = drives->drives[i];
+		av = drive.available;
+		ca = drive.capacity;
+		sizea = sizes[0];
 
-		while ((float)(drive.capacity / 1024) >= 1) {
+		while ((float)(ca / 1024) >= 1) {
 			bestSize++;
-			drive.available = (TSize) (drive.available / 1024);
-			drive.capacity = (TSize)(drive.capacity / 1024);
+			if ((float)(av / 1024) >= 1) {
+				av = (TUInt64)(av / 1024);
+				sizea = sizes[bestSize];
+			}
+			ca = (TUInt64)(ca / 1024);
 		}
-		size = sizes[bestSize];
+		sizet = sizes[bestSize];
 
-		printf("    Drive %c: capacity: %llu%s, available: %llu%s\n", drive.letter, drive.capacity, size, drive.available, size);
+		printf("    Drive %c: type: %s, capacity: %llu%s, available: %llu%s\n",
+			drive.letter, types[drive.type], ca, sizet, av, sizea);
 	}
 
 	TDrivesFree(drives);

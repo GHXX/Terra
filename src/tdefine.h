@@ -61,6 +61,9 @@
 					y = p; \
 					}
 
+#define TBIT_GET(d,k) (d >> k) & 1
+#define TBYTE_ADVANCE(T,d,k) (T *)(((unsigned char *)d) + k)
+
 typedef void * TPtr;
 typedef const void * TCPtr;
 

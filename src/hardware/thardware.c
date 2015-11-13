@@ -7,8 +7,6 @@
 #ifndef _WINDOWS
 #include <X11/Xlib.h>
 #include <dirent.h>
-
-#include "utility/ttokenizer.h"
 #endif
 
 //--- TScreen ------------------------------//
@@ -100,63 +98,20 @@ TMouse TMouseGetInf(void)
 
 TCPU TCPUGetInf(void)
 {
-	TCPU tcpu = { 0 };
+	TCPU data = { 0 };
+	data.num_cores = data.num_logical_cpus = data.total_logical_cpus = 1;
 
-#ifdef _WINDOWS
-	SYSTEM_INFO siSysInfo;
-	GetSystemInfo(&siSysInfo);
+	if (cpuid_present()) {
+		struct cpu_raw_data_t raw;
+		
+		if (cpuid_get_raw_data(&raw) < 0)
+			return data;
 
-	tcpu.numCores = (TUInt8)siSysInfo.dwNumberOfProcessors;
-
-	tcpu.supportedFeatures.SSE = IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
-	tcpu.supportedFeatures.SSE2 = IsProcessorFeaturePresent(PF_XMMI64_INSTRUCTIONS_AVAILABLE);
-	tcpu.supportedFeatures.SSSE3 = IsProcessorFeaturePresent(PF_SSE3_INSTRUCTIONS_AVAILABLE);
-	//tcpu.supportedFeatures.AVX = IsProcessorFeaturePresent(PF_XSAVE_ENABLED);
-
-#else
-	TRW *cpuinfoFile = TRWFromFile("/proc/cpuinfo", "rb");
-	if (cpuinfoFile) {
-
-		TTokenizer *tokenizer = TTokenizerNew(cpuinfoFile);
-		if (tokenizer) {
-			const char *field, *content;
-			int numCores = 0;
-			unsigned char hyperthreading = 0;
-
-			TTokenizerSetSeparators(tokenizer, "\:\n\t\r");
-
-			while ((field = TTokenizerNext(tokenizer))) {
-				content = TTokenizerNext(tokenizer);
-				if (strstr(field,"processor")) {
-					tcpu.numCores += numCores + (numCores * hyperthreading);
-					numCores = 0;
-					hyperthreading = 0;
-				} else if (strstr(field, "cpu cores")) {
-					numCores = atoi(content);
-				} else if(strstr(field, "flags")) {
-					if(strstr(content, "sse"))
-						tcpu.supportedFeatures.SSE = 1;
-
-					if(strstr(content, "sse2"))
-						tcpu.supportedFeatures.SSE2 = 1;
-
-					if(strstr(content, "ssse3"))
-						tcpu.supportedFeatures.SSSE3 = 1;
-
-					if(strstr(content, "ht"))
-						hyperthreading = 1;
-				}
-			}
-			tcpu.numCores += numCores + (numCores * hyperthreading);
-
-			TTokenizerFree(tokenizer);
-		}
-
-		TRWFree(cpuinfoFile);
+		if (cpu_identify(&raw, &data) < 0)
+			return data;
 	}
-#endif
 
-	return tcpu;
+	return data;
 }
 
 //--- TRAM ---------------------------------//
@@ -179,11 +134,28 @@ TRAM TRAMGetInf(void)
 static inline void getDriveData(TDrive *tdrive, const char *root)
 {
 #ifdef _WINDOWS
+	UINT type;
 	ULARGE_INTEGER available, total;
 
+	type = GetDriveType(root);
 	GetDiskFreeSpaceEx(root, &available, &total, 0);
 	tdrive->available = available.QuadPart;
 	tdrive->capacity = total.QuadPart;
+
+	if (tdrive->capacity == 0xcccccccccccccccc) {
+		//size is unknown, set to 0
+		tdrive->available = tdrive->capacity = 0;
+	}
+
+	type = GetDriveType(root);
+	if (type == DRIVE_FIXED)
+		tdrive->type = TDRIVE_INTERNAL;
+	else if (type == DRIVE_REMOVABLE || type == DRIVE_REMOTE)
+		tdrive->type = TDRIVE_REMOVABLE;
+	else if (type == DRIVE_CDROM)
+		tdrive->type = TDRIVE_OPTICAL;
+	else
+		tdrive->type = TDRIVE_UNKNOWN;
 #endif
 }
 
@@ -194,23 +166,27 @@ TDrives *TDrivesGetInf(void)
 	if (tdrives) {
 #ifdef _WINDOWS
 		DWORD drives = GetLogicalDrives();
-		TUInt8 i = 0;
-		TDrive *ptr;
+		TUInt8 i = 0, j = 0;
 		char driveRoot[] = "A:\\";
 
+		memset(tdrives, 0, sizeof(TDrives));
+
 		//count the number of drives
-		for (; i < 26; ++i) if (drives & (1 << i)) tdrives->numDrives++;
+		for (; i < 26; ++i) {
+			if (drives & (1 << i))
+				tdrives->numDrives++;
+		}
 
 		//add the drives to the structure
-		ptr = tdrives->drives = TAlloc(sizeof(TDrive) * tdrives->numDrives);
-		for (i = 0; i < 26; i++)
+		tdrives->drives = TAlloc(sizeof(TDrive) * tdrives->numDrives);
+		for (i = 0; i < 26 && j < tdrives->numDrives; i++)
 		{
 			if (drives & (1 << i))
 			{
-				ptr->letter = 'A' + i;
-				driveRoot[0] = ptr->letter;
-				getDriveData(ptr, driveRoot);
-				ptr++;
+				TDrive *drive = &tdrives->drives[j++];
+				drive->letter = 'A' + i;
+				driveRoot[0] = drive->letter;
+				getDriveData(drive, driveRoot);
 			}
 		}
 #endif
@@ -233,4 +209,3 @@ TDrive TDriveGetInf(const char *root)
 	getDriveData(&tdrive, root);
 	return tdrive;
 }
-
