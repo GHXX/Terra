@@ -1,0 +1,3 @@
+[submodule "contrib/libcpuid"]
+	path = contrib/libcpuid
+	url = https://github.com/anrieff/libcpuid.git
