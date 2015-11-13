@@ -484,12 +484,17 @@ unsigned char TFileSysFilesIdentical(const char *_name1, const char *_name2)
 TSize TFileSysGetFileSize(const char *path)
 {
 #ifdef _WINDOWS
+	WIN32_FILE_ATTRIBUTE_DATA data;
+	if(GetFileAttributesEx(path, GetFileExInfoStandard, &data)) {
+		return data.nFileSizeLow;
+	}
 #else
 	struct stat s;
 	int rc = stat(path, &s);
-	if(rc) return 0;
-	return s.st_size;
+	if(!rc)
+		return s.st_size;
 #endif
+	return 0;
 }
 
 unsigned char TFileSysCreateDirectory(const char *_directory)
@@ -614,4 +619,3 @@ const char *TFileSysFindCaseInsensitive(const char *_fullPath)
 	return retval;
 #endif
 }
-
