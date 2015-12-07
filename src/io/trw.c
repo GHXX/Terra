@@ -495,9 +495,7 @@ TSize TRWReadBlock(TRW *context, unsigned char *buffer, TSize count)
 {
     if(context && buffer && count) {
         if(context->operations.read) {
-            size_t end = context->operations.read(context, buffer, count);
-            buffer[TMIN(end,count-1)] = '\0';
-            return end;
+            return context->operations.read(context, buffer, count);
         }
 
         TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
@@ -597,41 +595,4 @@ int TRWWriteString(TRW *context, const char *buffer, TSize size)
 
     TErrorReport(T_ERROR_NULL_POINTER);
     return 0;
-}
-
-void TRWWrite(TRW *context, const char *format,...)
-{
-    if(context && format) {
-        va_list list;
-        va_start(list, format);
-
-        TRWWriteV(context, format, list);
-
-        va_end(list);
-        return;
-    }
-
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return;
-}
-
-void TRWWriteV(TRW *context, const char *format, va_list list)
-{
-    if(context && format) {
-        if(context->operations.write) {
-            char buffer[256];
-            int res = vsnprintf(buffer, sizeof(buffer), format, list);
-            context->operations.write(context, buffer, res);
-
-            if(res > sizeof(buffer)) {
-                //TODO
-            }
-        }
-
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return;
-    }
-
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return;
 }

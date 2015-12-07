@@ -17,10 +17,11 @@ void test_rw_file(void)
 	TRW *testrw;
 	unsigned char character = 0;
 	unsigned char buffer[32];
+	TSize sizeRead;
 
-	test_create_file(filename,data);
+	test_create_file(filename, data);
 
-	testrw = TRWFromFile(filename,"rb");
+	testrw = TRWFromFile(filename, "rb");
 	TAssert(testrw);
 
 	TAssert(TRWSize(testrw) == strlen(data));
@@ -28,9 +29,10 @@ void test_rw_file(void)
 	character = TRWRead8(testrw);
 	TAssert(character == 'a');
 
-	TRWReadBlock(testrw,buffer,32);
+	sizeRead = TRWReadBlock(testrw, buffer, 32);
+	buffer[sizeRead] = 0;
 
-	TAssert(!strcmp(data+1, (char *)buffer));
+	TAssert(!strcmp(data + 1, (char *)buffer));
 
 	TRWSeek(testrw,0,SEEK_SET);
 

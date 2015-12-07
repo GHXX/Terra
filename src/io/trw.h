@@ -265,22 +265,4 @@ int TRWWriteBlock(TRW *context, const unsigned char *buffer, TSize size);
 */
 int TRWWriteString(TRW *context, const char *buffer, TSize size);
 
-/**
-* Writes a variable list to the context buffer
-*
-* @param context             A read write context.
-* @param format              The format used to write.
-*
-*/
-void TRWWrite(TRW *context, const char *format,...);
-
-/**
-* Writes a variable list to the context buffer
-*
-* @param context             A read write context.
-* @param format              The format used to write.
-*
-*/
-void TRWWriteV(TRW *context, const char *format, va_list list);
-
 #endif
