@@ -141,7 +141,7 @@ char convertToChar(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (char)*(TUInt32 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (char)*(TInt64 *)data;
 	}
@@ -185,7 +185,7 @@ TInt8 convertToInt8(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TInt8)*(TUInt32 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (TInt8)*(TInt64 *)data;
 	}
@@ -232,7 +232,7 @@ TUInt8 convertToUInt8(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TUInt8)*(TUInt32 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (TUInt8)*(TInt64 *)data;
 	}
@@ -273,7 +273,7 @@ TInt16 convertToInt16(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TInt16)*(TUInt32 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (TInt16)*(TInt64 *)data;
 	}
@@ -317,7 +317,7 @@ TUInt16 convertToUInt16(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (TUInt16)*(TUInt32 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (TUInt16)*(TInt64 *)data;
 	}
@@ -361,7 +361,7 @@ TInt32 convertToInt32(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT16) {
 		return (TInt32)*(TUInt16 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (TInt32)*(TInt64 *)data;
 	}
@@ -405,7 +405,7 @@ TUInt32 convertToUInt32(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT16) {
 		return (TUInt32)*(TUInt16 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (TUInt32)*(TInt64 *)data;
 	}
@@ -424,7 +424,7 @@ TUInt32 convertToUInt32(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 TInt64 convertToInt64(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_INT64) {
 		return *(TInt64 *)data;
@@ -541,7 +541,7 @@ float convertToFloat(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (float)*(TUInt32 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (float)*(TInt64 *)data;
 	}
@@ -588,7 +588,7 @@ double convertToDouble(TCPtr data, TUInt16 type) {
 	else if (type == T_DATA_UINT32) {
 		return (double)*(TUInt32 *)data;
 	}
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	else if (type == T_DATA_INT64) {
 		return (double)*(TInt64 *)data;
 	}

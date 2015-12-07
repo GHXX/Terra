@@ -10,7 +10,6 @@
 *
 */
 
-
 #if defined(_WIN32) || defined(_WIN64)
 #define _WINDOWS 1
 #define _USE_MATH_DEFINES 1
@@ -18,26 +17,28 @@
 #define inline _inline
 #define snprintf _snprintf
 
-#ifdef _WIN64
-#define _X86_64
-#endif
-
 #elif defined(__linux) || defined(__linux__)
 #define _LINUX 1
-
-#ifdef __x86_64
-#define _X86_64
-#endif
 
 #define __STDC_LIMIT_MACROS 1
 #endif
 
+#if defined(__x86_64__) || defined(_M_AMD64)
+#	define PLATFORM_X86_64
+#elif defined(__i386__) || defined(_M_IX86)
+#	define PLATFORM_X86
+#endif
+
 #ifdef _MSC_VER
+#define COMPILER_MICROSOFT
+
 #define __STDC__ 1  // Enforces ANSI C compliance.
 
 // __STDC__ disables the following definitions in the C headers
 #define strdup _strdup
 #define stricmp _stricmp
+#elif defined(__GNUC__)
+#define COMPILER_GCC
 #endif
 
 #define UNREFERENCED_PARAMETER(P) (P)
@@ -64,6 +65,9 @@
 #define TBIT_GET(d,k) (d >> k) & 1
 #define TBYTE_ADVANCE(T,d,k) (T *)(((unsigned char *)d) + k)
 
+// the default buffer size used
+#define TBUFSIZE 512
+
 typedef void * TPtr;
 typedef const void * TCPtr;
 
@@ -76,7 +80,7 @@ typedef unsigned int TUInt32;
 typedef signed long long TInt64;
 typedef unsigned long long TUInt64;
 
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 typedef TUInt64 TSize;
 #else
 typedef TUInt32 TSize;

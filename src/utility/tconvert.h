@@ -137,7 +137,7 @@ TInt32 convertToInt32(TCPtr data, TUInt16 type);
 */
 TUInt32 convertToUInt32(TCPtr data, TUInt16 type);
 
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 /**
 * Converts data to a 64-bit integer representation.
 *

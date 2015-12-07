@@ -5,6 +5,10 @@
 #include "tdefine.h"
 #include <ctype.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static inline char *TStringLwr(char *s) {
 	char *p = s;
 	for (; *p; p++)
@@ -19,12 +23,12 @@ static inline char *TStringUpr(char *s) {
 	return s;
 }
 
-static inline char isAlphabetCharacter(char c)
+static inline char TStringIsAlphabetCharacter(char c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-static inline char isDigit(char c)
+static inline char TStringIsDigit(char c)
 {
 	return (c >= '0' && c <= '9');
 }
@@ -91,6 +95,7 @@ char *TStringPasswordEncrypt(const char *src);
 char *TStringDoubleChars(const char *string, const char escchar);
 char *TStringRemoveDuplication(const char *string, const char escchar);
 
+
 TInt8 stoi8(const char *str);
 TUInt8 stoui8(const char *str);
 
@@ -99,9 +104,13 @@ TUInt16 stoui16(const char *str);
 
 TUInt32 stoui32(const char *str);
 
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 TInt64 stoi64(const char *str);
 TUInt64 stoui64(const char *str);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

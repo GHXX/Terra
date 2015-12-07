@@ -10,7 +10,7 @@ static inline TSize TIntegerUpperPowerOfTwo(TSize v)
     v |= v >> 4;
     v |= v >> 8;
     v |= v >> 16;
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 	v |= v >> 32;
 #endif
     v++;

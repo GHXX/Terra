@@ -151,7 +151,7 @@ static TUInt32 TArgParserAmountLimit(const char format)
 		return 0;
 	} else if(format == '?') {
 		return 1;
-	} else if(isDigit(format)) {
+	} else if(TStringIsDigit(format)) {
 		return format - '0';
 	}
 
@@ -162,7 +162,7 @@ static unsigned char TArgParserIsAmountValid(const char format, TUInt32 amount)
 {
 	TUInt32 limit = TArgParserAmountLimit(format);
 
-	if (isDigit(format))
+	if (TStringIsDigit(format))
 		return amount == limit;
 
 	return amount <= limit;
