@@ -74,32 +74,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\tests\argparse_test.c" />
     <ClCompile Include="..\..\src\tests\array_test.c" />
     <ClCompile Include="..\..\src\tests\filesys_test.c" />
     <ClCompile Include="..\..\src\tests\hardware_test.c" />
     <ClCompile Include="..\..\src\tests\heap_test.c" />
     <ClCompile Include="..\..\src\tests\memleak_test.c" />
     <ClCompile Include="..\..\src\tests\rbtree_test.c" />
-    <ClCompile Include="..\..\src\tests\reader_test.c" />
+    <ClCompile Include="..\..\src\tests\stream_test.c" />
     <ClCompile Include="..\..\src\tests\stack_test.c" />
     <ClCompile Include="..\..\src\tests\string_test.c" />
     <ClCompile Include="..\..\src\tests\test.c" />
     <ClCompile Include="..\..\src\tests\test_utils.c" />
-    <ClCompile Include="..\..\src\tests\argparse_test.c" />
+    <ClCompile Include="..\..\src\tests\tokenizer_test.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\tests\array_test.h" />
-    <ClInclude Include="..\..\src\tests\filesys_test.h" />
-    <ClInclude Include="..\..\src\tests\hardware_test.h" />
-    <ClInclude Include="..\..\src\tests\heap_test.h" />
-    <ClInclude Include="..\..\src\tests\memleak_test.h" />
-    <ClInclude Include="..\..\src\tests\rbtree_test.h" />
-    <ClInclude Include="..\..\src\tests\reader_test.h" />
-    <ClInclude Include="..\..\src\tests\stack_test.h" />
-    <ClInclude Include="..\..\src\tests\string_test.h" />
     <ClInclude Include="..\..\src\tests\test.h" />
     <ClInclude Include="..\..\src\tests\test_utils.h" />
-    <ClInclude Include="..\..\src\tests\argparse_test.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Terra.vcxproj">

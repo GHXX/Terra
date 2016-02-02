@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "memleak_test.h"
+#include "test.h"
 
 #include "debugging/tmemleak.h"
 

@@ -5,29 +5,33 @@
 
 #include "talloc.h"
 #include "terror.h"
+#include "tstring.h"
+
 
 static const char *TTokenizerDefaultSeparators = " \n\t\r";
-static const TSize TTokenizerBufferMaxSize = 512;
 
 struct TTokenizer {
-	TRW *content;
+	TStream *content;
+	TUInt8 flags;             // [ 0, 0, 0, 0, 0, empty, skip, freeContent ]
 
 	const char *separators;
+	char escapeChar;
+	char *control;
 
-	char *buffer;
-	TSize bsize, tsize;
-	int offset;
+	unsigned char *buffer;
+	TSize bSize;
+	TSize offset;
 };
 
-TTokenizer *TTokenizerNew(TRW *input)
+TTokenizer *TTokenizerNew(TStream *input, TInt8 freeInput)
 {
 	if(input) {
 		TTokenizer *tokenizer = TAllocData(TTokenizer);
 		if(tokenizer) {
-			memset(tokenizer,0,sizeof(struct TTokenizer));
+			memset(tokenizer, 0, sizeof(struct TTokenizer));
 			tokenizer->content = input;
+			tokenizer->flags |= freeInput ? 0x3 : 0x2;
 			tokenizer->separators = TTokenizerDefaultSeparators;
-			tokenizer->tsize = TRWSize(input);
 		}
 
 		return tokenizer;
@@ -39,9 +43,24 @@ TTokenizer *TTokenizerNew(TRW *input)
 
 void TTokenizerFree(TTokenizer *context) {
 	if(context) {
+		if (context->flags & 0x1) TStreamFree(context->content);
+		TFree(context->control);
 		TFree(context->buffer);
 		TFree(context);
 	}
+}
+
+void TTokenizerSkipEmpty(TTokenizer *context, TInt8 skip) {
+	if (!context) { TError(T_ERROR_INVALID_INPUT); }
+
+	context->flags &= ~0x2;
+	context->flags |= skip ? 0x2 : 0;
+}
+
+void TTokenizerSetEscapeCharacter(TTokenizer *context, char escapeChar) {
+	if (!context) { TError(T_ERROR_INVALID_INPUT); }
+
+	context->escapeChar = escapeChar;
 }
 
 void TTokenizerSetSeparators(TTokenizer *context, const char *separators) {
@@ -51,72 +70,110 @@ void TTokenizerSetSeparators(TTokenizer *context, const char *separators) {
 	context->separators = separators;
 }
 
-const char *prepareToken(TTokenizer *context) {
+const char *TTokenizerPrepareToken(TTokenizer *context, char *separator) {
 	char *ptr;
-	TSize next;
+	char *next;
+	
+	ptr = (char *)(context->buffer + context->offset);
 
-	do {
-		ptr = context->buffer + context->offset;
-
+	if (context->flags & 0x2) {
 		//remove starting separators
-		while(*ptr && strchr(context->separators, *ptr)) {
+		while (*ptr && strchr(context->separators, *ptr)) {
 			ptr++;
 			context->offset++;
 		}
+	}
 
-		next = strcspn(ptr, context->separators);
-		if(*(ptr+next) == 0) {
-			if(TRWEOF(context->content)) {
-				//reached the end
-				return !next ? 0 : ptr;
+	next = ptr;
+
+	do {
+		next = strpbrk(next, context->control);
+		if(!next) {
+			if(TStreamEOF(context->content)) {
+				// reached the end
+				context->flags |= 0x4;
+				return !*ptr && context->flags & 0x2 ? 0 : ptr;
 			}
 
 			if(!context->offset) {
-				//we are at the beginning and no separator. Just kill this
+				// we are at the beginning and no separator can be found. Just kill this
 				TErrorReport(T_ERROR_OUT_OF_MEMORY);
+				context->flags |= 0x4;
 				return 0;
 			}
 
-			// advance the buffer
 			{
-				TSize remainingSize = (context->bsize - context->offset) - 1;
+				// advance the buffer
+				TSize remainingSize = (context->bSize - 1 - context->offset);
 				memcpy(context->buffer, ptr, remainingSize * sizeof(char));
-				TRWReadBlock(context->content, (unsigned char *)context->buffer + remainingSize, context->offset);
-				context->offset = 0;
-				remainingSize = context->bsize - 1;
-				next = 0;
+				context->bSize = TStreamReadBlock(context->content, context->buffer + remainingSize, context->offset);
+				context->buffer[remainingSize + context->bSize] = 0;
 			}
-		} else {
-			*(ptr+next) = 0;
-			if(context->tsize)
-				context->tsize -= next + 1;
-			context->offset += next + 1;
-		}
-	} while(!next);
 
-	return ptr;
+			ptr = context->buffer;
+			context->offset = 0;
+			next = ptr;
+
+		} else if (*next == context->escapeChar) {
+			TSize shiftSize;
+
+			// shift the data to the left
+			shiftSize = (context->bSize + (context->buffer - next));
+			memcpy(next, next + 1, shiftSize);
+			next++;
+			context->buffer[context->bSize - 1] = 0;
+		} else {
+			*separator = *next;
+			*next = 0;
+			context->offset += (next - ptr) + 1;
+			return ptr;
+		}
+	} while(1);
+
+	return 0;
 }
 
-const char *TTokenizerNext(TTokenizer *context) {
-	if(!context) {
+const char *TTokenizerNext(TTokenizer *context, char *separator) {
+	char dummy;
+
+	if (!context) {
 		TErrorReport(T_ERROR_NULL_POINTER);
 		return 0;
 	}
 
-	if(TRWEOF(context->content)) {
+	if (context->flags & 0x4) {
 		//nothing in there
 		return 0;
 	}
 
-	if(!context->buffer) {
-		context->bsize = TTokenizerBufferMaxSize;
-		if(context->tsize && context->tsize < context->bsize)
-			context->bsize = context->tsize;
-		context->buffer = TAlloc(context->bsize * sizeof(char));
+	if (!context->buffer) {
+		TSize tSize = TStreamSize(context->content);
+
+		context->bSize = TBUFSIZE;
+		if (tSize && tSize + 1 < context->bSize) {
+			context->bSize = tSize + 1;
+		}
+		context->buffer = TAlloc(context->bSize * sizeof(char));
 
 		//feed buffer
-		TRWReadBlock(context->content, (unsigned char *) context->buffer, context->bsize);
+		context->bSize = TStreamReadBlock(context->content, context->buffer, context->bSize - 1);
+		context->buffer[context->bSize] = 0;
+
+		if (!context->bSize) return 0;
 	}
 
-	return prepareToken(context);
+	
+	//sanity control for separator
+	if (!separator) separator = &dummy;
+	*separator = 0;
+
+	//build control if needed
+	if (!context->control) {
+		if (context->escapeChar)
+			context->control = TStringAppendCharacter(context->separators, context->escapeChar);
+		else
+			context->control = TStringCopy(context->separators);
+	}
+
+	return TTokenizerPrepareToken(context, separator);
 }

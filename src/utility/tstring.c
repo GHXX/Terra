@@ -48,93 +48,93 @@ char *TStringNCopy(const char *text, int num)
 	return cpy;
 }
 
-int TStringAdjustSize(char **text,size_t oldsize,size_t newsize)
+int TStringAdjustSize(char **text, TSize oldsize, TSize newsize)
 {
 	void *nptr = TRAlloc(text, newsize);
 	if(!nptr) return 1;
 	text = (char **) nptr;
 
-	if(newsize > oldsize) memset(text+oldsize,'\0',newsize);
+	if (newsize > oldsize) memset(text + oldsize, '\0', newsize);
 
 	return 0;
 }
 
-size_t TStringRCSpn(const char *_str,const char *_control)
+TSize TStringRCSpn(const char *_str, const char *_control)
 {
-	size_t len = 0;
+	TSize len = 0;
 	
 	//sanity check
 	if(!_str) return 0;
 
 	len = strlen(_str);
 
-	if(!_control) return len+1;
+	if (!_control) return len + 1;
 
 	{
-		size_t i = len;
+		TSize i = len;
 		const char *c = 0;
 
 		for(c = _str+len; c != _str; c--) {
-			if(strchr(_control,*c)) return i;
+			if (strchr(_control, *c)) return i;
 			i--;
 		}
 
-		if(strchr(_control,*c)) return 0;
+		if (strchr(_control, *c)) return 0;
 	}
 
 	return len+1;
 }
 
-inline void TStringReplaceOp(char *target,const char *match, const char *replacement,size_t repllen, size_t limit)
+inline void TStringReplaceOp(char *target, const char *match, const char *replacement, TSize repllen, TSize limit)
 {
 	char *curptr = target;
-	size_t i = 0;
+	TSize i = 0;
 
 	do {
-		curptr = strstr(curptr,match);
-		if(curptr) {
-			strncpy(curptr,replacement,repllen);
+		curptr = strstr(curptr, match);
+		if (curptr) {
+			strncpy(curptr, replacement, repllen);
 			curptr += repllen;
 			i++;
 		}
-	} while(curptr && (!limit || i < limit));
+	} while (curptr && (!limit || i < limit));
 }
 
-inline void TStringCopyReplaceOp(char *target,const char *source,const char *match, const char *replacement, size_t limit)
+inline void TStringCopyReplaceOp(char *target, const char *source, const char *match, const char *replacement, TSize limit)
 {
 	const char *srcptr = source;
 	char *tarptr = target;
-	size_t srclen = strlen(source);
-	size_t matchlen = strlen(match);
-	size_t repllen = strlen(replacement);
-	size_t i = 0;
+	TSize srclen = strlen(source);
+	TSize matchlen = strlen(match);
+	TSize repllen = strlen(replacement);
+	TSize i = 0;
 
-	while(srcptr && (!limit || i < limit)) {
+	while (srcptr && (!limit || i < limit)) {
 		*tarptr = *srcptr;
-		if(*srcptr == match[0] && i + matchlen <= srclen) {
-			if(strncmp(srcptr,match,matchlen) == 0) {
-				strncpy(tarptr,replacement,repllen);
-				srcptr += matchlen-1;
-				tarptr += repllen-1;
+		if (*srcptr == match[0] && i + matchlen <= srclen) {
+			if (strncmp(srcptr, match, matchlen) == 0) {
+				strncpy(tarptr, replacement, repllen);
+				srcptr += matchlen - 1;
+				tarptr += repllen - 1;
 				i++;
 			}
 		}
-		srcptr = *(srcptr+1) == '\0' ? 0 : srcptr+1;
-		tarptr +=1;
+		srcptr = *(srcptr + 1) == '\0' ? 0 : srcptr + 1;
+		tarptr += 1;
 	}
 
-	if(srcptr) strcpy(tarptr,srcptr);
+	if (srcptr) strcpy(tarptr, srcptr);
 	else *tarptr = '\0';
 }
 
-size_t TStringNumOccurences(const char *target,const char *match)
+TSize TStringNumOccurences(const char *target, const char *match)
 {
 	const char *curptr = target;
-	size_t matchlen = strlen(match);
-	size_t counter = 0;
+	TSize matchlen = strlen(match);
+	TSize counter = 0;
 
 	do {
-		curptr = strstr(curptr,match);
+		curptr = strstr(curptr, match);
 		if(curptr) {
 			counter +=1;
 			curptr += matchlen;
@@ -147,13 +147,13 @@ size_t TStringNumOccurences(const char *target,const char *match)
 /*
  * Replace a substring of a string with another string
  */
-char *TStringReplace(const char *source, const char *match, const char *replacement, size_t limit, size_t hint_numoccurence)
+char *TStringReplace(const char *source, const char *match, const char *replacement, TSize limit, TSize hint_numoccurence)
 {
 	char *result = 0;
-	size_t srclen = 0;
-	size_t matchlen = 0;
-	size_t repllen = 0;
-	size_t reslen = 0;
+	TSize srclen = 0;
+	TSize matchlen = 0;
+	TSize repllen = 0;
+	TSize reslen = 0;
 
 	if(source == 0 || match == 0 || replacement == 0 || source[0] == '\0' || match[0] == '\0' || replacement[0] == '\0')
 		return 0;
@@ -164,12 +164,12 @@ char *TStringReplace(const char *source, const char *match, const char *replacem
 	reslen = srclen + 1;
 
 	if(matchlen != repllen) {
-		if (limit) 
+		if (limit)
 			reslen -= ((int)matchlen - (int)repllen)*((int)limit);
 		else {
 			if(!hint_numoccurence) {
 				//find number of occurences
-				hint_numoccurence = TStringNumOccurences(source,match);
+				hint_numoccurence = TStringNumOccurences(source, match);
 			}
 
 			reslen -= ((int)matchlen - (int)repllen)*((int)hint_numoccurence);
@@ -177,12 +177,12 @@ char *TStringReplace(const char *source, const char *match, const char *replacem
 	}
 
 	result = (char *) TAlloc(reslen);
-	if(result) TStringCopyReplaceOp(result,source,match,replacement,limit);
+	if (result) TStringCopyReplaceOp(result, source, match, replacement, limit);
 	return result;
 }
 
-TUInt8 TStringReplaceInplace(char *source, const char *match, const char *replacement, size_t limit) {
-	size_t repllen = 0;
+TUInt8 TStringReplaceInplace(char *source, const char *match, const char *replacement, TSize limit) {
+	TSize repllen = 0;
 
 	if(source == 0 || match == 0 || replacement == 0)
 		return 1;
@@ -192,7 +192,7 @@ TUInt8 TStringReplaceInplace(char *source, const char *match, const char *replac
 	if(strlen(match) != repllen)
 		return 2;
 
-	TStringReplaceOp(source,match,replacement,repllen,limit);
+	TStringReplaceOp(source, match, replacement, repllen, limit);
 
 	return 0;
 }
@@ -200,16 +200,16 @@ TUInt8 TStringReplaceInplace(char *source, const char *match, const char *replac
 void TStringSafetyString(char *string)
 {
 	int strlength = strlen(string);
-	TStringReplaceOp(string,"%"," ",strlength,0);
+	TStringReplaceOp(string, "%", " ", strlength, 0);
 }
 
-char **TStringSplit(const char *string, const char *substr, size_t *size, size_t limit)
+char **TStringSplit(const char *string, const char *substr, TSize *size, TSize limit)
 {
 	char **sto;
 	char *str;
 	char *ptr;
-	size_t len;
-	size_t i;
+	TSize len;
+	TSize i;
 	if(!size || !string || !substr || !*substr) return 0;
 
 	str = strdup(string);
@@ -227,7 +227,7 @@ char **TStringSplit(const char *string, const char *substr, size_t *size, size_t
 
 	sto = (char **)TAlloc(sizeof(char *) * (*size));
 	if(sto) {
-		size_t i = 1;
+		TSize i = 1;
 		sto[0] = str;
 
 		while (i < *size) {
@@ -238,13 +238,13 @@ char **TStringSplit(const char *string, const char *substr, size_t *size, size_t
 	return sto;
 }
 
-char **TStringRSplit(const char *string, const char *substr, size_t *size, size_t limit)
+char **TStringRSplit(const char *string, const char *substr, TSize *size, TSize limit)
 {
 	char **sto;
 	char *str;
 	char *ptr;
-	size_t len;
-	size_t i;
+	TSize len;
+	TSize i;
 	if(!size || !string || !substr || !*substr) return 0;
 
 	str = TStringCopy(string);
@@ -258,44 +258,65 @@ char **TStringRSplit(const char *string, const char *substr, size_t *size, size_
 			i++;
 			*size += 1;
 			*ptr = 0;
-			ptr = strrchr(str,substr[0]);
+			ptr = strrchr(str, substr[0]);
 		} else {
 			char *tmp = ptr, v = *ptr;
 			*tmp = 0;
-			ptr = strrchr(str,substr[0]);
+			ptr = strrchr(str, substr[0]);
 			*tmp = v;
 		}
 	}
 
 	sto = (char **)TAlloc(sizeof(char *) * (*size));
 	if(sto) {
-		size_t i = 1;
+		TSize i = 1;
 		sto[0] = str;
 
 		while (i < *size) {
-			ptr = strchr(sto[i-1],0)+len;
+			ptr = strchr(sto[i - 1], 0) + len;
 			sto[i++] = ptr;
 		}
 	} else TFree(str);
 	return sto;
 }
 
-char *TStringAddCharacter(const char *string, char character, size_t start, size_t end)
+char *TStringAddCharacter(const char *string, char character, TSize start, TSize end)
 {
-	size_t len = strlen(string) + (character ? 1 : 0) + 1;
-	int nextindex = character ? start+1 : start;
+	TSize len;
+	int nextindex;
 	char *newstring = 0;
 
-	if(start != end) len -= end-start;
+	if (start > end)
+		TSWAP(start, end);
 
-	newstring = (char *) TAlloc(sizeof(char) * len);
+	len = strlen(string) + (character ? 1 : 0) + 1;
+	nextindex = character ? start + 1 : start;
+
+	if (start != end) len -= end - start;
+
+	newstring = (char *)TAlloc(sizeof(char) * len);
 	if(newstring) {
-		if(start != 0) strncpy(newstring,string,start);
+		if (start != 0) strncpy(newstring, string, start);
 		newstring[start] = character;
-		strncpy(newstring+nextindex,string+end,len-start);
+		strncpy(newstring + nextindex, string + end, len - start);
 	}
 	
 	return newstring;
+}
+
+char *TStringAppendCharacter(const char *string, char character) {
+	TSize size;
+	char *result;
+
+	if (!string) { TErrorReport(T_ERROR_NULL_POINTER); return 0; }
+
+	size = strlen(string) + 2;
+	result = (char *)TAlloc(sizeof(char) * size);
+	memcpy(result, string, size - 2);
+	result[size - 2] = character;
+	result[size - 1] = 0;
+
+	return result;
 }
 
 char *TStringConcat(const char *str, ...)
@@ -311,9 +332,9 @@ char *TStringConcat(const char *str, ...)
 	va_start(components, str);
 	while((component = va_arg(components, const char *)))
 	{
-		size_t llen = strlen(component);
+		TSize llen = strlen(component);
 		buffer = TRAlloc(buffer, bufferlen + llen + 1);
-		snprintf(buffer + bufferlen,llen + 1,"%s",component);
+		snprintf(buffer + bufferlen, llen + 1, "%s", component);
 		bufferlen += llen;
 	}
 	va_end(components);
@@ -335,7 +356,7 @@ char *TStringConcatSeparator(const char *separator, const char *str, ...)
 	va_start(components, str);
 	while ((component = va_arg(components, const char *)))
 	{
-		size_t llen = strlen(component) + seplen;
+		TSize llen = strlen(component) + seplen;
 		buffer = TRAlloc(buffer, bufferlen + llen + 1);
 		snprintf(buffer + bufferlen, llen + 1, "%s%s", separator, component);
 		bufferlen += llen;
@@ -368,7 +389,7 @@ char *TStringLowerCase(const char *thestring)
 
 	if(!thestring) return 0;
 
-	thecopy = (char *) TAlloc(strlen(thestring)+ 1);
+	thecopy = (char *)TAlloc(strlen(thestring) + 1);
 
 	if(thecopy) {
 		ptr = thecopy;
@@ -386,7 +407,7 @@ char *TStringLowerCase(const char *thestring)
 
 char *TStringPasswordEncrypt(const char *src)
 {
-	size_t len = 0;
+	TSize len = 0;
 	char *result = 0;
 
 	if(!src) return 0;
@@ -394,7 +415,7 @@ char *TStringPasswordEncrypt(const char *src)
 	len = strlen(src);
 	if(!len) return 0;
 
-	result = (char *) TAlloc(sizeof(char) *(len+1));
+	result = (char *)TAlloc(sizeof(char) *(len + 1));
 	if(result) {
 		memset(result, '*', len);
 		result[len] = 0;
@@ -409,21 +430,21 @@ char *TStringDoubleChars(const char *string, const char escchar)
 
 	if(string) {
 		const char *esc = 0;
-		size_t size = strlen(string)*2;
-		char *newstring = (char *) TAlloc(sizeof(char)*size), *cur = 0;
+		TSize size = strlen(string) * 2;
+		char *newstring = (char *)TAlloc(sizeof(char)*size), *cur = 0;
 		if(!newstring) return 0;
 		cur = newstring;
 
 		do {
 			esc = strchr(string, escchar);
 			if(esc) {
-				size_t escsize = esc-string +1;
-				strncpy(cur,string,escsize); cur += escsize;
-				snprintf(cur,1,"%c",escchar); cur += 1;
+				TSize escsize = esc - string + 1;
+				strncpy(cur, string, escsize); cur += escsize;
+				snprintf(cur, 1, "%c", escchar); cur += 1;
 
-				string = esc+1;
+				string = esc + 1;
 			} else {
-				strncpy(cur,string,size);
+				strncpy(cur, string, size);
 			}
 		} while(esc);
 
@@ -440,21 +461,21 @@ char *TStringRemoveDuplication(const char *string, const char escchar)
 
 	if(string) {
 		const char *esc = 0;
-		size_t size = strlen(string)+1;
-		char doubled[] = {escchar,escchar, 0};
-		char *newstring = (char *) TAlloc(sizeof(char)*size), *cur = 0;
+		TSize size = strlen(string) + 1;
+		char doubled[] = { escchar, escchar, 0 };
+		char *newstring = (char *)TAlloc(sizeof(char)*size), *cur = 0;
 		if(!newstring) return 0;
 		cur = newstring;
 
 		do {
 			esc = strstr(string, doubled);
 			if(esc) {
-				size_t escsize = esc-string +1;
-				strncpy(cur,string,escsize); cur += escsize;
+				TSize escsize = esc - string + 1;
+				strncpy(cur, string, escsize); cur += escsize;
 
-				string = esc+2;
+				string = esc + 2;
 			} else {
-				strncpy(cur,string,size);
+				strncpy(cur, string, size);
 			}
 		} while(esc);
 
@@ -466,7 +487,7 @@ char *TStringRemoveDuplication(const char *string, const char escchar)
 }
 
 TInt8 stoi8(const char *str) {
-	size_t len = strlen(str);
+	TSize len = strlen(str);
 	if (len <= 4) {
 		TInt8 convert = 0;
 		TInt8 offset = 1;
@@ -490,7 +511,7 @@ TInt8 stoi8(const char *str) {
 };
 
 TUInt8 stoui8(const char *str) {
-	size_t len = strlen(str);
+	TSize len = strlen(str);
 	if (len < 4) {
 		TInt8 convert = 0;
 		TInt8 offset = 1;
@@ -509,7 +530,7 @@ TUInt8 stoui8(const char *str) {
 };
 
 TInt16 stoi16(const char *str) {
-	size_t len = strlen(str);
+	TSize len = strlen(str);
 	if (len <= 6) {
 		TInt16 convert = 0;
 		TInt16 offset = 1;
@@ -532,7 +553,7 @@ TInt16 stoi16(const char *str) {
 };
 
 TUInt16 stoui16(const char *str) {
-	size_t len = strlen(str);
+	TSize len = strlen(str);
 	if (len < 6) {
 		TUInt16 convert = 0;
 		TUInt16 offset = 1;
@@ -551,7 +572,7 @@ TUInt16 stoui16(const char *str) {
 };
 
 TUInt32 stoui32(const char *str) {
-	size_t len = strlen(str);
+	TSize len = strlen(str);
 	if (len < 11) {
 		TUInt32 convert = 0;
 		TUInt32 offset = 1;
@@ -571,7 +592,7 @@ TUInt32 stoui32(const char *str) {
 
 #ifdef PLATFORM_X86_64
 TInt64 stoi64(const char *str) {
-	size_t len = strlen(str);
+	TSize len = strlen(str);
 	if (len <= 20) {
 		TInt64 convert = 0;
 		TInt64 offset = 1;
@@ -594,7 +615,7 @@ TInt64 stoi64(const char *str) {
 };
 
 TUInt64 stoui64(const char *str) {
-	size_t len = strlen(str);
+	TSize len = strlen(str);
 	if (len < 21) {
 		TUInt64 convert = 0;
 		TUInt64 offset = 1;

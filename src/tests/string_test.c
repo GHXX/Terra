@@ -4,7 +4,7 @@
 
 #include "utility/tstring.h"
 
-#include "string_test.h"
+#include "test.h"
 
 void string_test_split(void)
 {

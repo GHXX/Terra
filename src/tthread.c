@@ -24,19 +24,30 @@ struct _TThread {
 #endif
 };
 
-typedef struct _ThreadFunction {
+typedef struct _TThreadFunctionData {
 	TThreadFunc fn;
-	void *data;
-} ThreadFunction;
+	TPtr data;
+} TThreadFunctionData;
+
+static inline TThreadFunctionData *TThreadFunctionDataNew(TThreadFunc fn, TPtr data) {
+	TThreadFunctionData *tf;
+
+	tf = TAllocData(TThreadFunctionData);
+	if (tf) {
+		tf->fn = fn;
+		tf->data = data;
+	}
+	return tf;
+}
 
 #ifdef _WINDOWS
 DWORD WINAPI run_wrapper(LPVOID param) {
 #else
-void *run_wrapper(void *param) {
+TPtr run_wrapper(TPtr param) {
 #endif
-	ThreadFunction *tf = (ThreadFunction *) param;
-	int (*fn)(void *) = tf->fn;
-	void *data = tf->data;
+	TThreadFunctionData *tf = (TThreadFunctionData *)param;
+	TThreadFunc fn = tf->fn;
+	TPtr data = tf->data;
 
 	TFree(tf);
 	fn(data);
@@ -44,19 +55,27 @@ void *run_wrapper(void *param) {
 	return 0;
 }
 
-TThread *TThreadCreate(TThreadFunc fn, void *data)
-{
-	ThreadFunction *tf = (ThreadFunction *) TAlloc(sizeof(ThreadFunction));
-	TThread *t = (TThread *) TAlloc(sizeof(TThread));
-
-	tf->fn = fn;
-	tf->data = data;
-
+static inline void TThreadRun(TThread *context, TThreadFunctionData *data) {
 #ifdef _WINDOWS
-	t->thread = CreateThread(0,0,run_wrapper,tf,0,0);
+	context->thread = CreateThread(0, 0, run_wrapper, data, 0, 0);
 #else
-	pthread_create(&t->thread, NULL,&run_wrapper,tf);
+	pthread_create(&context->thread, NULL, &run_wrapper, data);
 #endif
+}
+
+TThread *TThreadCreate(TThreadFunc fn, TPtr data)
+{
+	TThreadFunctionData *tf;
+	TThread *t;
+
+	if (!fn) return 0;
+
+	tf = TThreadFunctionDataNew(fn, data);
+	if (!tf) return 0;
+
+	t = TAllocData(TThread);
+	if (!t) return 0;
+	TThreadRun(t, tf);
 
 	return t;
 }
@@ -64,10 +83,10 @@ TThread *TThreadCreate(TThreadFunc fn, void *data)
 int TThreadJoin(TThread *t)
 {
 	int retval = 0;
-	if(!t) return retval;
+	if (!t) return retval;
 #ifdef _WINDOWS
 	WaitForSingleObject(t->thread, INFINITE);
-	GetExitCodeThread(t->thread,(unsigned long *) &retval);
+	GetExitCodeThread(t->thread, (unsigned long *)&retval);
 	CloseHandle(t->thread);
 #else
 	pthread_join(t->thread, (void **) &retval);
@@ -80,6 +99,73 @@ int TThreadJoin(TThread *t)
 void TThreadSleep(TUInt32 ms)
 {
 	TTimeSleep(ms);
+}
+
+TUInt32 TThreadGetAffinity(void)
+{
+#ifdef _WINDOWS
+	// Windows doesn't have a function to get the affinity
+	// but does return the previous affinity when setting a
+	// new one. We simply exploit that sillyness
+	HANDLE hThread = GetCurrentThread();
+	DWORD_PTR mask = SetThreadAffinityMask(hThread, 1);
+	SetThreadAffinityMask(hThread, mask);
+
+	return mask;
+
+#elif defined(_LINUX)
+	TUInt32 ret, mask_id;
+	CPUSET_T mask;
+	pthread_t pth;
+
+	pth = pthread_self();
+	CPU_ZERO(&mask);
+	ret = pthread_getaffinity_np(pth, sizeof(mask), &mask);
+	if (ret != 0) {
+		return 0;
+	}
+
+	mask_id = 0;
+	for (; ret < CPU_SETSIZE; ++ret) {
+		if (CPU_ISSET(ret, &mask))
+			mask_id |= (1 << ret);
+	}
+
+	return mask_id;
+#else
+#error "TThreadGetAffinity() not defined for this platform"
+#endif
+}
+
+TUInt8 TThreadSetAffinity(TUInt32 mask)
+{
+#ifdef _WINDOWS
+	DWORD ret;
+	HANDLE hThread = GetCurrentThread();
+	ret = SetThreadAffinityMask(hThread, (DWORD_PTR)mask);
+
+	return (ret != 0) ? 0 : 1;
+
+#elif defined(_LINUX)
+	int ret;
+	CPUSET_T mask;
+	pthread_t pth;
+
+	pth = pthread_self();
+
+	CPU_ZERO(&mask);
+	for (ret = 0; ret < CPU_SETSIZE; ret++) {
+		if (_mask & 1)
+			CPU_SET(ret, &mask);
+		_mask >>= 1;
+	}
+
+	ret = pthread_setaffinity_np(pth, sizeof(mask), &mask);
+
+	return (ret == 0) ? 0 : 1;
+#else
+#error "TThreadSetAffinity() not defined for this platform"
+#endif
 }
 
 //------------- Mutex ---------------//
@@ -186,15 +272,13 @@ void TCVFree(TCV *v)
 #ifndef _WINDOWS
 		pthread_cond_destroy(&v->var);
 #endif
-
-		free(v);
+		TFree(v);
 	}
 }
 
-int TCVSleep(TCV *v, TUInt32 msec)
-{
+int TCVSleepTimed(TCV *context, TUInt32 msec) {
 #ifdef _WINDOWS
-	SleepConditionVariableCS(&v->var, &v->m->mutex, msec);
+	SleepConditionVariableCS(&context->var, &context->m->mutex, msec);
 	return GetLastError();
 #else
 	struct timespec   ts;
@@ -206,6 +290,15 @@ int TCVSleep(TCV *v, TUInt32 msec)
 	ts.tv_nsec = (tp.tv_usec+1000UL*msec)*1000UL;
 
 	return pthread_cond_timedwait(&v->var,&v->m->mutex,&ts);
+#endif
+}
+
+int TCVSleep(TCV *context) {
+#ifdef _WINDOWS
+	SleepConditionVariableCS(&context->var, &context->m->mutex, INFINITE);
+	return GetLastError();
+#else
+	return pthread_cond_wait(&v->var, &v->m->mutex);
 #endif
 }
 

@@ -38,11 +38,11 @@ int TStringCaseInsensitiveCompare(const char *str1, const char *str2);
 char *TStringCopy(const char *text);
 char *TStringNCopy(const char *text, int num);
 
-int TStringAdjustSize(char **text,size_t oldsize,size_t newsize);
+int TStringAdjustSize(char **text, TSize oldsize, TSize newsize);
 
-size_t TStringRCSpn(const char *_str,const char *_control);
+TSize TStringRCSpn(const char *_str, const char *_control);
 
-size_t TStringNumOccurences(const char *target,const char *match);
+TSize TStringNumOccurences(const char *target, const char *match);
 
 /**
  * Replace a substring of a string with another string
@@ -58,7 +58,7 @@ size_t TStringNumOccurences(const char *target,const char *match);
  *
  * @sa TStringReplaceInplace
  */
-char *TStringReplace(const char *source, const char *match, const char *replacement, size_t limit, size_t hint_numoccurence);
+char *TStringReplace(const char *source, const char *match, const char *replacement, TSize limit, TSize hint_numoccurence);
 
 /**
  * Replace a substring of a string with another string in place.
@@ -74,13 +74,15 @@ char *TStringReplace(const char *source, const char *match, const char *replacem
  *
  * @sa TStringReplace
  */
-unsigned char TStringReplaceInplace(char *source, const char *match, const char *replacement, size_t limit);
+unsigned char TStringReplaceInplace(char *source, const char *match, const char *replacement, TSize limit);
 
 void TStringSafetyString(char *string);
 
-char **TStringSplit(const char *string, const char *substr, size_t *size, size_t limit);
-char **TStringRSplit(const char *string, const char *substr, size_t *size, size_t limit);
-char *TStringAddCharacter(const char *string, char character, size_t start, size_t end);
+char **TStringSplit(const char *string, const char *substr, TSize *size, TSize limit);
+char **TStringRSplit(const char *string, const char *substr, TSize *size, TSize limit);
+
+char *TStringAddCharacter(const char *string, char character, TSize start, TSize end);
+char *TStringAppendCharacter(const char *string, char character);
 
 char *TStringConcat(const char *str, ...);
 char *TStringConcatSeparator(const char *separator, const char *str, ...);

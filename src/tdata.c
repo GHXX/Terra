@@ -153,7 +153,7 @@ TData *TDataFromUInt32(TUInt32 data)
 	return content;
 }
 
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 TData *TDataFromInt64(TInt64 data)
 {
 	TData *content = TDataNew(T_DATA_INT64);
@@ -327,7 +327,7 @@ TUInt32 TDataToUInt32(const TData *context)
 	return 0;
 }
 
-#ifdef _X86_64
+#ifdef PLATFORM_X86_64
 TInt64 TDataToInt64(const TData *context)
 {
 	if (context) return convertToInt64(context->data, context->type);

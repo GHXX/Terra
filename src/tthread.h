@@ -48,6 +48,25 @@ int TThreadJoin(TThread *t);
 */
 void TThreadSleep(TUInt32 ms);
 
+/**
+* Get the cpu binding for the current thread
+*
+* @return                    The binding mask
+*
+*/
+TUInt32 TThreadGetAffinity(void);
+
+/**
+* Set the cpu binding for the current thread
+*
+* @param mask                The binding mask
+*
+* @return                    0 for success, 1 for failure
+*
+*/
+TUInt8 TThreadSetAffinity(TUInt32 mask);
+
+
 //------------- TMutex ----------------//
 
 enum T_MUTEX_TYPE {
@@ -93,6 +112,7 @@ void TMutexLock(TMutex *handle);
 */
 void TMutexUnlock(TMutex *handle);
 
+
 //------- Condition Variable --------//
 
 typedef struct _TCV TCV;
@@ -125,7 +145,17 @@ void TCVFree(TCV *context);
 * @return                    An OS specific error code
 *
 */
-int TCVSleep(TCV *context, TUInt32 msec);
+int TCVSleepTimed(TCV *context, TUInt32 msec);
+
+/**
+* Let the thread sleep until another thread wakes it.
+*
+* @param context             A condition variable context
+*
+* @return                    An OS specific error code
+*
+*/
+int TCVSleep(TCV *context);
 
 /**
 * Wake all threads

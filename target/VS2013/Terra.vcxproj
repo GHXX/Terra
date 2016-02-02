@@ -38,12 +38,11 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)lib\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>../../src;../../contrib/libcpuid/libcpuid;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -56,15 +55,6 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
-    <PreBuildEvent>
-      <Command>cd $(SolutionDir) &amp;&amp; ..\..\contrib\autobuild\autobuild.sh -d -s ../../contrib/libs.sh ../../bin/ lib/$(Platform)/$(Configuration)/ obj/$(Configuration)/</Command>
-      <Message>build contribs</Message>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>cd $(SolutionDir) &amp;&amp; ..\..\contrib\autobuild\autobuild.sh -d -c -s ../../contrib/libs.sh ../../bin/ lib/$(Platform)/$(Configuration)/ obj/$(Configuration)/</Command>
-      <Message>Cleaning</Message>
-      <Outputs>$(OutDir)nonexistent.lib</Outputs>
-    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -76,15 +66,6 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
-    <PreBuildEvent>
-      <Command>cd $(SolutionDir) &amp;&amp; ..\..\contrib\autobuild\autobuild.sh -s ../../contrib/libs.sh ../../bin/ lib/$(Platform)/$(Configuration)/ obj/$(Configuration)/</Command>
-      <Message>build contribs</Message>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>cd $(SolutionDir) &amp;&amp; ..\..\contrib\autobuild\autobuild.sh -c -s ../../contrib/libs.sh ../../bin/ lib/$(Platform)/$(Configuration)/ obj/$(Configuration)/</Command>
-      <Message>Cleaning</Message>
-      <Outputs>$(OutDir)nonexistent.lib</Outputs>
-    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\debugging\tdebug.c" />
@@ -93,7 +74,7 @@
     <ClCompile Include="..\..\src\debugging\tprofiler.c" />
     <ClCompile Include="..\..\src\hardware\thardware.c" />
     <ClCompile Include="..\..\src\io\tio.c" />
-    <ClCompile Include="..\..\src\io\trw.c" />
+    <ClCompile Include="..\..\src\io\tstream.c" />
     <ClCompile Include="..\..\src\stdafx.c">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -131,7 +112,7 @@
     <ClInclude Include="..\..\src\math\ttuple.h" />
     <ClInclude Include="..\..\src\hardware\thardware.h" />
     <ClInclude Include="..\..\src\io\tio.h" />
-    <ClInclude Include="..\..\src\io\trw.h" />
+    <ClInclude Include="..\..\src\io\tstream.h" />
     <ClInclude Include="..\..\src\stdafx.h" />
     <ClInclude Include="..\..\src\structure\tarray.h" />
     <ClInclude Include="..\..\src\structure\theap.h" />

@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 
-#include "trw.h"
+#include "tstream.h"
 
 #include "talloc.h"
 #include "terror.h"
@@ -11,33 +11,33 @@
 
 //--- Default File Operations ------------------------------//
 
-#define TRW_READ_ONLY_FLAG 1
+#define TStream_READ_ONLY_FLAG 1
 
-struct _TRW {
-    TRWOps operations;
-    TRWContent content;
+struct _TStream {
+    TStreamOps operations;
+    TStreamContent content;
 };
 
-struct TRWFile {
+struct TStreamFile {
     FILE *f;
     unsigned char autoclose;
     TSize offset, size;
 };
 
-static TSize TRWFileSize(TRW *context)
+static TSize TStreamFileSize(TStream *context)
 {
-    struct TRWFile *content;
+    struct TStreamFile *content;
     if(!context->content) return 0;
-    content = (struct TRWFile *) context->content;
+    content = (struct TStreamFile *) context->content;
 
     return content->size - content->offset; 
 }
 
-static int TRWFileSeek(TRW *context, TSize offset, int origin)
+static int TStreamFileSeek(TStream *context, TSize offset, int origin)
 {
-    struct TRWFile *content;
+    struct TStreamFile *content;
     if(!context->content) return 0;
-    content = (struct TRWFile *) context->content;
+    content = (struct TStreamFile *) context->content;
 
     if(origin == SEEK_CUR) {
         content->offset += offset;
@@ -52,30 +52,30 @@ static int TRWFileSeek(TRW *context, TSize offset, int origin)
     return fseek(content->f, offset, origin);
 }
 
-static int TRWFileTell(TRW *context)
+static int TStreamFileTell(TStream *context)
 {
-    struct TRWFile *content;
+    struct TStreamFile *content;
     if(!context->content) return 0;
-    content = (struct TRWFile *) context->content;
+    content = (struct TStreamFile *) context->content;
 
     return ftell(content->f);
 }
 
-static unsigned char TRWFileEOF(TRW *context)
+static unsigned char TStreamFileEOF(TStream *context)
 {
-    struct TRWFile *content;
+    struct TStreamFile *content;
     if(!context->content) return 0;
-    content = (struct TRWFile *) context->content;
+    content = (struct TStreamFile *) context->content;
 
     return feof(content->f);
 }
 
-static TSize TRWFileRead(TRW *context, TPtr buffer, TSize size)
+static TSize TStreamFileRead(TStream *context, TPtr buffer, TSize size)
 {
     int read;
-    struct TRWFile *content;
+    struct TStreamFile *content;
     if(!context->content || !buffer || !size) return 0;
-    content = (struct TRWFile *) context->content;
+    content = (struct TStreamFile *) context->content;
 
     if(feof(content->f)) return 0;
 
@@ -85,12 +85,12 @@ static TSize TRWFileRead(TRW *context, TPtr buffer, TSize size)
     return read;
 }
 
-static TSize TRWFileWrite(TRW *context, TCPtr buffer, TSize size)
+static TSize TStreamFileWrite(TStream *context, TCPtr buffer, TSize size)
 {
     int written = 0;
-    struct TRWFile *content;
+    struct TStreamFile *content;
     if(!context->content || !buffer || !size) return 0;
-    content = (struct TRWFile *) context->content;
+    content = (struct TStreamFile *) context->content;
 
     written = fwrite(buffer, 1, size, content->f);
 
@@ -103,11 +103,11 @@ static TSize TRWFileWrite(TRW *context, TCPtr buffer, TSize size)
     return written;
 }
 
-static int TRWFileClose(TRW *context)
+static int TStreamFileClose(TStream *context)
 {
-    struct TRWFile *content;
+    struct TStreamFile *content;
     if(!context->content) return 0;
-    content = (struct TRWFile *) context->content;
+    content = (struct TStreamFile *) context->content;
 
     if(content->autoclose)
         return fclose(content->f);
@@ -115,19 +115,19 @@ static int TRWFileClose(TRW *context)
     return 0;
 }
 
-static TRWOps TRWFileOps = {
-    TRWFileSize,
-    TRWFileSeek,
-    TRWFileTell,
-    TRWFileEOF,
-    TRWFileRead,
-    TRWFileWrite,
-    TRWFileClose,
+static TStreamOps TStreamFileOps = {
+    TStreamFileSize,
+    TStreamFileSeek,
+    TStreamFileTell,
+    TStreamFileEOF,
+    TStreamFileRead,
+    TStreamFileWrite,
+    TStreamFileClose,
 };
 
 //--- Default Buffer Operations ------------------------------//
 
-struct TRWBuffer {
+struct TStreamBuffer {
     unsigned char *buffer;
     TSize size;
     TSize offset;
@@ -135,20 +135,20 @@ struct TRWBuffer {
     unsigned char autofree;
 };
 
-static TSize TRWBufferSize(TRW *context)
+static TSize TStreamBufferSize(TStream *context)
 {
-    struct TRWBuffer *content;
+    struct TStreamBuffer *content;
     if(!context->content) return 0;
-    content = (struct TRWBuffer *) context->content;
+    content = (struct TStreamBuffer *) context->content;
 
     return content->size - content->offset;
 }
 
-static int TRWBufferSeek(TRW *context, TSize offset, int origin)
+static int TStreamBufferSeek(TStream *context, TSize offset, int origin)
 {
-    struct TRWBuffer *content;
+    struct TStreamBuffer *content;
     if(!context->content) return 0;
-    content = (struct TRWBuffer *) context->content;
+    content = (struct TStreamBuffer *) context->content;
 
     if(origin == SEEK_CUR) {
         content->offset += offset;
@@ -163,30 +163,30 @@ static int TRWBufferSeek(TRW *context, TSize offset, int origin)
     return 0;
 }
 
-static int TRWBufferTell(TRW *context)
+static int TStreamBufferTell(TStream *context)
 {
-    struct TRWBuffer *content;
+    struct TStreamBuffer *content;
     if(!context->content) return 0;
-    content = (struct TRWBuffer *) context->content;
+    content = (struct TStreamBuffer *) context->content;
 
     return content->offset;
 }
 
-static unsigned char TRWBufferEOF(TRW *context)
+static unsigned char TStreamBufferEOF(TStream *context)
 {
-    struct TRWBuffer *content;
+    struct TStreamBuffer *content;
     if(!context->content) return 0;
-    content = (struct TRWBuffer *) context->content;
+    content = (struct TStreamBuffer *) context->content;
 
     return content->offset >= content->size;
 }
 
-static TSize TRWBufferRead(TRW *context, TPtr buffer, TSize size)
+static TSize TStreamBufferRead(TStream *context, TPtr buffer, TSize size)
 {
     TSize cpysize;
-    struct TRWBuffer *content;
+    struct TStreamBuffer *content;
     if(!context->content || !buffer || !size) return 0;
-    content = (struct TRWBuffer *) context->content;
+    content = (struct TStreamBuffer *) context->content;
 
     if(content->offset >= content->size) return 0;
 
@@ -197,11 +197,11 @@ static TSize TRWBufferRead(TRW *context, TPtr buffer, TSize size)
     return cpysize;
 }
 
-static TSize TRWBufferWrite(TRW *context, TCPtr buffer, TSize size)
+static TSize TStreamBufferWrite(TStream *context, TCPtr buffer, TSize size)
 {
-    struct TRWBuffer *content;
+    struct TStreamBuffer *content;
     if(!context->content || !buffer || !size) return 0;
-    content = (struct TRWBuffer *) context->content;
+    content = (struct TStreamBuffer *) context->content;
 
     if (content->offset + size > content->size) {
         //attempt to increase buffer size
@@ -216,11 +216,11 @@ static TSize TRWBufferWrite(TRW *context, TCPtr buffer, TSize size)
     return size;
 }
 
-static int TRWBufferClose(TRW *context)
+static int TStreamBufferClose(TStream *context)
 {
-    struct TRWBuffer *content;
+    struct TStreamBuffer *content;
     if (!context->content) return 0;
-    content = (struct TRWBuffer *) context->content;
+    content = (struct TStreamBuffer *) context->content;
 
     if (content->autofree)
         TFree(content->buffer);
@@ -228,49 +228,49 @@ static int TRWBufferClose(TRW *context)
     return 0;
 }
 
-static TRWOps TRWBufferOps = {
-    TRWBufferSize,
-    TRWBufferSeek,
-    TRWBufferTell,
-    TRWBufferEOF,
-    TRWBufferRead,
-    TRWBufferWrite,
-    TRWBufferClose,
+static TStreamOps TStreamBufferOps = {
+    TStreamBufferSize,
+    TStreamBufferSeek,
+    TStreamBufferTell,
+    TStreamBufferEOF,
+    TStreamBufferRead,
+    TStreamBufferWrite,
+    TStreamBufferClose,
 };
 
 //--- Terra Read Write ------------------------------//
 
-enum TRWTypes {
-    TRW_UNKNOWN = 0,
-    TRW_FILE,
-    TRW_BUFFER,
+enum TStreamTypes {
+    TStream_UNKNOWN = 0,
+    TStream_FILE,
+    TStream_BUFFER,
 };
 
-TRW *TRWFromFile(const char *filename, const char *mode)
+TStream *TStreamFromFile(const char *filename, const char *mode)
 {
-    TRW *trw;
+    TStream *trw;
     if(!filename || !mode) return 0;
 
-    trw = TRWFromFilePointer(fopen(filename, mode), 1);
+    trw = TStreamFromFilePointer(fopen(filename, mode), 1);
 
     if(trw) {
         //evaluate the size of the file
-        ((struct TRWFile *)trw->content)->size = TFileSysGetFileSize(filename);
+        ((struct TStreamFile *)trw->content)->size = TFileSysGetFileSize(filename);
     }
 
     return trw;
 }
 
-TRW *TRWFromFilePointer(FILE *f, unsigned char autoclose)
+TStream *TStreamFromFilePointer(FILE *f, unsigned char autoclose)
 {
-    TRW *trw;
-    struct TRWFile *file;
+    TStream *trw;
+    struct TStreamFile *file;
     if(!f) return 0;
 
-    trw = TAllocData(TRW);
+    trw = TAllocData(TStream);
     if(!trw) return 0;
 
-    file = TAllocData(struct TRWFile);
+    file = TAllocData(struct TStreamFile);
     if(!file) {
         TFree(trw);
         return 0;
@@ -282,26 +282,26 @@ TRW *TRWFromFilePointer(FILE *f, unsigned char autoclose)
     file->size = 0;
 
     trw->content = file;
-    trw->operations = TRWFileOps;
+    trw->operations = TStreamFileOps;
 
 #ifdef _WINDOWS
-    if (f->_flag&TRW_READ_ONLY_FLAG)
+    if (f->_flag&TStream_READ_ONLY_FLAG)
         trw->operations.write = 0;
 #endif
 
     return trw;
 }
 
-TRW *TRWFromMem(unsigned char *buffer, TSize size, unsigned char autofree)
+TStream *TStreamFromMem(unsigned char *buffer, TSize size, unsigned char autofree)
 {
-    TRW *trw;
-    struct TRWBuffer *buf;
+    TStream *trw;
+    struct TStreamBuffer *buf;
     if(!buffer || size <= 0) return 0;
 
-    trw = TAllocData(TRW);
+    trw = TAllocData(TStream);
     if(!trw) return 0;
 
-    buf = TAllocData(struct TRWBuffer);
+    buf = TAllocData(struct TStreamBuffer);
     if(!buf) {
         TFree(trw);
         return 0;
@@ -313,17 +313,17 @@ TRW *TRWFromMem(unsigned char *buffer, TSize size, unsigned char autofree)
     buf->autofree = autofree;
 
     trw->content = buf;
-    trw->operations = TRWBufferOps;
+    trw->operations = TStreamBufferOps;
 
     return trw;
 }
 
-TRW *TRWFromConstMem(const unsigned char *buffer, TSize size)
+TStream *TStreamFromConstMem(const unsigned char *buffer, TSize size)
 {
-    TRW *trw;
+    TStream *trw;
     if(!buffer || size <= 0) return 0;
 
-    trw = TRWFromMem((unsigned char *)buffer, size, 1);
+    trw = TStreamFromMem((unsigned char *)buffer, size, 0);
     if(!trw) return 0;
 
     trw->operations.write = 0;
@@ -331,12 +331,12 @@ TRW *TRWFromConstMem(const unsigned char *buffer, TSize size)
     return trw;
 }
 
-TRW *TRWFromContent(TRWContent content, const TRWOps ops)
+TStream *TStreamFromContent(TStreamContent content, const TStreamOps ops)
 {
-    TRW *trw;
+    TStream *trw;
     if(!content) return 0;
 
-    trw = TAllocData(TRW);
+    trw = TAllocData(TStream);
     if(!trw) return 0;
 
     trw->content = content;
@@ -345,7 +345,7 @@ TRW *TRWFromContent(TRWContent content, const TRWOps ops)
     return trw;
 }
 
-void TRWFree(TRW *context)
+void TStreamFree(TStream *context)
 {
     if(context) {
         if(context->operations.close) {
@@ -356,14 +356,14 @@ void TRWFree(TRW *context)
     }
 }
 
-void TRWSetOps(TRW *context, const TRWOps ops)
+void TStreamSetOps(TStream *context, const TStreamOps ops)
 {
     if(context) {
         context->operations = ops;
     }
 }
 
-TSize TRWSize(TRW *context)
+TSize TStreamSize(TStream *context)
 {
     if(context) {
         if(context->operations.size) {
@@ -378,7 +378,7 @@ TSize TRWSize(TRW *context)
     return 0;
 }
 
-int TRWSeek(TRW *context, TSize offset, int origin)
+int TStreamSeek(TStream *context, TSize offset, int origin)
 {
     if(context) {
         if(context->operations.seek) {
@@ -393,7 +393,7 @@ int TRWSeek(TRW *context, TSize offset, int origin)
     return 0;
 }
 
-int TRWTell(TRW *context)
+int TStreamTell(TStream *context)
 {
     if(context) {
         if(context->operations.tell) {
@@ -408,7 +408,7 @@ int TRWTell(TRW *context)
     return 0;
 }
 
-unsigned char TRWEOF(TRW *context)
+unsigned char TStreamEOF(TStream *context)
 {
     if(context) {
         if(context->operations.eof) {
@@ -423,7 +423,7 @@ unsigned char TRWEOF(TRW *context)
     return 0;
 }
 
-unsigned char TRWRead8(TRW *context)
+unsigned char TStreamRead8(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
@@ -440,7 +440,7 @@ unsigned char TRWRead8(TRW *context)
     return 0;
 }
 
-unsigned short TRWRead16(TRW *context)
+unsigned short TStreamRead16(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
@@ -457,7 +457,7 @@ unsigned short TRWRead16(TRW *context)
     return 0;
 }
 
-unsigned int TRWRead32(TRW *context)
+unsigned int TStreamRead32(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
@@ -474,7 +474,7 @@ unsigned int TRWRead32(TRW *context)
     return 0;
 }
 
-unsigned long long TRWRead64(TRW *context)
+unsigned long long TStreamRead64(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
@@ -491,7 +491,7 @@ unsigned long long TRWRead64(TRW *context)
     return 0;
 }
 
-TSize TRWReadBlock(TRW *context, unsigned char *buffer, TSize count)
+TSize TStreamReadBlock(TStream *context, unsigned char *buffer, TSize count)
 {
     if(context && buffer && count) {
         if(context->operations.read) {
@@ -506,7 +506,7 @@ TSize TRWReadBlock(TRW *context, unsigned char *buffer, TSize count)
     return 0;
 }
 
-int TRWWrite8(TRW *context, unsigned char data)
+int TStreamWrite8(TStream *context, unsigned char data)
 {
     if(context) {
         if(context->operations.write) {
@@ -521,7 +521,7 @@ int TRWWrite8(TRW *context, unsigned char data)
     return 1;
 }
 
-int TRWWrite16(TRW *context, unsigned short data)
+int TStreamWrite16(TStream *context, unsigned short data)
 {
     if(context) {
         if(context->operations.write) {
@@ -536,7 +536,7 @@ int TRWWrite16(TRW *context, unsigned short data)
     return 1;
 }
 
-int TRWWrite32(TRW *context, unsigned int data)
+int TStreamWrite32(TStream *context, unsigned int data)
 {
     if(context) {
         if(context->operations.write) {
@@ -551,7 +551,7 @@ int TRWWrite32(TRW *context, unsigned int data)
     return 1;
 }
 
-int TRWWrite64(TRW *context, unsigned long long data)
+int TStreamWrite64(TStream *context, unsigned long long data)
 {
     if(context) {
         if(context->operations.write) {
@@ -566,7 +566,7 @@ int TRWWrite64(TRW *context, unsigned long long data)
     return 1;
 }
 
-int TRWWriteBlock(TRW *context, const unsigned char *buffer, TSize size)
+int TStreamWriteBlock(TStream *context, const unsigned char *buffer, TSize size)
 {
     if(context && buffer && size) {
         if(context->operations.write) {
@@ -581,7 +581,7 @@ int TRWWriteBlock(TRW *context, const unsigned char *buffer, TSize size)
     return 0;
 }
 
-int TRWWriteString(TRW *context, const char *buffer, TSize size)
+int TStreamWriteString(TStream *context, const char *buffer, TSize size)
 {
     if (context && buffer) {
         if (context->operations.write) {

@@ -2,7 +2,7 @@
 
 #include "utility/tfilesys.h"
 
-#include "filesys_test.h"
+#include "test.h"
 
 #include "test_utils.h"
 

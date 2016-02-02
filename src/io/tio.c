@@ -71,12 +71,12 @@ FILE *TIOGetFile(const char *filename,const char *mode)
 	return 0;
 }
 
-TRW *TIOGetRW(const char *filename,const char *mode)
+TStream *TIOGetRW(const char *filename,const char *mode)
 {
-	TRW *trw = 0;
+	TStream *trw = 0;
 
 	FILE *f = TIOGetFile(filename,mode);
-	if(f) trw = TRWFromFilePointer(f,1);
+	if(f) trw = TStreamFromFilePointer(f,1);
 
 	return trw;
 }
@@ -86,14 +86,14 @@ unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, unsign
 	unsigned char *buffer = 0;
 	unsigned int finalsize = 0;
 
-	TRW *trw = TIOGetRW(filename,mode);
+	TStream *trw = TIOGetRW(filename,mode);
 	if(!trw) return 0;
 
-	finalsize = TRWSize(trw);
+	finalsize = TStreamSize(trw);
 	buffer = TAlloc(sizeof(unsigned char) * finalsize);
-	*size = TRWReadBlock(trw, buffer, finalsize);
+	*size = TStreamReadBlock(trw, buffer, finalsize);
 
-	TRWFree(trw);
+	TStreamFree(trw);
 
 	return buffer;
 }

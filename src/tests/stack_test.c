@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "stack_test.h"
+#include "test.h"
 
 #include "structure/tstack.h"
 #include "utility/tinteger.h"

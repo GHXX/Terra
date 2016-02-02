@@ -1,20 +1,9 @@
 
 #include "stdafx.h"
 
+#include "test.h"
+
 #include "test_utils.h"
-
-#include "memleak_test.h"
-
-#include "array_test.h"
-#include "stack_test.h"
-#include "rbtree_test.h"
-
-#include "string_test.h"
-#include "hardware_test.h"
-
-#include "filesys_test.h"
-#include "reader_test.h"
-#include "argparse_test.h"
 
 int main(int argc, char **argv)
 {
@@ -38,7 +27,9 @@ int main(int argc, char **argv)
 
 	//filesys_test();
 
-	rw_test();
+	stream_test();
+
+	tokenizer_test();
 
 	TLogReport(T_LOG_PROGRESS,0,"All Tests have been executed.\n");
 

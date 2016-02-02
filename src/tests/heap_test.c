@@ -2,7 +2,7 @@
 
 #include "structure/theap.h"
 
-#include "heap_test.h"
+#include "test.h"
 
 #include "test_utils.h"
 

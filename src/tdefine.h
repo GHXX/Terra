@@ -96,9 +96,9 @@ typedef TPtr (*TDataIterFunc) (TPtr, TPtr);
 typedef void (*TPairIterFunc) (TPtr, TPtr);
 typedef TPtr (*TDataPairIterFunc) (TPtr, TPtr, TPtr);
 
-typedef int (*TCompareFunc) (TCPtr, TCPtr);
+typedef TInt32 (*TCompareFunc) (TCPtr, TCPtr);
 
-typedef int (*TThreadFunc) (TPtr);
+typedef TInt32 (*TThreadFunc) (TPtr);
 
 enum T_DATA_TYPE {
 	T_DATA_UNKNOWN = 0,

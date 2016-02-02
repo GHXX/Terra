@@ -3,30 +3,30 @@
 #define __included_terra_read_write_h
 
 /**
-* Terra Read Write
+* Terra Stream
 *
 *   The purpose of this file is to provide a common
 *   reading and writing interface.
 *
 */
 
-typedef struct _TRW TRW;
+typedef struct _TStream TStream;
 
-typedef struct _TRWOps {
-	TSize(*size) (TRW *context);
+typedef struct _TStreamOps {
+	TSize(*size) (TStream *context);
 
-	int(*seek) (TRW *context, TSize offset, int origin);
-	int(*tell) (TRW *context);
+	int(*seek) (TStream *context, TSize offset, int origin);
+	int(*tell) (TStream *context);
 
-	unsigned char(*eof) (TRW *context);
+	unsigned char(*eof) (TStream *context);
 
-	TSize(*read) (TRW *context, TPtr buffer, TSize size);
-	TSize(*write) (TRW *context, TCPtr buffer, TSize size);
+	TSize(*read) (TStream *context, TPtr buffer, TSize size);
+	TSize(*write) (TStream *context, TCPtr buffer, TSize size);
 
-    int(*close) (TRW *context);
-} TRWOps;
+    int(*close) (TStream *context);
+} TStreamOps;
 
-typedef TPtr TRWContent;
+typedef TPtr TStreamContent;
 
 /**
 * Opens a file, creates a read write context for it and returns it
@@ -37,7 +37,7 @@ typedef TPtr TRWContent;
 * @return                    A read write context.
 *
 */
-TRW *TRWFromFile(const char *filepath, const char *mode);
+TStream *TStreamFromFile(const char *filepath, const char *mode);
 
 /**
 * Creates and returns a read write context for a file
@@ -49,7 +49,7 @@ TRW *TRWFromFile(const char *filepath, const char *mode);
 * @return                    A read write context.
 *
 */
-TRW *TRWFromFilePointer(FILE *file, unsigned char autoclose);
+TStream *TStreamFromFilePointer(FILE *file, unsigned char autoclose);
 
 /**
 * Creates and returns a read write context for a buffer
@@ -62,7 +62,7 @@ TRW *TRWFromFilePointer(FILE *file, unsigned char autoclose);
 * @return                    A read write context.
 *
 */
-TRW *TRWFromMem(unsigned char *buffer, TSize size, unsigned char autofree);
+TStream *TStreamFromMem(unsigned char *buffer, TSize size, unsigned char autofree);
 
 /**
 * Creates and returns a read write context for a const buffer
@@ -73,7 +73,7 @@ TRW *TRWFromMem(unsigned char *buffer, TSize size, unsigned char autofree);
 * @return                    A read write context.
 *
 */
-TRW *TRWFromConstMem(const unsigned char *buffer, TSize size);
+TStream *TStreamFromConstMem(const unsigned char *buffer, TSize size);
 
 /**
 * Creates and returns a read write context for an unspecified content
@@ -84,7 +84,7 @@ TRW *TRWFromConstMem(const unsigned char *buffer, TSize size);
 * @return                    A read write context.
 *
 */
-TRW *TRWFromContent(TRWContent content, const TRWOps ops);
+TStream *TStreamFromContent(TStreamContent content, const TStreamOps ops);
 
 /**
 * Frees a read write context
@@ -92,7 +92,7 @@ TRW *TRWFromContent(TRWContent content, const TRWOps ops);
 * @param context             A read write context.
 *
 */
-void TRWFree(TRW *context);
+void TStreamFree(TStream *context);
 
 /**
 * Change the set of operations for a read write context.
@@ -101,7 +101,7 @@ void TRWFree(TRW *context);
 * @param ops                 A set of operations.
 *
 */
-void TRWSetOps(TRW *context, const TRWOps ops);
+void TStreamSetOps(TStream *context, const TStreamOps ops);
 
 /**
 * Get the remaining size for the read write context.
@@ -111,7 +111,7 @@ void TRWSetOps(TRW *context, const TRWOps ops);
 * @return                    The remaining size.
 *
 */
-TSize TRWSize(TRW *context);
+TSize TStreamSize(TStream *context);
 
 /**
 * Sets the cursor position for the read write context.
@@ -123,7 +123,7 @@ TSize TRWSize(TRW *context);
 * @return                    An error code.
 *
 */
-int TRWSeek(TRW *context, TSize offset, int origin);
+int TStreamSeek(TStream *context, TSize offset, int origin);
 
 /**
 * Get the current cursor position for the read write context.
@@ -133,7 +133,7 @@ int TRWSeek(TRW *context, TSize offset, int origin);
 * @return                    An error code.
 *
 */
-int TRWTell(TRW *context);
+int TStreamTell(TStream *context);
 
 /**
 * Verify whether the end of content has been reached.
@@ -143,7 +143,7 @@ int TRWTell(TRW *context);
 * @return                    0 for false, true otherwise.
 *
 */
-unsigned char TRWEOF(TRW *context);
+unsigned char TStreamEOF(TStream *context);
 
 /**
 * Read 8 bits from the context
@@ -153,7 +153,7 @@ unsigned char TRWEOF(TRW *context);
 * @return                    A Byte worth of data.
 *
 */
-unsigned char TRWRead8(TRW *context);
+unsigned char TStreamRead8(TStream *context);
 
 /**
 * Read 16 bits from the context
@@ -163,7 +163,7 @@ unsigned char TRWRead8(TRW *context);
 * @return                    2 Bytes worth of data.
 *
 */
-unsigned short TRWRead16(TRW *context);
+unsigned short TStreamRead16(TStream *context);
 
 /**
 * Read 32 bits from the context
@@ -173,7 +173,7 @@ unsigned short TRWRead16(TRW *context);
 * @return                    4 Bytes worth of data.
 *
 */
-unsigned int TRWRead32(TRW *context);
+unsigned int TStreamRead32(TStream *context);
 
 /**
 * Read 64 bits from the context
@@ -183,7 +183,7 @@ unsigned int TRWRead32(TRW *context);
 * @return                    8 Bytes worth of data.
 *
 */
-unsigned long long TRWRead64(TRW *context);
+unsigned long long TStreamRead64(TStream *context);
 
 /**
 * Fill a user specified buffer with data
@@ -195,7 +195,7 @@ unsigned long long TRWRead64(TRW *context);
 * @return                    The size read.
 *
 */
-TSize TRWReadBlock(TRW *context, unsigned char *buffer, TSize size);
+TSize TStreamReadBlock(TStream *context, unsigned char *buffer, TSize size);
 
 /**
 * Writes 8 bits to the context buffer
@@ -206,7 +206,7 @@ TSize TRWReadBlock(TRW *context, unsigned char *buffer, TSize size);
 * @return                    The amount written.
 *
 */
-int TRWWrite8(TRW *context, unsigned char data);
+int TStreamWrite8(TStream *context, unsigned char data);
 
 /**
 * Writes 16 bits to the context buffer
@@ -217,7 +217,7 @@ int TRWWrite8(TRW *context, unsigned char data);
 * @return                    The amount written.
 *
 */
-int TRWWrite16(TRW *context, unsigned short data);
+int TStreamWrite16(TStream *context, unsigned short data);
 
 /**
 * Writes 32 bits to the context buffer
@@ -228,7 +228,7 @@ int TRWWrite16(TRW *context, unsigned short data);
 * @return                    The amount written.
 *
 */
-int TRWWrite32(TRW *context, unsigned int data);
+int TStreamWrite32(TStream *context, unsigned int data);
 
 /**
 * Writes 64 bits to the context buffer
@@ -239,7 +239,7 @@ int TRWWrite32(TRW *context, unsigned int data);
 * @return                    The amount written.
 *
 */
-int TRWWrite64(TRW *context, unsigned long long data);
+int TStreamWrite64(TStream *context, unsigned long long data);
 
 /**
 * Writes a block of data to the context buffer
@@ -251,7 +251,7 @@ int TRWWrite64(TRW *context, unsigned long long data);
 * @return                    The amount written.
 *
 */
-int TRWWriteBlock(TRW *context, const unsigned char *buffer, TSize size);
+int TStreamWriteBlock(TStream *context, const unsigned char *buffer, TSize size);
 
 /**
 * Writes a string to the context buffer
@@ -263,6 +263,6 @@ int TRWWriteBlock(TRW *context, const unsigned char *buffer, TSize size);
 * @return                    The amount written.
 *
 */
-int TRWWriteString(TRW *context, const char *buffer, TSize size);
+int TStreamWriteString(TStream *context, const char *buffer, TSize size);
 
 #endif

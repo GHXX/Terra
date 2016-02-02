@@ -41,7 +41,7 @@
     <ClCompile Include="..\..\src\io\tio.c">
       <Filter>io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\io\trw.c">
+    <ClCompile Include="..\..\src\io\tstream.c">
       <Filter>io</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\utility\targparser.c">
@@ -134,7 +134,7 @@
     <ClInclude Include="..\..\src\io\tio.h">
       <Filter>io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\io\trw.h">
+    <ClInclude Include="..\..\src\io\tstream.h">
       <Filter>io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\utility\targparser.h">

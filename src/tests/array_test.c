@@ -3,7 +3,7 @@
 #include "structure/tarray.h"
 #include "utility/tinteger.h"
 
-#include "array_test.h"
+#include "test.h"
 
 #include "test_utils.h"
 

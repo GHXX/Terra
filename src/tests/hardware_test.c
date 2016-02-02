@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "hardware_test.h"
+#include "test.h"
 
 #include "test_utils.h"
 
@@ -41,17 +41,41 @@ void hardware_test_mouse_inf(void)
 
 void hardware_test_cpu_inf(void)
 {
-	TCPU tcpu = TCPUGetInf();
-	int i;
+	/*TCPUS tcpus = TCPUSGetInf();
+	TUInt32 i;
 
-	printf("  CPU: Number Of Logical Cores : %d.\n", tcpu.total_logical_cpus);
-	printf("       Supported toolsets:");
+	TAssert(tcpus.numCPUs > 0);
+	TAssert(tcpus.totalLogicalCores > 0);
 
-	for (i = 0; i < NUM_CPU_FEATURES; ++i) {
-		if (tcpu.flags[i]) printf(" %s", cpu_feature_str(i));
+	printf("TCPU Results: \n");
+	printf("  numCPUs: %d", tcpus.numCPUs);
+	printf("  totalLogicalCores: %d", tcpus.totalLogicalCores);
+
+	for (i = 0; i < tcpus.numCPUs; ++i) {
+		TUInt8 j;
+		TCPU *curCPU = &tcpus.cpus[i];
+
+		printf("  CPU %d: \n", i);
+		printf("    Number Of Logical Cores : %d.\n", curCPU->numLogicalCores);
+		printf("    Supported Toolsets : ");
+
+		for (j = 0; j < TCPU_NUM_FEATURES; ++j) {
+			if (TCPUHasFeature(curCPU, j)) {
+				printf("%s", TCPUFeatureShortString(j));
+				break;
+			}
+		}
+
+		for (j++; j < TCPU_NUM_FEATURES; ++j) {
+			if (TCPUHasFeature(curCPU, j)) {
+				printf(", %s", TCPUFeatureShortString(j));
+			}
+		}
+
+		printf("\n");
 	}
-
-	printf("\n");
+	
+	TCPUSClear(&tcpus);*/
 }
 
 void hardware_test_ram_inf(void)

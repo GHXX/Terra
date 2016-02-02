@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "rbtree_test.h"
+#include "test.h"
 
 #include "structure/trbtree.h"
 #include "utility/tinteger.h"
