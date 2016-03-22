@@ -63,7 +63,7 @@ TString *TStringNCopy(TString *string, TSize num) {
 			unsigned char *ptr = string->content;
 			size = string->size;
 			while (num--) {
-				TEncodingUTF8Increment(&ptr, &size);
+				TEncodingUTF8Increment(ptr, &size);
 				if (size == 0) {
 					s->encoding = string->encoding;
 					s->size = string->size;
@@ -127,7 +127,7 @@ TSize TStringRCSpn(TString *string, const char *control) {
 	if (!control) return i + 1;
 
 	if(string->encoding == T_ENCODING_ASCII) {
-		const char *start = string->content;
+		const char *start = (const char *)string->content;
 		const char *c;
 
 		for (c = start + i; c != start; c--) {
@@ -137,14 +137,14 @@ TSize TStringRCSpn(TString *string, const char *control) {
 
 		if (strchr(control, *c)) return 0;
 	} else if (string->encoding == T_ENCODING_UTF8) {
-		const char *start = string->content;
-		const char *c;
+		unsigned char const *start = string->content;
+		unsigned char const *c;
 		TSize size = 0, previousSize = 0;
 		TString *controlStr = TStringFromString(control);
 
 		c = start + string->size;
 		while (c != start) {
-			TUInt32 ch = TEncodingUTF8GetPreviousChr(&c, &size);
+			TUInt32 ch = TEncodingUTF8GetPreviousChr(c, &size);
 			if (TStringChr(controlStr, ch)) {
 				TStringFree(controlStr);
 				return i;
@@ -168,16 +168,18 @@ const unsigned char *TStringChr(TString *string, TUInt32 character) {
 		//check for utf-8 character
 		if (character <= 0x7F) {
 			//there might be a match
-			return strchr(string->content, character);
+			return (const unsigned char *)strchr((const char *)string->content, character);
 		}
 	} else if (string->encoding == T_ENCODING_UTF8) {
 		TSize size = string->size;
 		TUInt32 ch;
-		const unsigned char *ptr = string->content;
+		unsigned char *ptr = string->content;
+		unsigned char *previous = ptr;
 
 		do {
-			ch = TEncodingUTF8GetChr(&ptr, &size);
-			if (ch == character) return ptr;
+			ch = TEncodingUTF8GetChr(ptr, &size);
+			if (ch == character) return previous;
+			previous = ptr;
 		} while (ch);
 	}
 
@@ -202,7 +204,7 @@ TString *TStringLowerCase(TString *string) {
 		ptr = s->content;
 
 		while (*sptr) {
-			TUInt32 ch = TEncodingUTF8GetChr(&sptr, &size);
+			TUInt32 ch = TEncodingUTF8GetChr(sptr, &size);
 			ch = tolower(ch);
 			memcpy(ptr, &ch, sizeof(TUInt32));
 			ptr += sizeof(TUInt32);

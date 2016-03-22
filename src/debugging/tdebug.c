@@ -30,7 +30,7 @@ void TDebugDumpData(TStream *stream, unsigned char *data, TSize dataLen)
 				 data[4], data[5], data[6], data[7],
 				 data[8], data[9], data[10], data[11],
 				 data[12], data[13], data[14], data[15]);
-		TStreamWriteBlock(stream, block, strlen(block));
+		TStreamWriteString(stream, block, strlen(block));
 		data += 16;
 		dataLen -= 16;
 	}
@@ -45,7 +45,7 @@ void TDebugDumpData(TStream *stream, unsigned char *data, TSize dataLen)
 				 data[4], data[5], data[6], data[7],
 				 data[8], data[9], data[10], data[11],
 				 data[12], data[13], data[14], data[15]);
-		TStreamWriteBlock(stream, block, strlen(block));
+		TStreamWriteString(stream, block, strlen(block));
 		TFree(end);
 	}
 }
@@ -77,7 +77,7 @@ unsigned *getRetAddress(unsigned *mBP)
 #endif
 }
 
-char *TDebugPrintStackTrace(TStream *stream) {
+void TDebugPrintStackTrace(TStream *stream) {
 #ifdef _WINDOWS
 	unsigned *framePtr = 0;
 	unsigned *previousFramePtr = 0;

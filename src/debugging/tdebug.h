@@ -12,7 +12,7 @@ void TDebugDumpData(TStream *stream, unsigned char *data, TSize dataLen); // Dum
 
 void TDebugAssertFailed(const char *fmt, ...);
 
-char *TDebugGetStackTrace(void);
+void TDebugPrintStackTrace(TStream *stream);
 
 void TDebugSetAbortFunction(TAbortFunc func);
 

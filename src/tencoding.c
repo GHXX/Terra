@@ -44,12 +44,12 @@ static inline TUInt32 TEncodingGetUTF8Firstbyte(unsigned char byte, int codeLeng
 	return 0;
 }
 
-TUInt32 TEncodingUTF8GetChrInternal(const char **data, TSize *size) {
+TUInt32 TEncodingUTF8GetChrInternal(const unsigned char *data, TSize *size) {
 	unsigned char byte;
 	TUInt8 codeLength, i;
 	TUInt32 ch;
 
-	byte = **data;
+	byte = *data;
 	codeLength = TEncodingGetUTF8CodeLength(byte);
 	if (!codeLength) return 0;
 
@@ -64,18 +64,18 @@ TUInt32 TEncodingUTF8GetChrInternal(const char **data, TSize *size) {
 		ch = (ch << 6) | (byte & 0x3F);
 	}
 
-	(*data) += codeLength;
+	data += codeLength;
 	*size -= sizeof(unsigned char) * codeLength;
 
 	return ch;
 }
 
-static inline int TEncodingIsValidUTF8(const unsigned char **data, TSize *size) {
+static inline int TEncodingIsValidUTF8(const unsigned char *data, TSize *size) {
 	unsigned char byte;
 	TUInt8 codeLength, i;
 	TUInt32 ch;
 
-	byte = **data;
+	byte = *data;
 	codeLength = TEncodingGetUTF8CodeLength(byte);
 	if (!codeLength) return 0;
 
@@ -102,7 +102,7 @@ static inline int TEncodingIsValidUTF8(const unsigned char **data, TSize *size) 
 		((ch >= 0x10000) && (ch <= 0x1FFFFF) && (codeLength != 4)))
 		return 0;
 
-	(*data) += codeLength;
+	data += codeLength;
 	*size -= sizeof(unsigned char) * codeLength;
 
 	return 1;
@@ -119,7 +119,7 @@ TUInt8 TEncodingGuess(const unsigned char *data, TSize size) {
 			continue;
 		}
 
-		if (TEncodingIsValidUTF8(&data, &size))
+		if (TEncodingIsValidUTF8(data, &size))
 			encoding = T_ENCODING_UTF8;
 		else
 			return T_ENCODING_UNKNOWN;
@@ -144,7 +144,7 @@ TUInt8 TEncodingStreamGuess(TStream *stream) {
 			continue;
 		}
 
-		if (TEncodingIsValidUTF8(&ptr, &size))
+		if (TEncodingIsValidUTF8(ptr, &size))
 			encoding = T_ENCODING_UTF8;
 		else
 			return T_ENCODING_UNKNOWN;
@@ -225,12 +225,6 @@ TUInt8 TEncodingGetStreamEncoding(TStream *stream) {
 	}
 
 	return encoding;
-}
-
-static inline unsigned char *TEncodingASCIIToUTF8(const unsigned char *data, TSize size) {
-	char *cpy = TAlloc(size);
-	if (cpy) memcpy(cpy, data, size);
-	return cpy;
 }
 
 /*static inline TUInt16 TEncodingUTF16GetCh(const unsigned char **data, TSize *size) {
@@ -363,13 +357,8 @@ unsigned char *TEncodingToUTF8(const unsigned char *data, TSize size, TUInt8 hin
 
 	if (hint_encoding == T_ENCODING_UNKNOWN)
 		hint_encoding = TEncodingGetDataEncoding(data, size);
-	
-	if (hint_encoding == T_ENCODING_ASCII) {
-		return TEncodingASCIIToUTF8(data, size);
-	}
 
-	TErrorReportDefault(T_ERROR_INVALID_INPUT);
-	return 0;
+	TErrorZero(T_ERROR_INVALID_INPUT);
 }
 
 static inline unsigned char *TEncodingASCIIToUTF16LE(const unsigned char *data, TSize size) {
@@ -476,7 +465,7 @@ unsigned char *TEncodingToUTF16LE(const unsigned char *data, TSize size, TUInt8 
 	return 0;
 }
 
-TUInt32 TEncodingUTF8GetChr(const unsigned char **data, TSize *size) {
+TUInt32 TEncodingUTF8GetChr(const unsigned char *data, TSize *size) {
 	if (!data || !size) {
 		TErrorZero(T_ERROR_INVALID_INPUT);
 	}
@@ -484,7 +473,7 @@ TUInt32 TEncodingUTF8GetChr(const unsigned char **data, TSize *size) {
 	return TEncodingUTF8GetChrInternal(data, size);
 }
 
-TUInt32 TEncodingUTF8GetPreviousChr(const unsigned char **data, TSize *size) {
+TUInt32 TEncodingUTF8GetPreviousChr(const unsigned char *data, TSize *size) {
 	unsigned char byte;
 	TUInt32 ch;
 	TSize i;
@@ -495,9 +484,9 @@ TUInt32 TEncodingUTF8GetPreviousChr(const unsigned char **data, TSize *size) {
 
 	i = 0;
 	do {
-		(*data)--;
+		data--;
 		(*size) += sizeof(unsigned char);
-		byte = **data;
+		byte = *data;
 		TUInt32 temp;
 
 		if ((byte & 0xC0) != 0x80) {
@@ -516,7 +505,7 @@ TUInt32 TEncodingUTF8GetPreviousChr(const unsigned char **data, TSize *size) {
 	return ch;
 }
 
-void TEncodingUTF8Increment(const unsigned char **data, TSize *size) {
+void TEncodingUTF8Increment(const unsigned char *data, TSize *size) {
 	unsigned char byte;
 	TUInt8 codeLength;
 
@@ -524,7 +513,7 @@ void TEncodingUTF8Increment(const unsigned char **data, TSize *size) {
 		TError(T_ERROR_INVALID_INPUT);
 	}
 
-	byte = **data;
+	byte = *data;
 
 	codeLength = TEncodingGetUTF8CodeLength(byte);
 	if (!codeLength) return;
@@ -534,11 +523,11 @@ void TEncodingUTF8Increment(const unsigned char **data, TSize *size) {
 		return;
 	}
 
-	(*data) += codeLength;
+	data += codeLength;
 	(*size) -= sizeof(unsigned char) * codeLength;
 }
 
-void TEncodingUTF8Decrement(const unsigned char **data, TSize *size) {
+void TEncodingUTF8Decrement(const unsigned char *data, TSize *size) {
 	unsigned char byte;
 
 	if (!data || !size) {
@@ -546,9 +535,9 @@ void TEncodingUTF8Decrement(const unsigned char **data, TSize *size) {
 	}
 
 	do {
-		(*data)--;
+		data--;
 		(*size) += sizeof(unsigned char);
-		byte = **data;
+		byte = *data;
 	} while ((byte & 0xC0) == 0x80);
 }
 

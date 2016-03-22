@@ -39,8 +39,9 @@
 #	define stricmp _stricmp
 #elif defined(__GNUC__)
 #	define COMPILER_GCC
+#	define _GNU_SOURCE
 
-#	ifdef(PLATFORM_X86_64)
+#	ifdef PLATFORM_X86_64
 #		define _FILE_OFFSET_BITS=64
 #	endif
 #endif

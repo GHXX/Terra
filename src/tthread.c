@@ -6,6 +6,7 @@
 #ifndef _WINDOWS
 #include <pthread.h>
 #include <sys/time.h>
+#include <sched.h>
 #else
 #include <Windows.h>
 #endif
@@ -115,7 +116,7 @@ TUInt32 TThreadGetAffinity(void)
 
 #elif defined(_LINUX)
 	TUInt32 ret, mask_id;
-	CPUSET_T mask;
+	cpu_set_t mask;
 	pthread_t pth;
 
 	pth = pthread_self();
@@ -137,18 +138,18 @@ TUInt32 TThreadGetAffinity(void)
 #endif
 }
 
-TUInt8 TThreadSetAffinity(TUInt32 mask)
+TUInt8 TThreadSetAffinity(TUInt32 _mask)
 {
 #ifdef _WINDOWS
 	DWORD ret;
 	HANDLE hThread = GetCurrentThread();
-	ret = SetThreadAffinityMask(hThread, (DWORD_PTR)mask);
+	ret = SetThreadAffinityMask(hThread, (DWORD_PTR)_mask);
 
 	return (ret != 0) ? 0 : 1;
 
 #elif defined(_LINUX)
 	int ret;
-	CPUSET_T mask;
+	cpu_set_t mask;
 	pthread_t pth;
 
 	pth = pthread_self();
@@ -187,7 +188,10 @@ TMutex *TMutexNew(enum T_MUTEX_TYPE type)
 	InitializeCriticalSection(&m->mutex);
 #else
 	int error = pthread_mutexattr_init(&m->mutexAttr);
-	if(error) goto TMutexNewError;
+	if(error) {
+		TFree(m);
+		return 0;
+	}
 
 	if(type == T_MUTEX_NORMAL) {
 		type = PTHREAD_MUTEX_NORMAL;
@@ -296,7 +300,7 @@ int TCVSleepTimed(TCV *context, TUInt32 msec) {
 	ts.tv_sec = tp.tv_sec+5;
 	ts.tv_nsec = (tp.tv_usec+1000UL*msec)*1000UL;
 
-	return pthread_cond_timedwait(&v->var,&v->m->mutex,&ts);
+	return pthread_cond_timedwait(&context->var, &context->m->mutex, &ts);
 #endif
 }
 
@@ -305,7 +309,7 @@ int TCVSleep(TCV *context) {
 	SleepConditionVariableCS(&context->var, &context->m->mutex, INFINITE);
 	return GetLastError();
 #else
-	return pthread_cond_wait(&v->var, &v->m->mutex);
+	return pthread_cond_wait(&context->var, &context->m->mutex);
 #endif
 }
 

@@ -11,18 +11,18 @@ struct TLog {
 	TStream *stream;
 };
 
-static TLog *main = 0;
+static TLog *mainLog = 0;
 
 void TLogInit(TStream *stream) {
 	if (!stream) {
 		stream = TStreamFromFilePointer(stdout, 0);
 	}
-	main = TLogNew(stream);
+	mainLog = TLogNew(stream);
 }
 
 void TLogDestroy(void) {
-	TLogFree(main);
-	main = 0;
+	TLogFree(mainLog);
+	mainLog = 0;
 }
 
 TLog *TLogNew(TStream *stream) {
@@ -63,7 +63,7 @@ int TLogWrite(TLog *context, const char *format, ...) {
 }
 
 int TLogWriteV(TLog *context, const char *format, va_list ap) {
-	unsigned char buffer[TBUFSIZE];
+	char buffer[TBUFSIZE];
 	TInt32 size;
 
 	if (!context || !format) {
@@ -78,25 +78,25 @@ int TLogWriteV(TLog *context, const char *format, va_list ap) {
 		return 1;
 	}
 	
-	return TStreamWriteBlock(context->stream, buffer, size);
+	return TStreamWriteString(context->stream, buffer, size);
 }
 
 int TLogWriteMain(const char *format, ...) {
 	int res;
 	va_list ap;
 
-	if (!main || !format) {
+	if (!mainLog || !format) {
 		TErrorReportDefault(T_ERROR_INVALID_INPUT);
 		return 1;
 	}
 
 	va_start(ap, format);
-	res = TLogWriteV(main, format, ap);
+	res = TLogWriteV(mainLog, format, ap);
 	va_end(ap);
 
 	return res;
 }
 
 int TLogWriteVMain(const char *format, va_list ap) {
-	return TLogWriteV(main, format, ap);
+	return TLogWriteV(mainLog, format, ap);
 }

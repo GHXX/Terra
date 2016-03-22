@@ -70,10 +70,10 @@ void TTokenizerSetSeparators(TTokenizer *context, const char *separators) {
 }
 
 const char *TTokenizerPrepareToken(TTokenizer *context, char *separator) {
-	char *ptr;
-	char *next;
+	unsigned char *ptr;
+	unsigned char *next;
 	
-	ptr = (char *)(context->buffer + context->offset);
+	ptr = context->buffer + context->offset;
 
 	if (context->flags & 0x2) {
 		//remove starting separators
@@ -86,12 +86,12 @@ const char *TTokenizerPrepareToken(TTokenizer *context, char *separator) {
 	next = ptr;
 
 	do {
-		next = strpbrk(next, context->control);
+		next = (unsigned char *)strpbrk((char *)next, context->control);
 		if(!next) {
 			if(TStreamEOF(context->content)) {
 				// reached the end
 				context->flags |= 0x4;
-				return !*ptr && context->flags & 0x2 ? 0 : ptr;
+				return !*ptr && context->flags & 0x2 ? 0 : (char *)ptr;
 			}
 
 			if(!context->offset) {
@@ -124,7 +124,7 @@ const char *TTokenizerPrepareToken(TTokenizer *context, char *separator) {
 			*separator = *next;
 			*next = 0;
 			context->offset += (next - ptr) + 1;
-			return ptr;
+			return (char *)ptr;
 		}
 	} while(1);
 

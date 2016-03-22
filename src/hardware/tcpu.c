@@ -5,7 +5,9 @@
 #include "talloc.h"
 #include "tthread.h"
 
+#ifdef _WINDOWS
 #include <Windows.h>
+#endif
 
 #if defined(PLATFORM_X86_64) && defined(COMPILER_MICROSOFT)
 #include <intrin.h>
@@ -28,14 +30,13 @@ int TCPUIDExists(void)
 #if defined(PLATFORM_X86_64)
 	return 1; /* CPUID is always present on the x86_64 */
 #elif defined(PLATFORM_X86)
-	const TUInt32 idFlag = 0x200000;
 #  if defined(COMPILER_GCC)
 	int result;
 	__asm __volatile(
-	"	pushfl\n\t"
+		"	pushfl\n\t"
 		"	pop	%%eax\n\t"
 		"	mov	%%eax,	%%ecx\n\t"
-		"	xor	%1,	%%eax\n\t"
+		"	xor	0x200000,	%%eax\n\t"
 		"	push	%%eax\n\t"
 		"	popfl\n\t"
 		"	pushfl\n\t"
@@ -44,24 +45,24 @@ int TCPUIDExists(void)
 		"	mov	%%eax,	%0\n\t"
 		"	push	%%ecx\n\t"
 		"	popfl\n\t"
-		: "=m"(result), "ir" (idFlag)
+		: "=m"(result)
 		: : "eax", "ecx", "memory");
 	return (result != 0);
 #  elif defined(COMPILER_MICROSOFT)
 	int result;
 	__asm {
 		pushfd
-			pop	eax
-			mov	ecx, eax
-			xor	eax, idFlag
-			push	eax
-			popfd
-			pushfd
-			pop	eax
-			xor	eax, ecx
-			mov	result, eax
-			push	ecx
-			popfd
+		pop	eax
+		mov	ecx, eax
+		xor	eax, 0x200000
+		push	eax
+		popfd
+		pushfd
+		pop	eax
+		xor	eax, ecx
+		mov	result, eax
+		push	ecx
+		popfd
 	};
 	return (result != 0);
 #  else
@@ -77,7 +78,7 @@ void TCPUIDExec(struct TCPUIDRegister *regs)
 #if defined(COMPILER_GCC)
 #  ifdef PLATFORM_X86_64
 	__asm __volatile(
-	"	mov	%0,	%%rdi\n"
+		"	mov	%0,	%%rdi\n"
 
 		"	push	%%rbx\n"
 		"	push	%%rcx\n"
@@ -94,15 +95,16 @@ void TCPUIDExec(struct TCPUIDRegister *regs)
 		"	movl	%%ebx,	4(%%rdi)\n"
 		"	movl	%%ecx,	8(%%rdi)\n"
 		"	movl	%%edx,	12(%%rdi)\n"
+
 		"	pop	%%rdx\n"
 		"	pop	%%rcx\n"
 		"	pop	%%rbx\n"
-		: "m"(regs)
-		: "memory", "eax", "rdi"
+		: "=m"(regs)
+		: : "memory", "eax", "rdi"
 		);
 #  else
 	__asm __volatile(
-	"	mov	%0,	%%edi\n"
+		"	mov	%0,	%%edi\n"
 
 		"	push	%%ebx\n"
 		"	push	%%ecx\n"
@@ -123,8 +125,8 @@ void TCPUIDExec(struct TCPUIDRegister *regs)
 		"	pop	%%edx\n"
 		"	pop	%%ecx\n"
 		"	pop	%%ebx\n"
-		: "m"(regs)
-		: "memory", "eax", "edi"
+		: "=m"(regs)
+		: : "memory", "eax", "edi"
 		);
 #  endif
 #elif defined(COMPILER_MICROSOFT)
@@ -133,27 +135,27 @@ void TCPUIDExec(struct TCPUIDRegister *regs)
 #  else
 	__asm {
 		push	ebx
-			push	ecx
-			push	edx
-			push	edi
-			mov	edi, regs
+		push	ecx
+		push	edx
+		push	edi
+		mov	edi, regs
 
-			mov	eax, [edi]
-			mov	ebx, [edi + 4]
-			mov	ecx, [edi + 8]
-			mov	edx, [edi + 12]
+		mov	eax, [edi]
+		mov	ebx, [edi + 4]
+		mov	ecx, [edi + 8]
+		mov	edx, [edi + 12]
 
-			cpuid
+		cpuid
 
-			mov[edi], eax
-			mov[edi + 4], ebx
-			mov[edi + 8], ecx
-			mov[edi + 12], edx
+		mov[edi], eax
+		mov[edi + 4], ebx
+		mov[edi + 8], ecx
+		mov[edi + 12], edx
 
-			pop	edi
-			pop	edx
-			pop	ecx
-			pop	ebx
+		pop	edi
+		pop	edx
+		pop	ecx
+		pop	ebx
 	}
 #  endif
 #endif

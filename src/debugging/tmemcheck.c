@@ -141,29 +141,27 @@ static void TMemLeakOuput(const char *_outputFilename, TSList *sorted, int total
 	fclose(output);
 }
 
-void TMemLeakParseFile(const char *_inputFilename,const char *_outputFilename)
-{
+void TMemLeakParseFile(const char *_inputFilename, const char *_outputFilename) {
 	int total;
 
 	// Start up
-	TRBTree *input = TRBTreeNew((TCompareFunc) strcmp,0,0);
+	TRBTree *input = TRBTreeNew((TCompareFunc)strcmp, 0, 0);
 
 	// Open the file and start parsing
-	int unrecognised = TMemLeakParseInput(_inputFilename,input);
+	int unrecognised = TMemLeakParseInput(_inputFilename, input);
 
 	// Sort the results into a list
 	TSList sorted;
 	TSListInit(&sorted);
-	total = TMemLeakSortInput(input,&sorted);
+	total = TMemLeakSortInput(input, &sorted);
 
 	TRBTreeFree(input);
-	
+
 	//output the data and clear the list
 	TMemLeakOuput(_outputFilename, &sorted, total, unrecognised);
 }
 
-void TMemLeakPrint(TStream *stream)
-{
+void TMemLeakPrint(TStream *stream) {
 	const char tmpFilename[] = "memleak.tmp";
 	OFSTRUCT ofstruct;
 	HFILE file;
@@ -171,7 +169,7 @@ void TMemLeakPrint(TStream *stream)
 	// Print all raw memory leak data to a temporary file
 	file = OpenFile(tmpFilename, &ofstruct, OF_CREATE);
 	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-	_CrtSetReportFile(_CRT_WARN,(void *) file);
+	_CrtSetReportFile(_CRT_WARN, (void *)file);
 	_CrtDumpMemoryLeaks();
 	_lclose(file);
 
@@ -182,12 +180,12 @@ void TMemLeakPrint(TStream *stream)
 	TFileSysDelete(tmpFilename);
 }
 #else
-void TMemLeakPrint(char *_filename)
+void TMemLeakPrint(TStream *stream)
 {
 }
 #endif
 #else
-void TMemLeakPrint(char *_filename)
+void TMemLeakPrint(TStream *stream)
 {
 }
 #endif

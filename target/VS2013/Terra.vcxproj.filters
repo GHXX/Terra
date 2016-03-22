@@ -33,6 +33,9 @@
     <ClCompile Include="..\..\src\debugging\tprofiler.c">
       <Filter>debugging</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\hardware\tcpu.c">
+      <Filter>hardware</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\hardware\thardware.c">
       <Filter>hardware</Filter>
     </ClCompile>
@@ -102,6 +105,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\debugging\tprofiler.h">
       <Filter>debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hardware\tcpu.h">
+      <Filter>hardware</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\hardware\thardware.h">
       <Filter>hardware</Filter>

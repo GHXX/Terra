@@ -75,7 +75,7 @@ unsigned char *TEncodingToUTF16LE(const unsigned char *data, TSize size, TUInt8 
 * @return                    The character.
 *
 */
-TUInt32 TEncodingUTF8GetChr(const unsigned char **data, TSize *size);
+TUInt32 TEncodingUTF8GetChr(const unsigned char *data, TSize *size);
 
 /**
 * Gets the previous character of an utf-8 string and updates the position
@@ -86,7 +86,7 @@ TUInt32 TEncodingUTF8GetChr(const unsigned char **data, TSize *size);
 * @return                    The character.
 *
 */
-TUInt32 TEncodingUTF8GetPreviousChr(const unsigned char **data, TSize *size);
+TUInt32 TEncodingUTF8GetPreviousChr(const unsigned char *data, TSize *size);
 
 /**
 * Goes to the next character of an utf-8 sequence
@@ -95,7 +95,7 @@ TUInt32 TEncodingUTF8GetPreviousChr(const unsigned char **data, TSize *size);
 * @param size                The data size.
 *
 */
-void TEncodingUTF8Increment(const unsigned char **data, TSize *size);
+void TEncodingUTF8Increment(const unsigned char *data, TSize *size);
 
 /**
 * Goes to the previous character of an utf-8 sequence
@@ -104,6 +104,6 @@ void TEncodingUTF8Increment(const unsigned char **data, TSize *size);
 * @param size                The data size.
 *
 */
-void TEncodingUTF8Decrement(const unsigned char **data, TSize *size);
+void TEncodingUTF8Decrement(const unsigned char *data, TSize *size);
 
 #endif
