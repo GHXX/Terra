@@ -3,7 +3,7 @@
 
 #include "io/tstream.h"
 
-#include "tmemleak.h"
+#include "tmemcheck.h"
 
 #include "structure/tlist.h"
 #include "structure/trbtree.h"
