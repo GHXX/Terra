@@ -11,16 +11,16 @@
 */
 
 #if defined(_WIN32) || defined(_WIN64)
-#define _WINDOWS 1
-#define _USE_MATH_DEFINES 1
+#	define _WINDOWS 1
+#	define _USE_MATH_DEFINES 1
 
-#define inline _inline
-#define snprintf _snprintf
+#	define inline _inline
+#	define snprintf _snprintf
 
 #elif defined(__linux) || defined(__linux__)
-#define _LINUX 1
+#	define _LINUX 1
 
-#define __STDC_LIMIT_MACROS 1
+#	define __STDC_LIMIT_MACROS 1
 #endif
 
 #if defined(__x86_64__) || defined(_M_AMD64)
@@ -30,15 +30,19 @@
 #endif
 
 #ifdef _MSC_VER
-#define COMPILER_MICROSOFT
+#	define COMPILER_MICROSOFT
 
-#define __STDC__ 1  // Enforces ANSI C compliance.
+#	define __STDC__ 1  // Enforces ANSI C compliance.
 
 // __STDC__ disables the following definitions in the C headers
-#define strdup _strdup
-#define stricmp _stricmp
+#	define strdup _strdup
+#	define stricmp _stricmp
 #elif defined(__GNUC__)
-#define COMPILER_GCC
+#	define COMPILER_GCC
+
+#	ifdef(PLATFORM_X86_64)
+#		define _FILE_OFFSET_BITS=64
+#	endif
 #endif
 
 #define UNREFERENCED_PARAMETER(P) (P)
@@ -82,8 +86,10 @@ typedef unsigned long long TUInt64;
 
 #ifdef PLATFORM_X86_64
 typedef TUInt64 TSize;
+typedef TInt64 TLInt;
 #else
 typedef TUInt32 TSize;
+typedef TInt32 TLInt;
 #endif
 
 typedef void(*TFreeFunc) (TPtr);

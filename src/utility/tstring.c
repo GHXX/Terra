@@ -3,15 +3,254 @@
 
 #include "tstring.h"
 
-#include "ttime.h"
-
 #include "talloc.h"
 #include "terror.h"
 
-int TStringCaseInsensitiveCompare(const char *str1, const char *str2)
-{
-	char *lstr1 = TStringLowerCase(str1);
-	char *lstr2 = TStringLowerCase(str2);
+#include "tencoding.h"
+
+struct TString {
+	unsigned char *content;
+	TSize size;
+	TUInt8 encoding;
+};
+
+TString *TStringFromString(const char *string) {
+	TString *s = TAllocData(TString);
+	if (s) {
+		s->encoding = T_ENCODING_ASCII;
+
+		if (string) {
+			s->size = (strlen(string) + 1) * sizeof(char);
+			s->content = TAlloc(s->size);
+			memcpy(s->content, string, s->size);
+		} else {
+			s->size = 0;
+			s->content = 0;
+		}
+	}
+	return s;
+}
+
+TString *TStringFromTString(TString *string) {
+	TString *s;
+	
+	if (!string) TErrorZero(T_ERROR_INVALID_INPUT);
+
+	s = TAllocData(TString);
+	if (s) {
+		s->encoding = string->encoding;
+		s->size = string->size;
+		s->content = TAlloc(s->size);
+		memcpy(s->content, string->content, s->size);
+	}
+	return s;
+}
+
+TString *TStringNCopy(TString *string, TSize num) {
+	TString *s;
+
+	if (!string || !num) TErrorZero(T_ERROR_INVALID_INPUT);
+	
+	if (num + 1 >= string->size) return TStringFromTString(string);
+
+	s = TAllocData(TString);
+	if (s) {
+		TSize size;
+
+		s->encoding = string->encoding;
+
+		if (string->encoding == T_ENCODING_UTF8) {
+			unsigned char *ptr = string->content;
+			size = string->size;
+			while (num--) {
+				TEncodingUTF8Increment(&ptr, &size);
+				if (size == 0) {
+					s->encoding = string->encoding;
+					s->size = string->size;
+					s->content = TAlloc(s->size);
+					memcpy(s->content, string->content, s->size);
+					return s;
+				}
+			}
+			size = ptr - string->content + 1;
+		} else {
+			size = num + 1;
+		}
+
+		s->size = size;
+		s->content = TAlloc(s->size);
+		memcpy(s->content, string->content, s->size);
+
+		//add Termination
+		s->content[s->size - 1] = 0;
+	}
+	return s;
+}
+
+void TStringFree(TString *string) {
+	if (string) {
+		TFree(string->content);
+		TFree(string);
+	}
+}
+
+#ifdef _WINDOWS
+wchar_t *TStringToWideChar(TString *string) {
+	if (!string) return 0;
+
+	//wchar_t is utf-16 little endian in windows
+	return (wchar_t *) TEncodingToUTF16LE(string->content, string->size, string->encoding);
+}
+#endif
+
+int TStringCaseInsensitiveCompare(TString *str1, TString *str2) {
+	TString *lstr1 = TStringLowerCase(str1);
+	TString *lstr2 = TStringLowerCase(str2);
+	TSize size = TMIN(lstr1->size, lstr2->size);
+
+	int res = memcmp(lstr1, lstr2, size);
+
+	TFree(lstr1);
+	TFree(lstr2);
+
+	return res;
+}
+
+TSize TStringRCSpn(TString *string, const char *control) {
+	TSize i = 0;
+
+	//sanity check
+	if (!string) TErrorZero(T_ERROR_INVALID_INPUT);
+
+	i = string->size;
+
+	if (!control) return i + 1;
+
+	if(string->encoding == T_ENCODING_ASCII) {
+		const char *start = string->content;
+		const char *c;
+
+		for (c = start + i; c != start; c--) {
+			if (strchr(control, *c)) return i;
+			i--;
+		}
+
+		if (strchr(control, *c)) return 0;
+	} else if (string->encoding == T_ENCODING_UTF8) {
+		const char *start = string->content;
+		const char *c;
+		TSize size = 0, previousSize = 0;
+		TString *controlStr = TStringFromString(control);
+
+		c = start + string->size;
+		while (c != start) {
+			TUInt32 ch = TEncodingUTF8GetPreviousChr(&c, &size);
+			if (TStringChr(controlStr, ch)) {
+				TStringFree(controlStr);
+				return i;
+			}
+			i -= previousSize - size;
+			previousSize = size;
+		}
+
+		TStringFree(controlStr);
+	}
+
+	return i + 1;
+}
+
+const unsigned char *TStringChr(TString *string, TUInt32 character) {
+	if (!string) {
+		TErrorZero(T_ERROR_INVALID_INPUT);
+	}
+
+	if (string->encoding == T_ENCODING_ASCII) {
+		//check for utf-8 character
+		if (character <= 0x7F) {
+			//there might be a match
+			return strchr(string->content, character);
+		}
+	} else if (string->encoding == T_ENCODING_UTF8) {
+		TSize size = string->size;
+		TUInt32 ch;
+		const unsigned char *ptr = string->content;
+
+		do {
+			ch = TEncodingUTF8GetChr(&ptr, &size);
+			if (ch == character) return ptr;
+		} while (ch);
+	}
+
+	return 0;
+}
+
+TString *TStringLowerCase(TString *string) {
+	TString *s;
+
+	if (!string) return 0;
+
+	s = TAllocData(TString);
+	if (s) {
+		TSize size;
+		unsigned char *ptr, *sptr;
+		s->encoding = string->encoding;
+		size = s->size = string->size;
+
+		s->content = TAlloc(sizeof(unsigned char) * size);
+
+		sptr = string->content;
+		ptr = s->content;
+
+		while (*sptr) {
+			TUInt32 ch = TEncodingUTF8GetChr(&sptr, &size);
+			ch = tolower(ch);
+			memcpy(ptr, &ch, sizeof(TUInt32));
+			ptr += sizeof(TUInt32);
+		}
+		*ptr = 0;
+	}
+
+	return s;
+}
+
+char *TStringCopy(const char *text) {
+	char *cpy = 0;
+
+	if (text) {
+		int size = sizeof(char) * (strlen(text) + 1);
+		cpy = (char *)TAlloc(size);
+		memcpy(cpy, text, size);
+	}
+
+	return cpy;
+}
+
+char *TStringNCopyO(const char *text, int num) {
+	char *cpy = 0;
+
+	if (text) {
+		int size = sizeof(char) * (num + 1);
+		cpy = (char *)TAlloc(size);
+		memcpy(cpy, text, size - 1);
+		cpy[num] = 0;
+	}
+
+	return cpy;
+}
+
+int TStringAdjustSize(char **text, TSize oldsize, TSize newsize) {
+	TPtr nptr = TRAlloc(text, newsize);
+	if (!nptr) return 1;
+	text = (char **)nptr;
+
+	if (newsize > oldsize) memset(text + oldsize, 0, newsize);
+
+	return 0;
+}
+
+int TStringCaseInsensitiveCompareO(const char *str1, const char *str2) {
+	char *lstr1 = TStringLowerCaseO(str1);
+	char *lstr2 = TStringLowerCaseO(str2);
 
 	int res = strcmp(lstr1, lstr2);
 
@@ -21,50 +260,11 @@ int TStringCaseInsensitiveCompare(const char *str1, const char *str2)
 	return res;
 }
 
-char *TStringCopy(const char *text)
-{
-	char *cpy = 0;
-
-	if(text) {
-		int size = sizeof(char) * (strlen(text) + 1);
-		cpy = (char *) TAlloc(size);
-		memcpy(cpy,text,size);
-	}
-
-	return cpy;
-}
-
-char *TStringNCopy(const char *text, int num)
-{
-	char *cpy = 0;
-
-	if (text) {
-		int size = sizeof(char) * (num + 1);
-		cpy = (char *)TAlloc(size);
-		memcpy(cpy, text, size-1);
-		cpy[num] = 0;
-	}
-
-	return cpy;
-}
-
-int TStringAdjustSize(char **text, TSize oldsize, TSize newsize)
-{
-	void *nptr = TRAlloc(text, newsize);
-	if(!nptr) return 1;
-	text = (char **) nptr;
-
-	if (newsize > oldsize) memset(text + oldsize, '\0', newsize);
-
-	return 0;
-}
-
-TSize TStringRCSpn(const char *_str, const char *_control)
-{
+TSize TStringRCSpnO(const char *_str, const char *_control) {
 	TSize len = 0;
-	
+
 	//sanity check
-	if(!_str) return 0;
+	if (!_str) return 0;
 
 	len = strlen(_str);
 
@@ -74,7 +274,7 @@ TSize TStringRCSpn(const char *_str, const char *_control)
 		TSize i = len;
 		const char *c = 0;
 
-		for(c = _str+len; c != _str; c--) {
+		for (c = _str + len; c != _str; c--) {
 			if (strchr(_control, *c)) return i;
 			i--;
 		}
@@ -82,7 +282,7 @@ TSize TStringRCSpn(const char *_str, const char *_control)
 		if (strchr(_control, *c)) return 0;
 	}
 
-	return len+1;
+	return len + 1;
 }
 
 inline void TStringReplaceOp(char *target, const char *match, const char *replacement, TSize repllen, TSize limit)
@@ -308,7 +508,7 @@ char *TStringAppendCharacter(const char *string, char character) {
 	TSize size;
 	char *result;
 
-	if (!string) { TErrorReport(T_ERROR_NULL_POINTER); return 0; }
+	if (!string) { TErrorReportDefault(T_ERROR_NULL_POINTER); return 0; }
 
 	size = strlen(string) + 2;
 	result = (char *)TAlloc(sizeof(char) * size);
@@ -382,7 +582,7 @@ const char *TStringStripLeadingSpaces(const char *string)
 	return string;
 }
 
-char *TStringLowerCase(const char *thestring)
+char *TStringLowerCaseO(const char *thestring)
 {
 	const char *srcptr = thestring;
 	char *thecopy = 0, *ptr = 0;

@@ -7,26 +7,26 @@
 // 2D Transformations
 
 typedef struct _TTransform2D {
-	Tuple2f translation;
-	Tuple2f scaling;
+	TTuple2f translation;
+	TTuple2f scaling;
 	float rotation;
 } TTransform2D;
 
 inline static void TTransform2DInitialize(TTransform2D *context)
 {
 	if(context) {
-		memset(context,0,sizeof(TTransform2D));
+		memset(context, 0, sizeof(TTransform2D));
 		context->scaling.x = context->scaling.y = 1.0f;
 	}
 }
 
-inline static void TTransform2DSetTranslation(TTransform2D *context, float x,float y)
+inline static void TTransform2DSetTranslation(TTransform2D *context, float x, float y)
 {
 	context->translation.x = x;
 	context->translation.y = y;
 }
 
-inline static void TTransform2DSetTranslationI(TTransform2D *context, int x,int y)
+inline static void TTransform2DSetTranslationI(TTransform2D *context, int x, int y)
 {
 	context->translation.x = (float) x;
 	context->translation.y = (float) y;
@@ -38,7 +38,7 @@ inline static void TTransform2DSetScale(TTransform2D *context, float x, float y)
 	context->scaling.y = y;
 }
 
-inline static void TTransform2DSetScaleT(TTransform2D *context, Tuple2f scale)
+inline static void TTransform2DSetScaleT(TTransform2D *context, TTuple2f scale)
 {
 	context->scaling = scale;
 }
@@ -51,9 +51,9 @@ inline static void TTransform2DSetRotation(TTransform2D *context, float angle)
 // 3D Transformations
 
 typedef struct _TTransform3D {
-	Tuple3f translation;
-	Tuple3f scaling;
-	Tuple3f rotation;
+	TTuple3f translation;
+	TTuple3f scaling;
+	TTuple3f rotation;
 } TTransform3D;
 
 inline static void TTransform3DInitialize(TTransform3D *context)
@@ -78,7 +78,7 @@ inline static void TTransform3DSetScale(TTransform3D *context, float x, float y,
 	context->scaling.z = z;
 }
 
-inline static void TTransform3DSetScaleT(TTransform3D *context, Tuple3f scale)
+inline static void TTransform3DSetScaleT(TTransform3D *context, TTuple3f scale)
 {
 	context->scaling = scale;
 }

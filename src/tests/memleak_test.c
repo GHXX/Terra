@@ -10,11 +10,11 @@ void memleak_test(void)
 {
 	void *data = malloc(sizeof(int)+ sizeof(float) + 5);
 
-	TLogReport(T_LOG_PROGRESS,0,"Testing Memory Leak...\n");
+	TLogWriteMain("Testing Memory Leak...\n");
 
 	TMemLeakPrint("leak.txt");
 
-	TLogReport(T_LOG_PROGRESS,0," Memory Leak tests completed.\n");
+	TLogWriteMain(" Memory Leak tests completed.\n");
 
 	free(data);
 }

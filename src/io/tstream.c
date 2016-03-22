@@ -9,6 +9,16 @@
 
 #include "utility/tfilesys.h"
 
+#ifdef PLATFORM_X86_64
+#	ifdef _WINDOWS
+#		define fseek _fseeki64
+#		define ftell _ftelli64
+#	else
+#		define fseek fseeko
+#		define ftell ftello
+#	endif
+#endif
+
 //--- Default File Operations ------------------------------//
 
 #define TStream_READ_ONLY_FLAG 1
@@ -24,93 +34,96 @@ struct TStreamFile {
     TSize offset, size;
 };
 
-static TSize TStreamFileSize(TStream *context)
+static TSize TStreamFileSize(TStreamContent *content)
 {
-    struct TStreamFile *content;
-    if(!context->content) return 0;
-    content = (struct TStreamFile *) context->content;
+    struct TStreamFile *streamFile;
+	if (!content) return 0;
+	streamFile = (struct TStreamFile *) content;
 
-    return content->size - content->offset; 
+	if (streamFile->size)
+		return streamFile->size - streamFile->offset;
+
+	return 0;
 }
 
-static int TStreamFileSeek(TStream *context, TSize offset, int origin)
+static int TStreamFileSeek(TStreamContent *content, TLInt offset, int origin)
 {
-    struct TStreamFile *content;
-    if(!context->content) return 0;
-    content = (struct TStreamFile *) context->content;
+	struct TStreamFile *streamFile;
+	if (!content) return 0;
+	streamFile = (struct TStreamFile *) content;
 
-    if(origin == SEEK_CUR) {
-        content->offset += offset;
-    } else if(origin == SEEK_END) {
-        if(offset > content->size) offset = content->size;
-        content->offset = content->size - offset;
+	if (origin == SEEK_CUR) {
+        streamFile->offset += offset;
+	} else if (origin == SEEK_END) {
+		if ((TSize)offset > streamFile->size) offset = streamFile->size;
+		streamFile->offset = streamFile->size - offset;
     } else {
-        content->offset = offset;
+        streamFile->offset = offset;
     }
-    content->offset = TCLAMP(content->offset, 0, content->size);
+    streamFile->offset = TCLAMP(streamFile->offset, 0, streamFile->size);
 
-    return fseek(content->f, offset, origin);
+    return fseek(streamFile->f, offset, origin);
 }
 
-static int TStreamFileTell(TStream *context)
+static TLInt TStreamFileTell(TStreamContent *content)
 {
-    struct TStreamFile *content;
-    if(!context->content) return 0;
-    content = (struct TStreamFile *) context->content;
+	struct TStreamFile *streamFile;
+	if (!content) return 0;
+	streamFile = (struct TStreamFile *) content;
 
-    return ftell(content->f);
+    return ftell(streamFile->f);
 }
 
-static unsigned char TStreamFileEOF(TStream *context)
+static unsigned char TStreamFileEOF(TStreamContent *content)
 {
-    struct TStreamFile *content;
-    if(!context->content) return 0;
-    content = (struct TStreamFile *) context->content;
+	struct TStreamFile *streamFile;
+	if (!content) return 0;
+	streamFile = (struct TStreamFile *) content;
 
-    return feof(content->f);
+    return feof(streamFile->f);
 }
 
-static TSize TStreamFileRead(TStream *context, TPtr buffer, TSize size)
+static TSize TStreamFileRead(TStreamContent *content, TPtr buffer, TSize size)
 {
     int read;
-    struct TStreamFile *content;
-    if(!context->content || !buffer || !size) return 0;
-    content = (struct TStreamFile *) context->content;
+	struct TStreamFile *streamFile;
+	if (!content) return 0;
+	streamFile = (struct TStreamFile *) content;
 
-    if(feof(content->f)) return 0;
+    if(feof(streamFile->f)) return 0;
 
-    read = fread(buffer, 1, size, content->f);
-    content->offset += read;
+    read = fread(buffer, 1, size, streamFile->f);
+    streamFile->offset += read;
 
     return read;
 }
 
-static TSize TStreamFileWrite(TStream *context, TCPtr buffer, TSize size)
+static TSize TStreamFileWrite(TStreamContent *content, TCPtr buffer, TSize size)
 {
     int written = 0;
-    struct TStreamFile *content;
-    if(!context->content || !buffer || !size) return 0;
-    content = (struct TStreamFile *) context->content;
+	struct TStreamFile *streamFile;
+	if (!content) return 0;
+	streamFile = (struct TStreamFile *) content;
 
-    written = fwrite(buffer, 1, size, content->f);
+    written = fwrite(buffer, 1, size, streamFile->f);
 
     if(written) {
-        content->offset += written;
-        if(content->offset > content->size)
-            content->size = content->offset;
+        streamFile->offset += written;
+        if(streamFile->offset > streamFile->size)
+            streamFile->size = streamFile->offset;
     }
 
     return written;
 }
 
-static int TStreamFileClose(TStream *context)
+static int TStreamFileClose(TStreamContent *content)
 {
-    struct TStreamFile *content;
-    if(!context->content) return 0;
-    content = (struct TStreamFile *) context->content;
+	struct TStreamFile *streamFile;
+	if (!content) return 0;
+	streamFile = (struct TStreamFile *) content;
 
-    if(content->autoclose)
-        return fclose(content->f);
+    if(streamFile->autoclose)
+        return fclose(streamFile->f);
 
     return 0;
 }
@@ -135,95 +148,95 @@ struct TStreamBuffer {
     unsigned char autofree;
 };
 
-static TSize TStreamBufferSize(TStream *context)
+static TSize TStreamBufferSize(TStreamContent *content)
 {
-    struct TStreamBuffer *content;
-    if(!context->content) return 0;
-    content = (struct TStreamBuffer *) context->content;
+    struct TStreamBuffer *streamBuffer;
+    if(!content) return 0;
+	streamBuffer = (struct TStreamBuffer *) content;
 
-    return content->size - content->offset;
+    return streamBuffer->size - streamBuffer->offset;
 }
 
-static int TStreamBufferSeek(TStream *context, TSize offset, int origin)
+static int TStreamBufferSeek(TStreamContent *content, TLInt offset, int origin)
 {
-    struct TStreamBuffer *content;
-    if(!context->content) return 0;
-    content = (struct TStreamBuffer *) context->content;
+	struct TStreamBuffer *streamBuffer;
+	if (!content) return 0;
+	streamBuffer = (struct TStreamBuffer *) content;
 
-    if(origin == SEEK_CUR) {
-        content->offset += offset;
-    } else if(origin == SEEK_END) {
-        if(offset > content->size) offset = content->size;
-        content->offset = content->size - offset;
+	if (origin == SEEK_CUR) {
+        streamBuffer->offset += offset;
+	} else if (origin == SEEK_END) {
+		if ((TSize)offset > streamBuffer->size) offset = streamBuffer->size;
+        streamBuffer->offset = streamBuffer->size - offset;
     } else {
-        content->offset = offset;
+        streamBuffer->offset = offset;
     }
-    content->offset = TCLAMP(content->offset, 0, content->size);
+    streamBuffer->offset = TCLAMP(streamBuffer->offset, 0, streamBuffer->size);
 
     return 0;
 }
 
-static int TStreamBufferTell(TStream *context)
+static TLInt TStreamBufferTell(TStreamContent *content)
 {
-    struct TStreamBuffer *content;
-    if(!context->content) return 0;
-    content = (struct TStreamBuffer *) context->content;
+	struct TStreamBuffer *streamBuffer;
+	if (!content) return 0;
+	streamBuffer = (struct TStreamBuffer *) content;
 
-    return content->offset;
+    return streamBuffer->offset;
 }
 
-static unsigned char TStreamBufferEOF(TStream *context)
+static unsigned char TStreamBufferEOF(TStreamContent *content)
 {
-    struct TStreamBuffer *content;
-    if(!context->content) return 0;
-    content = (struct TStreamBuffer *) context->content;
+	struct TStreamBuffer *streamBuffer;
+	if (!content) return 0;
+	streamBuffer = (struct TStreamBuffer *) content;
 
-    return content->offset >= content->size;
+    return streamBuffer->offset >= streamBuffer->size;
 }
 
-static TSize TStreamBufferRead(TStream *context, TPtr buffer, TSize size)
+static TSize TStreamBufferRead(TStreamContent *content, TPtr buffer, TSize size)
 {
     TSize cpysize;
-    struct TStreamBuffer *content;
-    if(!context->content || !buffer || !size) return 0;
-    content = (struct TStreamBuffer *) context->content;
+	struct TStreamBuffer *streamBuffer;
+	if (!content) return 0;
+	streamBuffer = (struct TStreamBuffer *) content;
 
-    if(content->offset >= content->size) return 0;
+    if(streamBuffer->offset >= streamBuffer->size) return 0;
 
-    cpysize = TMIN(size, (TSize) sizeof(unsigned char) * (content->size - content->offset));
-    memcpy(buffer,content->buffer + content->offset, cpysize);
-    content->offset += cpysize + 1;
+    cpysize = TMIN(size, (TSize) sizeof(unsigned char) * (streamBuffer->size - streamBuffer->offset));
+    memcpy(buffer,streamBuffer->buffer + streamBuffer->offset, cpysize);
+    streamBuffer->offset += cpysize + 1;
 
     return cpysize;
 }
 
-static TSize TStreamBufferWrite(TStream *context, TCPtr buffer, TSize size)
+static TSize TStreamBufferWrite(TStreamContent *content, TCPtr buffer, TSize size)
 {
-    struct TStreamBuffer *content;
-    if(!context->content || !buffer || !size) return 0;
-    content = (struct TStreamBuffer *) context->content;
+	struct TStreamBuffer *streamBuffer;
+	if (!content) return 0;
+	streamBuffer = (struct TStreamBuffer *) content;
 
-    if (content->offset + size > content->size) {
+    if (streamBuffer->offset + size > streamBuffer->size) {
         //attempt to increase buffer size
-        unsigned char *newBuffer = TRAlloc(content->buffer, content->offset + size);
-        if (newBuffer) content->buffer = newBuffer;
-        else size = (TSize) sizeof(char) * (content->size - content->offset);
+        unsigned char *newBuffer = TRAlloc(streamBuffer->buffer, streamBuffer->offset + size);
+        if (newBuffer) streamBuffer->buffer = newBuffer;
+		else size = (TSize) sizeof(unsigned char) * (streamBuffer->size - streamBuffer->offset);
     }
 
-    memcpy(content->buffer + content->offset, buffer, size);
-    content->offset = TCLAMP(size + 1, 0, content->size);
+    memcpy(streamBuffer->buffer + streamBuffer->offset, buffer, size);
+    streamBuffer->offset = TCLAMP(size + 1, 0, streamBuffer->size);
 
     return size;
 }
 
-static int TStreamBufferClose(TStream *context)
+static int TStreamBufferClose(TStreamContent *content)
 {
-    struct TStreamBuffer *content;
-    if (!context->content) return 0;
-    content = (struct TStreamBuffer *) context->content;
+	struct TStreamBuffer *streamBuffer;
+	if (!content) return 0;
+	streamBuffer = (struct TStreamBuffer *) content;
 
-    if (content->autofree)
-        TFree(content->buffer);
+    if (streamBuffer->autofree)
+        TFree(streamBuffer->buffer);
 
     return 0;
 }
@@ -349,7 +362,7 @@ void TStreamFree(TStream *context)
 {
     if(context) {
         if(context->operations.close) {
-            context->operations.close(context);
+            context->operations.close(context->content);
         }
         TFree(context->content);
         TFree(context);
@@ -367,202 +380,184 @@ TSize TStreamSize(TStream *context)
 {
     if(context) {
         if(context->operations.size) {
-            return context->operations.size(context);
+			return context->operations.size(context->content);
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-int TStreamSeek(TStream *context, TSize offset, int origin)
+int TStreamSeek(TStream *context, TLInt offset, int origin)
 {
     if(context) {
         if(context->operations.seek) {
-            return context->operations.seek(context, offset, origin);
+			return context->operations.seek(context->content, offset, origin);
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-int TStreamTell(TStream *context)
+TLInt TStreamTell(TStream *context)
 {
     if(context) {
         if(context->operations.tell) {
-            return context->operations.tell(context);
+			return context->operations.tell(context->content);
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-unsigned char TStreamEOF(TStream *context)
+int TStreamEOF(TStream *context)
 {
     if(context) {
         if(context->operations.eof) {
-            return context->operations.eof(context);
+			return context->operations.eof(context->content);
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-unsigned char TStreamRead8(TStream *context)
+TUInt8 TStreamRead8(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
-            unsigned char buf;
-            context->operations.read(context, &buf, sizeof(char));
+			TUInt8 buf;
+			context->operations.read(context->content, &buf, sizeof(TUInt8));
             return buf;
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-unsigned short TStreamRead16(TStream *context)
+TUInt16 TStreamRead16(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
-            unsigned short buf;
-            context->operations.read(context, &buf, sizeof(short));
+			TUInt16 buf;
+			context->operations.read(context->content, &buf, sizeof(TUInt16));
             return buf;
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-unsigned int TStreamRead32(TStream *context)
+TUInt32 TStreamRead32(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
-            unsigned int buf;
-            context->operations.read(context, &buf, sizeof(int));
+			TUInt32 buf;
+			context->operations.read(context->content, &buf, sizeof(TUInt32));
             return buf;
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-unsigned long long TStreamRead64(TStream *context)
+TUInt64 TStreamRead64(TStream *context)
 {
     if(context) {
         if(context->operations.read) {
-            unsigned long long buf;
-            context->operations.read(context, &buf, sizeof(long long));
+			TUInt64 buf;
+			context->operations.read(context->content, &buf, sizeof(TUInt64));
             return buf;
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
 TSize TStreamReadBlock(TStream *context, unsigned char *buffer, TSize count)
 {
     if(context && buffer && count) {
         if(context->operations.read) {
-            return context->operations.read(context, buffer, count);
+			return context->operations.read(context->content, buffer, count);
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorZero(T_ERROR_OPERATION_NOT_SUPPORTED);
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorZero(T_ERROR_NULL_POINTER);
 }
 
-int TStreamWrite8(TStream *context, unsigned char data)
+int TStreamWrite8(TStream *context, TUInt8 data)
 {
     if(context) {
         if(context->operations.write) {
-            return context->operations.write(context, &data, sizeof(char));
+			return context->operations.write(context->content, &data, sizeof(TUInt8));
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 1;
+		TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+		return 1;
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
+	TErrorReportDefault(T_ERROR_NULL_POINTER);
     return 1;
 }
 
-int TStreamWrite16(TStream *context, unsigned short data)
+int TStreamWrite16(TStream *context, TUInt16 data)
 {
     if(context) {
         if(context->operations.write) {
-            return context->operations.write(context, &data, sizeof(short));
+			return context->operations.write(context->content, &data, sizeof(TUInt16));
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+		TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
         return 1;
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
+	TErrorReportDefault(T_ERROR_NULL_POINTER);
     return 1;
 }
 
-int TStreamWrite32(TStream *context, unsigned int data)
+int TStreamWrite32(TStream *context, TUInt32 data)
 {
     if(context) {
         if(context->operations.write) {
-            return context->operations.write(context, &data, sizeof(int));
+			return context->operations.write(context->content, &data, sizeof(TUInt32));
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+		TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
         return 1;
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
+	TErrorReportDefault(T_ERROR_NULL_POINTER);
     return 1;
 }
 
-int TStreamWrite64(TStream *context, unsigned long long data)
+int TStreamWrite64(TStream *context, TUInt64 data)
 {
     if(context) {
         if(context->operations.write) {
-            return context->operations.write(context, &data, sizeof(long long));
+			return context->operations.write(context->content, &data, sizeof(TUInt64));
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+		TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
         return 1;
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
+	TErrorReportDefault(T_ERROR_NULL_POINTER);
     return 1;
 }
 
@@ -570,15 +565,15 @@ int TStreamWriteBlock(TStream *context, const unsigned char *buffer, TSize size)
 {
     if(context && buffer && size) {
         if(context->operations.write) {
-            return context->operations.write(context, buffer, size);
+			return context->operations.write(context->content, buffer, size);
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+        return 1;
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorReportDefault(T_ERROR_NULL_POINTER);
+    return 1;
 }
 
 int TStreamWriteString(TStream *context, const char *buffer, TSize size)
@@ -586,13 +581,13 @@ int TStreamWriteString(TStream *context, const char *buffer, TSize size)
     if (context && buffer) {
         if (context->operations.write) {
             if (!size) size = sizeof(char) * strlen(buffer);
-            return context->operations.write(context, buffer, size);
+			return context->operations.write(context->content, buffer, size);
         }
 
-        TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
-        return 0;
+		TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+        return 1;
     }
 
-    TErrorReport(T_ERROR_NULL_POINTER);
-    return 0;
+	TErrorReportDefault(T_ERROR_NULL_POINTER);
+    return 1;
 }

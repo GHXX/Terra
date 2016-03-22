@@ -37,8 +37,7 @@ TTokenizer *TTokenizerNew(TStream *input, TInt8 freeInput)
 		return tokenizer;
 	}
 
-	TErrorReport(T_ERROR_INVALID_INPUT);
-	return 0;
+	TErrorZero(T_ERROR_INVALID_INPUT);
 }
 
 void TTokenizerFree(TTokenizer *context) {
@@ -97,9 +96,8 @@ const char *TTokenizerPrepareToken(TTokenizer *context, char *separator) {
 
 			if(!context->offset) {
 				// we are at the beginning and no separator can be found. Just kill this
-				TErrorReport(T_ERROR_OUT_OF_MEMORY);
 				context->flags |= 0x4;
-				return 0;
+				TErrorZero(T_ERROR_OUT_OF_MEMORY);
 			}
 
 			{
@@ -137,8 +135,7 @@ const char *TTokenizerNext(TTokenizer *context, char *separator) {
 	char dummy;
 
 	if (!context) {
-		TErrorReport(T_ERROR_NULL_POINTER);
-		return 0;
+		TErrorZero(T_ERROR_NULL_POINTER);
 	}
 
 	if (context->flags & 0x4) {

@@ -5,11 +5,11 @@
 #include "tdefine.h"
 
 typedef struct {
-	float x,y,z;
-	float w,h,d;
+	float x, y, z;
+	float w, h, d;
 } TCuboid;
 
-static inline void TCuboidCopy(TCuboid *c1,const TCuboid *c2)
+static inline void TCuboidCopy(TCuboid *c1, const TCuboid *c2)
 {
 	c1->x = c2->x;
 	c1->y = c2->y;

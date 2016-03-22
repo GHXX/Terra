@@ -177,19 +177,17 @@ struct _TMutex {
 	pthread_mutexattr_t mutexAttr;
 	pthread_mutex_t mutex;
 #endif
-	int type;
 };
 
 TMutex *TMutexNew(enum T_MUTEX_TYPE type)
 {
 	TMutex *m = TAllocData(TMutex);
-	m->type = type;
 
 #ifdef _WINDOWS
 	InitializeCriticalSection(&m->mutex);
 #else
 	int error = pthread_mutexattr_init(&m->mutexAttr);
-	TAssert(error == 0);
+	if(error) goto TMutexNewError;
 
 	if(type == T_MUTEX_NORMAL) {
 		type = PTHREAD_MUTEX_NORMAL;
@@ -202,9 +200,16 @@ TMutex *TMutexNew(enum T_MUTEX_TYPE type)
 	}
 
 	error = pthread_mutexattr_settype(&m->mutexAttr, type);
-	TAssert(error == 0);
+	if(error) {
+		TFree(m);
+		return 0;
+	}
+
 	error = pthread_mutex_init(&m->mutex, &m->mutexAttr);
-	TAssert(error == 0);
+	if (error) {
+		TFree(m);
+		return 0;
+	}
 #endif
 
 	return m;
@@ -219,7 +224,7 @@ void TMutexFree(TMutex *m)
 	pthread_mutexattr_destroy(&m->mutexAttr);
 #endif
 
-	free(m);
+	TFree(m);
 }
 
 void TMutexLock(TMutex *m)
@@ -227,7 +232,7 @@ void TMutexLock(TMutex *m)
 #ifdef _WINDOWS
 	EnterCriticalSection(&m->mutex);
 #else
-	TAssert(pthread_mutex_lock(&m->mutex) == 0);
+	pthread_mutex_lock(&m->mutex);
 #endif
 }
 
@@ -236,7 +241,7 @@ void TMutexUnlock(TMutex *m)
 #ifdef _WINDOWS
 	LeaveCriticalSection(&m->mutex);
 #else
-	TAssert(pthread_mutex_unlock(&m->mutex) == 0);
+	pthread_mutex_unlock(&m->mutex);
 #endif
 }
 
@@ -254,7 +259,7 @@ struct _TCV {
 
 TCV *TCVNew(TMutex *m)
 {
-	TCV *v = (TCV *) TAlloc(sizeof(TCV));
+	TCV *v = TAllocData(TCV);
 	v->m = m;
 
 #ifdef _WINDOWS
@@ -277,6 +282,8 @@ void TCVFree(TCV *v)
 }
 
 int TCVSleepTimed(TCV *context, TUInt32 msec) {
+	if (!msec) return TCVSleep(context);
+
 #ifdef _WINDOWS
 	SleepConditionVariableCS(&context->var, &context->m->mutex, msec);
 	return GetLastError();

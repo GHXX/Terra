@@ -18,9 +18,9 @@ void filesys_concat_path(void)
 
 void filesys_test(void)
 {
-	TLogReport(T_LOG_PROGRESS,0,"Testing file system utilities...\n");
+	TLogWriteMain("Testing file system utilities...\n");
 
 	filesys_concat_path();
 
-	TLogReport(T_LOG_PROGRESS,0,"file system tests completed.\n");
+	TLogWriteMain("file system tests completed.\n");
 }

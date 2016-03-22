@@ -10,9 +10,8 @@ void TIODestroy(void);
 void TIOParseArchive(const char *filename);
 //TSList *TIOListArchive(const char *_dir, const char *_filter, unsigned char fullFilename);
 
-FILE *TIOGetFile(const char *filename,const char *mode);
-TStream *TIOGetRW(const char *filename,const char *mode);
-unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, size_t *size);
+TStream *TIOGetFile(const char *filename, const char *mode);
+unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, TSize *size);
 
 void TIOAddSearchPath(const char *path);
 void TIORemoveLastSearchPath(void);

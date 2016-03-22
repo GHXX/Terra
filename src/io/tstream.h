@@ -11,22 +11,21 @@
 */
 
 typedef struct _TStream TStream;
+typedef TPtr TStreamContent;
 
 typedef struct _TStreamOps {
-	TSize(*size) (TStream *context);
+	TSize(*size) (TStreamContent *content);
 
-	int(*seek) (TStream *context, TSize offset, int origin);
-	int(*tell) (TStream *context);
+	int(*seek) (TStreamContent *content, TLInt offset, int origin);
+	TLInt(*tell) (TStreamContent *content);
 
-	unsigned char(*eof) (TStream *context);
+	unsigned char(*eof) (TStreamContent *content);
 
-	TSize(*read) (TStream *context, TPtr buffer, TSize size);
-	TSize(*write) (TStream *context, TCPtr buffer, TSize size);
+	TSize(*read) (TStreamContent *content, TPtr buffer, TSize size);
+	TSize(*write) (TStreamContent *content, TCPtr buffer, TSize size);
 
-    int(*close) (TStream *context);
+	int(*close) (TStreamContent *content);
 } TStreamOps;
-
-typedef TPtr TStreamContent;
 
 /**
 * Opens a file, creates a read write context for it and returns it
@@ -123,7 +122,7 @@ TSize TStreamSize(TStream *context);
 * @return                    An error code.
 *
 */
-int TStreamSeek(TStream *context, TSize offset, int origin);
+int TStreamSeek(TStream *context, TLInt offset, int origin);
 
 /**
 * Get the current cursor position for the read write context.
@@ -133,7 +132,7 @@ int TStreamSeek(TStream *context, TSize offset, int origin);
 * @return                    An error code.
 *
 */
-int TStreamTell(TStream *context);
+TLInt TStreamTell(TStream *context);
 
 /**
 * Verify whether the end of content has been reached.
@@ -143,7 +142,7 @@ int TStreamTell(TStream *context);
 * @return                    0 for false, true otherwise.
 *
 */
-unsigned char TStreamEOF(TStream *context);
+int TStreamEOF(TStream *context);
 
 /**
 * Read 8 bits from the context
@@ -153,7 +152,7 @@ unsigned char TStreamEOF(TStream *context);
 * @return                    A Byte worth of data.
 *
 */
-unsigned char TStreamRead8(TStream *context);
+TUInt8 TStreamRead8(TStream *context);
 
 /**
 * Read 16 bits from the context
@@ -163,7 +162,7 @@ unsigned char TStreamRead8(TStream *context);
 * @return                    2 Bytes worth of data.
 *
 */
-unsigned short TStreamRead16(TStream *context);
+TUInt16 TStreamRead16(TStream *context);
 
 /**
 * Read 32 bits from the context
@@ -173,7 +172,7 @@ unsigned short TStreamRead16(TStream *context);
 * @return                    4 Bytes worth of data.
 *
 */
-unsigned int TStreamRead32(TStream *context);
+TUInt32 TStreamRead32(TStream *context);
 
 /**
 * Read 64 bits from the context
@@ -183,7 +182,7 @@ unsigned int TStreamRead32(TStream *context);
 * @return                    8 Bytes worth of data.
 *
 */
-unsigned long long TStreamRead64(TStream *context);
+TUInt64 TStreamRead64(TStream *context);
 
 /**
 * Fill a user specified buffer with data
@@ -206,7 +205,7 @@ TSize TStreamReadBlock(TStream *context, unsigned char *buffer, TSize size);
 * @return                    The amount written.
 *
 */
-int TStreamWrite8(TStream *context, unsigned char data);
+int TStreamWrite8(TStream *context, TUInt8 data);
 
 /**
 * Writes 16 bits to the context buffer
@@ -217,7 +216,7 @@ int TStreamWrite8(TStream *context, unsigned char data);
 * @return                    The amount written.
 *
 */
-int TStreamWrite16(TStream *context, unsigned short data);
+int TStreamWrite16(TStream *context, TUInt16 data);
 
 /**
 * Writes 32 bits to the context buffer
@@ -228,7 +227,7 @@ int TStreamWrite16(TStream *context, unsigned short data);
 * @return                    The amount written.
 *
 */
-int TStreamWrite32(TStream *context, unsigned int data);
+int TStreamWrite32(TStream *context, TUInt32 data);
 
 /**
 * Writes 64 bits to the context buffer
@@ -239,7 +238,7 @@ int TStreamWrite32(TStream *context, unsigned int data);
 * @return                    The amount written.
 *
 */
-int TStreamWrite64(TStream *context, unsigned long long data);
+int TStreamWrite64(TStream *context, TUInt64 data);
 
 /**
 * Writes a block of data to the context buffer

@@ -88,9 +88,9 @@ void rbtree_test_all(void)
 
 void rbtree_test(void)
 {
-	TLogReport(T_LOG_PROGRESS,0,"Testing Red Black Tree...\n");
+	TLogWriteMain("Testing Red Black Tree...\n");
 
 	rbtree_test_all();
 
-	TLogReport(T_LOG_PROGRESS,0,"Red Black Tree tests completed.\n");
+	TLogWriteMain("Red Black Tree tests completed.\n");
 }

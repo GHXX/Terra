@@ -94,26 +94,6 @@ TMouse TMouseGetInf(void)
 	return m;
 }
 
-//--- TCPU ---------------------------------//
-
-TCPU TCPUGetInf(void)
-{
-	TCPU data = { 0 };
-	data.num_cores = data.num_logical_cpus = data.total_logical_cpus = 1;
-
-	if (cpuid_present()) {
-		struct cpu_raw_data_t raw;
-		
-		if (cpuid_get_raw_data(&raw) < 0)
-			return data;
-
-		if (cpu_identify(&raw, &data) < 0)
-			return data;
-	}
-
-	return data;
-}
-
 //--- TRAM ---------------------------------//
 
 TRAM TRAMGetInf(void)

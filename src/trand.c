@@ -8,15 +8,6 @@
 
 static TSize tRandSeed = UINT_MAX;
 
-void TRandInitialize(TSize seed)
-{
-	TRandSetSeed(seed);
-}
-
-void TRandDestroy()
-{
-}
-
 void TRandSetSeed(TSize seed)
 {
 	srand(seed);
@@ -25,7 +16,7 @@ void TRandSetSeed(TSize seed)
 
 unsigned char TRandBool(void)
 {
-	return (TRandUInteger(0,UINT_MAX) & (1 << 15)) != 0;
+	return (TRandUInteger(0, UINT_MAX) & (1 << 15)) != 0;
 }
 
 int TRandInteger(int begin, int end)
@@ -93,7 +84,7 @@ int TRandNormal(TSize mean, TSize range, TSize clip)
 
 		seed = (seed - 6.0f) * (range / 3.0f) + mean;
 
-		seed = TCLAMP(seed,(float)(mean - range),(float)(mean + range));
+		seed = TCLAMP(seed, (float)(mean - range), (float)(mean + range));
 	}
 
 	return (int)seed;

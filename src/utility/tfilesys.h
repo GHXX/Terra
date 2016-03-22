@@ -31,6 +31,6 @@ unsigned char TFileSysCreateDirectory(const char *_directory);
 unsigned char TFileSysCreateDirectoryRecursively (const char *_directory);
 void TFileSysDelete(const char *_filename);
 
-const char *TFileSysFindCaseInsensitive(const char *_fullPath);
+char *TFileSysFindCaseInsensitive(const char *_fullPath);
 
 #endif

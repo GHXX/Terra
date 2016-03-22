@@ -9,6 +9,24 @@
 extern "C" {
 #endif
 
+typedef struct TString TString;
+
+TString *TStringFromString(const char *string);
+TString *TStringFromTString(TString *string);
+TString *TStringNCopy(TString *string, TSize num);
+void TStringFree(TString *string);
+
+#ifdef _WINDOWS
+wchar_t *TStringToWideChar(TString *string);
+#endif
+
+int TStringCaseInsensitiveCompare(TString *str1, TString *str2);
+
+TSize TStringRCSpn(TString *string, const char *control);
+
+const unsigned char *TStringChr(TString *string, TUInt32 character);
+TString *TStringLowerCase(TString *string);
+
 static inline char *TStringLwr(char *s) {
 	char *p = s;
 	for (; *p; p++)
@@ -33,14 +51,14 @@ static inline char TStringIsDigit(char c)
 	return (c >= '0' && c <= '9');
 }
 
-int TStringCaseInsensitiveCompare(const char *str1, const char *str2);
-
 char *TStringCopy(const char *text);
-char *TStringNCopy(const char *text, int num);
+char *TStringNCopyO(const char *text, int num);
 
 int TStringAdjustSize(char **text, TSize oldsize, TSize newsize);
 
-TSize TStringRCSpn(const char *_str, const char *_control);
+int TStringCaseInsensitiveCompareO(const char *str1, const char *str2);
+
+TSize TStringRCSpnO(const char *_str, const char *_control);
 
 TSize TStringNumOccurences(const char *target, const char *match);
 
@@ -90,7 +108,7 @@ char *TStringConcatSeparator(const char *separator, const char *str, ...);
 void TStringStripTrailingWhitespace(char *string);	// Removes trailing /n, /r, space
 const char *TStringStripLeadingSpaces(const char *string);
 
-char *TStringLowerCase(const char *thestring);
+char *TStringLowerCaseO(const char *thestring);
 
 char *TStringPasswordEncrypt(const char *src);
 

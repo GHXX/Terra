@@ -55,11 +55,11 @@ void string_test_replace(void)
 
 void string_test(void)
 {
-	TLogReport(T_LOG_PROGRESS,0,"Testing string utilities...\n");
+	TLogWriteMain("Testing string utilities...\n");
 
 	string_test_split();
 
 	string_test_replace();
 
-	TLogReport(T_LOG_PROGRESS,0,"string utilities tests completed.\n");
+	TLogWriteMain("string utilities tests completed.\n");
 }

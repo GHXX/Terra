@@ -10,12 +10,11 @@
 
 #include <stdint.h>
 
-static inline int TArrayGrow(TArray *arr, TSize minsize)
-{
+static inline int TArrayGrow(TArray *arr, TSize minsize) {
 	TSize newSize;
 
 	if (arr->size == SIZE_MAX) {
-		TErrorReport(T_ERROR_SIZE_EXCEEDED);
+		TErrorReportDefault(T_ERROR_SIZE_EXCEEDED);
 		return T_ERROR_SIZE_EXCEEDED;
 	}
 
@@ -26,8 +25,7 @@ static inline int TArrayGrow(TArray *arr, TSize minsize)
 	return T_ERROR_NONE;
 }
 
-static inline void TArrayShrink(TArray *arr)
-{
+static inline void TArrayShrink(TArray *arr) {
 	if (arr->len >= 1)
 		TArrayResize(arr, TIntegerUpperPowerOfTwo(arr->len));
 }
@@ -40,15 +38,13 @@ TArray *TArrayNew(TSize size)
 	return arr;
 }
 
-void TArrayInit(TArray *arr,TSize size)
-{
+void TArrayInit(TArray *arr, TSize size) {
 	memset(arr, 0, sizeof(TArray));
 
 	if (size) TArrayResize(arr, size);
 }
 
-void TArrayFree(TArray *arr,TFreeFunc func)
-{
+void TArrayFree(TArray *arr, TFreeFunc func) {
 	if(arr) {
 		TArrayEmpty(arr, func);
 
@@ -57,8 +53,7 @@ void TArrayFree(TArray *arr,TFreeFunc func)
 	}
 }
 
-int TArrayResize(TArray *arr, TSize _size)
-{
+int TArrayResize(TArray *arr, TSize _size) {
 	if (arr) {
 		if (_size == 0) {
 			TFree(arr->data);
@@ -79,8 +74,7 @@ int TArrayResize(TArray *arr, TSize _size)
 	return T_ERROR_NONE;
 }
 
-TArray *TArrayCopy(const TArray *arr, TCopyFunc data_cpy)
-{
+TArray *TArrayCopy(const TArray *arr, TCopyFunc data_cpy) {
 	TArray *cpy;
 	TSize i = 0;
 	
@@ -96,8 +90,7 @@ TArray *TArrayCopy(const TArray *arr, TCopyFunc data_cpy)
 	return cpy;
 }
 
-void TArrayCopyInplace(TArray *to, const TArray *arr, TCopyFunc data_cpy)
-{
+void TArrayCopyInplace(TArray *to, const TArray *arr, TCopyFunc data_cpy) {
 	TSize i = 0;
 	if(!to || !arr) return;
 
@@ -109,8 +102,7 @@ void TArrayCopyInplace(TArray *to, const TArray *arr, TCopyFunc data_cpy)
 	for(; i < arr->len; ++i) to->data[i] = data_cpy ? data_cpy(arr->data[i]) : arr->data[i];
 }
 
-void TArrayEmpty(TArray *arr,TFreeFunc func)
-{
+void TArrayEmpty(TArray *arr, TFreeFunc func) {
 	if(func) {
 		TSize i = 0;
 		for(; i < arr->len && arr->used; ++i) {
@@ -124,24 +116,21 @@ void TArrayEmpty(TArray *arr,TFreeFunc func)
 	arr->len = 0;
 }
 
-void TArrayEmptyFull(TArray *arr,TFreeFunc func)
-{
+void TArrayEmptyFull(TArray *arr, TFreeFunc func) {
 	TArrayEmpty(arr,func);
 	TFree(arr->data);
 	arr->data = 0;
 	arr->size = 0;
 }
 
-TSize TArrayAppend(TArray *arr, TPtr data)
-{
+TSize TArrayAppend(TArray *arr, TPtr data) {
 	TSize index = arr->len;
 	if (TArrayInsert(arr, data, index))
 		return (TSize)-1;
 	return index;
 }
 
-int TArrayInsert(TArray *arr, TPtr data, TSize index)
-{
+int TArrayInsert(TArray *arr, TPtr data, TSize index) {
 	if (index >= arr->size) {
 		// Grow the array to get enough space
 		int error = TArrayGrow(arr, index + 1);
@@ -154,8 +143,7 @@ int TArrayInsert(TArray *arr, TPtr data, TSize index)
 	return T_ERROR_NONE;
 }
 
-void TArrayMove(TArray *arr, TSize start, TSize end, int space)
-{
+void TArrayMove(TArray *arr, TSize start, TSize end, int space) {
 	if (!arr || start > end || !TArrayValid(arr, start) || !space) return;
 
 	if(end > arr->len) end = arr->len;
@@ -189,14 +177,12 @@ void TArrayMove(TArray *arr, TSize start, TSize end, int space)
 
 }
 
-void TArrayForeach(TArray *arr, TIterFunc func)
-{
+void TArrayForeach(TArray *arr, TIterFunc func) {
 	TSize i = 0;
 	for(; i < arr->len; ++i) func(arr->data[i]);
 }
 
-TPtr TArrayForeachData(TArray *arr, TDataIterFunc func, TPtr user_data)
-{
+TPtr TArrayForeachData(TArray *arr, TDataIterFunc func, TPtr user_data) {
 	TSize i = 0;
 	for(; i < arr->len; ++i) {
 		TPtr value = func(arr->data[i], user_data);
@@ -222,7 +208,7 @@ void TArraySort(TArray *arr)
 	//TODO
 }
 
-TPtr TArrayPopIndex(TArray *arr,TSize index) {
+TPtr TArrayPopIndex(TArray *arr, TSize index) {
 	TPtr data;
 
 	if(index >= arr->len) return 0;
@@ -238,8 +224,7 @@ TPtr TArrayPopIndex(TArray *arr,TSize index) {
 	return data;
 }
 
-void TArrayRemove(TArray *arr,TSize index)
-{
+void TArrayRemove(TArray *arr, TSize index) {
 	if(index >= arr->len) return;
 
 	if(arr->data[index]) arr->used -= 1;
@@ -250,8 +235,7 @@ void TArrayRemove(TArray *arr,TSize index)
 	if(arr->len <= (arr->size >> 2)) TArrayShrink(arr);
 }
 
-void TArrayRemoveFast(TArray *arr,TSize index)
-{
+void TArrayRemoveFast(TArray *arr, TSize index) {
 	if(index >= arr->len) return;
 
 	if(arr->data[index]) arr->used -= 1;
@@ -263,8 +247,7 @@ void TArrayRemoveFast(TArray *arr,TSize index)
 	if(arr->len <= (arr->size >> 2)) TArrayShrink(arr);
 }
 
-void TArrayRemoveClear(TArray *arr,TSize index)
-{
+void TArrayRemoveClear(TArray *arr, TSize index) {
 	if(index >= arr->len) return;
 
 	if(arr->data[index]) arr->used -= 1;

@@ -3,58 +3,100 @@
 
 #include "tlog.h"
 
-static FILE *tLogFile = 0;
+#include "talloc.h"
+#include "terror.h"
+#include "structure/tlist.h"
 
-const char *cattotext[] = {"","Warning: ","Error: "};
+struct TLog {
+	TStream *stream;
+};
 
-void TLogSetFile(FILE *_file)
-{
-	tLogFile = _file;
+static TLog *main = 0;
+
+void TLogInit(TStream *stream) {
+	if (!stream) {
+		stream = TStreamFromFilePointer(stdout, 0);
+	}
+	main = TLogNew(stream);
 }
 
-void TLogReport(int category, const char *function, const char *format,...)
-{
-	if(tLogFile) {
-		va_list ap;
+void TLogDestroy(void) {
+	TLogFree(main);
+	main = 0;
+}
 
-		TLogStartReport(category,function);
+TLog *TLogNew(TStream *stream) {
+	TLog *log;
 
-		va_start(ap, format);
-		vfprintf(tLogFile,format,ap);
-		va_end(ap);
+	if (!stream) {
+		TErrorZero(T_ERROR_INVALID_INPUT);
+	}
 
-		fprintf(tLogFile,"\n");
+	log = TAllocData(TLog);
+	if (log) {
+		log->stream = stream;
+	}
 
-		fflush(tLogFile);
+	return log;
+}
+
+void TLogFree(TLog *context) {
+	if (context) {
+		TFree(context->stream);
+		TFree(context);
 	}
 }
 
-void TLogStartReport(int category, const char *function)
-{
-	if(tLogFile) {
-		fputs(cattotext[category],tLogFile);
-		if(category > 0) fprintf(tLogFile,"In function %s: ", function);
-		fflush(tLogFile);
+int TLogWrite(TLog *context, const char *format, ...) {
+	int res;
+	va_list ap;
+
+	if (!context || !format) {
+		TErrorReportDefault(T_ERROR_INVALID_INPUT);
+		return 1;
 	}
+	va_start(ap, format);
+	res = TLogWriteV(context, format, ap);
+	va_end(ap);
+
+	return res;
 }
 
-void TLogWrite(const char *format,...)
-{
-	if(tLogFile) {
-		va_list ap;
+int TLogWriteV(TLog *context, const char *format, va_list ap) {
+	unsigned char buffer[TBUFSIZE];
+	TInt32 size;
 
-		va_start(ap, format);
-		vfprintf(tLogFile,format,ap);
-		va_end(ap);
-
-		fflush(tLogFile);
+	if (!context || !format) {
+		TErrorReportDefault(T_ERROR_INVALID_INPUT);
+		return 1;
 	}
+
+	size = vsprintf(buffer, format, ap);
+
+	if (size < 0) {
+		TErrorReportDefault(T_ERROR_SIZE_EXCEEDED);
+		return 1;
+	}
+	
+	return TStreamWriteBlock(context->stream, buffer, size);
 }
 
-void TLogWriteV(const char *format,va_list ap)
-{
-	if(tLogFile) {
-		vfprintf(tLogFile,format,ap);
-		fflush(tLogFile);
+int TLogWriteMain(const char *format, ...) {
+	int res;
+	va_list ap;
+
+	if (!main || !format) {
+		TErrorReportDefault(T_ERROR_INVALID_INPUT);
+		return 1;
 	}
+
+	va_start(ap, format);
+	res = TLogWriteV(main, format, ap);
+	va_end(ap);
+
+	return res;
+}
+
+int TLogWriteVMain(const char *format, va_list ap) {
+	return TLogWriteV(main, format, ap);
 }

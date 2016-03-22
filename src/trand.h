@@ -2,9 +2,6 @@
 #ifndef __included_terra_rand_h
 #define __included_terra_rand_h
 
-void TRandInitialize(TSize seed);
-void TRandDestroy();
-
 void TRandSetSeed(TSize seed);
 
 unsigned char TRandBool(void);

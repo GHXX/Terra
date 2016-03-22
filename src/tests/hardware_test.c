@@ -134,7 +134,7 @@ void hardware_test_drive_inf(void)
 
 void hardware_test(void)
 {
-	TLogReport(T_LOG_PROGRESS, 0, "Testing Hardware analyser...\n");
+	TLogWriteMain("Testing Hardware analyser...\n");
 
 	hardware_test_screen_inf();
 
@@ -146,5 +146,5 @@ void hardware_test(void)
 
 	hardware_test_drive_inf();
 
-	TLogReport(T_LOG_PROGRESS, 0, "hardware analyser tests completed.\n");
+	TLogWriteMain("hardware analyser tests completed.\n");
 }

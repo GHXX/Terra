@@ -6,22 +6,15 @@
 #ifdef _WINDOWS
 #include <io.h>
 #include <direct.h>
-#include <windows.h>
 #else
 #include <limits.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #endif
 
-#include <ctype.h>
 #include "tstring.h"
 
 #include "talloc.h"
-
-#include "debugging/tdebug.h"
-
-#define FILE_PATH_BUFFER_SIZE 256
-static char s_filePathBuffer[FILE_PATH_BUFFER_SIZE + 1];
 
 static unsigned char FilterMatch(const char *_filename, const char *_filter)
 {
@@ -75,9 +68,9 @@ static unsigned char FilterMatch(const char *_filename, const char *_filter)
   }
   }*/
 
-size_t TFileSysListDirectory(char **output, const char *_dir, const char *_filter, unsigned char _fullFilename)
+TSize TFileSysListDirectory(char **output, const char *_dir, const char *_filter, unsigned char fullFilename)
 {
-	size_t idx = 0;
+	TSize idx = 0;
 #ifdef _WINDOWS
 	unsigned int dirlen = 0;
 	long fileindex = -1;
@@ -98,17 +91,17 @@ size_t TFileSysListDirectory(char **output, const char *_dir, const char *_filte
 	if(!dir) return 0;
 
 	fileindex = _findfirst(dir, &thisfile);
-	free(dir);
+	TFree(dir);
 
 	if(fileindex != -1) {
 		do {
 			if(!(thisfile.attrib & _A_SUBDIR)) {
 				char *newname = 0;
 				int len = strlen(thisfile.name) + 1;
-				if(_fullFilename) len += dirlen + 1;
+				if(fullFilename) len += dirlen + 1;
 
-				newname = (char *) malloc(len);
-				if(_fullFilename)
+				newname = (char *) TAlloc(sizeof(char) * len);
+				if(fullFilename)
 					sprintf(newname, "%s/%s", _dir, thisfile.name);
 				else
 					sprintf(newname, "%s", thisfile.name);
@@ -128,7 +121,7 @@ size_t TFileSysListDirectory(char **output, const char *_dir, const char *_filte
 			sprintf(fullname, "%s%s%s", _dir, _dir[0] ? "/" : "", entry->d_name);
 			if(!TFileSysIsDirectory(fullname)) {
 				output = TRAlloc(output,sizeof(char *) * (idx + 1));
-				output[idx] = strdup(_fullFilename ? fullname : entry->d_name);
+				output[idx] = strdup(fullFilename ? fullname : entry->d_name);
 				idx++;
 			}
 		}
@@ -186,7 +179,9 @@ size_t TFileSysListSubDirectoryNames(char **output, const char *_dir)
 
 unsigned char TFileSysFileExists(const char *_fullPath)
 {
-	FILE *f = fopen(TFileSysFindCaseInsensitive(_fullPath), "r");
+	char *fixedPath = TFileSysFindCaseInsensitive(_fullPath);
+	FILE *f = fopen(fixedPath, "r");
+	TFree(fixedPath);
 	if(f) {
 		fclose(f);
 		return 1;
@@ -368,22 +363,16 @@ char *TFileSysConcatPathsExt(const char *_firstComponent, ...)
 
 char *TFileSysGetParent(const char *_fullFilePath)
 {
-	strncpy(s_filePathBuffer, _fullFilePath, FILE_PATH_BUFFER_SIZE);
-
-	getParent(s_filePathBuffer);
-
-	return s_filePathBuffer;
+	char *res = TStringCopy(_fullFilePath);
+	getParent(res);
+	return res;
 }
 
 char *TFileSysGetDirectory(const char *_fullFilePath)
 {
-	char *finalSlash = 0;
-	strncpy(s_filePathBuffer, _fullFilePath, FILE_PATH_BUFFER_SIZE);
-
-	finalSlash = strrchr(s_filePathBuffer,'/');
+	char *finalSlash = strrchr(_fullFilePath, '/');
 	if(finalSlash) {
-		*(finalSlash+1)= '\x0';
-		return s_filePathBuffer;
+		return TStringNCopyO(_fullFilePath, finalSlash - _fullFilePath);
 	}
 
 	return 0;
@@ -429,12 +418,9 @@ const char *TFileSysGetExtension(const char *_fullFilePath)
 
 char *TFileSysRemoveExtension(const char *_fullFileName)
 {
-	char *dot = 0;
-	strcpy(s_filePathBuffer, _fullFileName);
-
-	dot = strrchr(s_filePathBuffer, '.');
-	if(dot)				*dot = '\x0';
-	return s_filePathBuffer;
+	char *dot = strrchr(_fullFileName, '.');
+	if (dot) return TStringNCopyO(_fullFileName, dot - _fullFileName);
+	return 0;
 }
 
 char **TFileSysSplitPath(const char *path)
@@ -486,7 +472,7 @@ TSize TFileSysGetFileSize(const char *path)
 #ifdef _WINDOWS
 	WIN32_FILE_ATTRIBUTE_DATA data;
 	if(GetFileAttributesEx(path, GetFileExInfoStandard, &data)) {
-		return data.nFileSizeLow;
+		return data.nFileSizeLow + 1;
 	}
 #else
 	struct stat s;
@@ -562,40 +548,38 @@ unsigned char TFileSysIsDirectory(const char *_fullPath)
 #endif
 }
 
-const char *TFileSysFindCaseInsensitive(const char *_fullPath)
+char *TFileSysFindCaseInsensitive(const char *_fullPath)
 {
 #ifndef _LINUX
-	return _fullPath;
+	return TStringCopy(_fullPath);
 #else
-	static char retval[PATH_MAX];
 	char *dir = 0, *file = 0;
-	const char *res;
+	char *res;
 	char **files = 0;
-	size_t numfiles = 0;
+	TSize numfiles = 0;
 
 	if(!_fullPath) return 0;
 
 	// Make our own copy of the result, since GetDirectoryPart
 	// and GetFilenamePart use the same variable for temp
 	// storage.
-	if((dir = TFileSysGetDirectory(_fullPath))!= NULL) dir = strdup(dir);
+	dir = TFileSysGetDirectory(_fullPath);
 
 	// No directory provided. Assume working directory.
-	if(!dir) file = strdup(_fullPath);
+	if (dir) file = TStringCopy(_fullPath);
 	else {
-		dir[strlen(dir) - 1] = '\0';
-		file = strdup(TFileSysGetFilename(_fullPath));
+		file = TStringCopy(TFileSysGetFilename(_fullPath));
 	}
 	numfiles = TFileSysListDirectory(files, dir, file, 0);
 
-	free(dir); free(file);
+	TFree(dir); TFree(file);
 	dir = file = 0;
 
 	// We shouldn't have found more than one match.
 	if(numfiles > 1) {
 		size_t i = 0;
-		for(; i < numfiles; ++i) free(files[i]);
-		free(files);
+		for(; i < numfiles; ++i) TFree(files[i]);
+		TFree(files);
 		return 0;
 	}
 
@@ -603,19 +587,9 @@ const char *TFileSysFindCaseInsensitive(const char *_fullPath)
 	if(numfiles == 0) return _fullPath;
 
 	// Copy the corrected path back, and prepare to return it.
-	res = (const char *) files[0];
-	memset(retval, 0, sizeof(retval));
-	TAssert(strlen(res)< PATH_MAX);
-	strcpy(retval, res);
-
-	free(files[0]);
+	res = files[0];
 	free(files);
 
-	// Negate the possibility of a memory access violation.
-	// This way, we can simply strcpy the result inline without
-	// worrying about a buffer overflow.
-	TAssert(strlen(retval)== strlen(_fullPath));
-
-	return retval;
+	return res;
 #endif
 }

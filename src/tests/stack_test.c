@@ -35,9 +35,9 @@ void stack_test_all(void)
 
 void stack_test(void)
 {
-	TLogReport(T_LOG_PROGRESS,0,"Testing Stack...\n");
+	TLogWriteMain("Testing Stack...\n");
 
 	stack_test_all();
 
-	TLogReport(T_LOG_PROGRESS,0,"Stack tests completed.\n");
+	TLogWriteMain("Stack tests completed.\n");
 }

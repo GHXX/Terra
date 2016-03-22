@@ -1,6 +1,8 @@
 
 #include "stdafx.h"
 
+#include "io/tstream.h"
+
 #include "tmemleak.h"
 
 #include "structure/tlist.h"
@@ -46,7 +48,7 @@ static int TMemLeakParseInput(const char *_inputFilename, TRBTree *input)
 			sourcelocation = thisline;
 			colon = strrchr(thisline, ':');
 			*(colon-1) = '\x0';
-			lowercasesourcelocation = TStringLowerCase(sourcelocation);
+			lowercasesourcelocation = TStringLowerCaseO(sourcelocation);
 
 			// Put the result into our BTree
 			data = (TMemLeakInput *) TRBTreeFind(input, lowercasesourcelocation);
@@ -160,15 +162,13 @@ void TMemLeakParseFile(const char *_inputFilename,const char *_outputFilename)
 	TMemLeakOuput(_outputFilename, &sorted, total, unrecognised);
 }
 
-void TMemLeakPrint(char *_filename)
+void TMemLeakPrint(TStream *stream)
 {
-	char tmpFilename[512];
+	const char tmpFilename[] = "memleak.tmp";
 	OFSTRUCT ofstruct;
 	HFILE file;
 
 	// Print all raw memory leak data to a temporary file
-	sprintf(tmpFilename, "%s.tmp", _filename);
-
 	file = OpenFile(tmpFilename, &ofstruct, OF_CREATE);
 	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
 	_CrtSetReportFile(_CRT_WARN,(void *) file);
@@ -176,7 +176,7 @@ void TMemLeakPrint(char *_filename)
 	_lclose(file);
 
 	// Parse the temp file into a sensible format
-	TMemLeakParseFile(tmpFilename, _filename);
+	TMemLeakParseFile(tmpFilename, tmpFilename);
 
 	// Delete the temporary file
 	TFileSysDelete(tmpFilename);

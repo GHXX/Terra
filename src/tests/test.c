@@ -7,9 +7,9 @@
 
 int main(int argc, char **argv)
 {
-	TLogSetFile(stdout);
+	TLogInit(0);
 
-	TLogReport(T_LOG_PROGRESS,0,"Running tests...\n");
+	TLogWriteMain("Running tests...\n");
 
 	//array_test();
 
@@ -31,7 +31,9 @@ int main(int argc, char **argv)
 
 	tokenizer_test();
 
-	TLogReport(T_LOG_PROGRESS,0,"All Tests have been executed.\n");
+	TLogWriteMain("All Tests have been executed.\n");
+
+	TLogDestroy();
 
 	return 0;
 }

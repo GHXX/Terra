@@ -4,28 +4,20 @@
 
 #define TERRA_NAME        "Terra"
 #define TERRA_DESCRIPTION "Utility library"
-#define TERRA_VERSION     "0.7.5"
-
-#define TERRA_LINE
-#define TERRA_RECTANGLE
-#define TERRA_CUBOID
-#define TERRA_TRANSFORM
+#define TERRA_VERSION     "0.8.5"
 
 #include "tdefine.h"
 
 #include "terror.h"
 #include "talloc.h"
-
-#include "debugging/tdebug.h"
-#include "debugging/tmemleak.h"
-#include "debugging/tprofiler.h"
-
 #include "tdata.h"
 #include "trand.h"
 #include "ttime.h"
 #include "tthread.h"
 
 #include "io/tio.h"
+
+#include "debugging/tdebug.h"
 
 #include "math/tmath.h"
 
@@ -44,21 +36,5 @@
 #include "structure/theap.h"
 #include "structure/tquadtree.h"
 #include "structure/toctree.h"
-
-static inline void TerraInitialize(FILE *logfile)
-{
-	TLogSetFile(logfile);
-	TIOInitialize();
-	TTimeInitialise();
-	TRandInitialize(42);
-}
-
-static inline void TerraDestroy(void)
-{
-	TArgParserDestroy();
-	TRandDestroy();
-	TIODestroy();
-	TErrorClear();
-}
 
 #endif

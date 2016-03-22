@@ -3,40 +3,37 @@
 #define __included_terra_debug_h
 
 #include "tlog.h"
+#include "tmemcheck.h"
+#include "tprofiler.h"
 
-void TDumpData(void *_data, size_t _dataLen);	// Dumps data as a hex table
+typedef void(*TAbortFunc)(const char *, va_list);
 
-#ifdef _DEBUG
-void TDebugAssert(unsigned char _condition);		// Does nothing in Release builds
-#else
-#define TDebugAssert(x) {}
-#endif // _DEBUG
+void TDebugDumpData(TStream *stream, unsigned char *data, TSize dataLen); // Dumps data as a hex table
 
-void TReleaseAssertFailed(const char *_fmt, ...);	// Same as DebugAssert in Debug builds
-void TGenerateBlackBox(char *_msg);
+void TDebugAssertFailed(const char *fmt, ...);
 
-#ifdef _MSC_VER
-#define TReleaseAssert(cond, ...) \
-	do { \
-		if(!(cond)) \
-			TReleaseAssertFailed(__VA_ARGS__); \
-	} while(0)
+char *TDebugGetStackTrace(void);
+
+void TDebugSetAbortFunction(TAbortFunc func);
+
+#ifdef COMPILER_MICROSOFT
+#define TDebugAssert(cond, ...) \
+	if(!(cond)) \
+		TDebugAssertFailed(__VA_ARGS__);
 #else // GCC
-#define TReleaseAssert(cond, fmt, args...) \
-	do { \
-		if(!(cond)) \
-			TReleaseAssertFailed(fmt, ## args); \
-	} while(0)
+#define TDebugAssert(cond, fmt, args...) \
+	if(!(cond)) \
+		TDebugAssertFailed(fmt, ## args);
 #endif
 
-#define TAssert(x)		TReleaseAssert((x),				\
-						"Assertion failed : '%s'\n\n"	\
-						"%s\nline number %d",			\
+#define TAssert(x)		TDebugAssert((x),               \
+						"Assertion failed : '%s'\n\n"   \
+						"%s\nline number %d",           \
 						#x, __FILE__, __LINE__)
 
-#define TAbort(x)		TReleaseAssert(0,				\
-						"Abort : '%s'\n\n"				\
-						"%s\nline number %d",			\
+#define TAbort(x)		TDebugAssert(0,                 \
+						"Abort : '%s'\n\n"              \
+						"%s\nline number %d",           \
 						x, __FILE__, __LINE__)
 
 #endif

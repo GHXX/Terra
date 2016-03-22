@@ -15,6 +15,9 @@
 #ifndef _WINDOWS
 #include <unistd.h>
 #include <sys/types.h>
+#else
+//#define UNICODE
+#include <windows.h>
 #endif
 
 #endif // __included_stdafx_h

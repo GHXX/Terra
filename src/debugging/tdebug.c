@@ -2,56 +2,61 @@
 #include "stdafx.h"
 
 #include "tdebug.h"
+#include "talloc.h"
 
 #ifdef _WINDOWS
 #include <Windows.h>
-#else
-#include <assert.h>
 #endif
 
-#include <time.h>
-
-void TDebugOutData(void *_data, size_t _dataLen)
-{
-	size_t i = 0;
-	for(; i < _dataLen; ++i) {
-		if(i % 16 == 0)	TLogWrite("\n");
-		TLogWrite("%02x ",((unsigned char *)_data)[i]);
-	}
-	TLogWrite("\n\n");
-}
-
-#ifdef _DEBUG
-void TDebugAssert(unsigned char _condition)
-{
-	if(!_condition) {
-#ifdef _WINDOWS
-		ShowCursor(1);
-		TLogReport(T_LOG_ERROR,"TDebugAssert","condition failed.");
-#endif
-		abort();
-	}
-}
-#endif // _DEBUG
-
-void TReleaseAssertFailed(const char *_msg, ...)
-{
-	char buf[512];
-	va_list ap;
-	va_start(ap, _msg);
-	vsprintf(buf, _msg, ap);
-
+static void TDebugDefaultAbort(const char *msg, va_list args) {
+	// ensure the mouse is visible before dying
 #ifdef _WINDOWS
 	ShowCursor(1);
-	MessageBox(NULL, buf, "Fatal Error", MB_OK);
-#else
-	fputs(buf, stderr);
 #endif
 
-#ifndef _DEBUG
-	TGenerateBlackBox(buf);
-#endif // _DEBUG
 	abort();
+}
+
+static TAbortFunc TDebugOnAbort = TDebugDefaultAbort;
+
+void TDebugDumpData(TStream *stream, unsigned char *data, TSize dataLen)
+{
+	const char *format = "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n";
+	char block[64];
+	unsigned char *ptr = (unsigned char *)data;
+
+	while (dataLen > 16) {
+		snprintf(block, sizeof(block), format, data[0], data[1], data[2], data[3],
+				 data[4], data[5], data[6], data[7],
+				 data[8], data[9], data[10], data[11],
+				 data[12], data[13], data[14], data[15]);
+		TStreamWriteBlock(stream, block, strlen(block));
+		data += 16;
+		dataLen -= 16;
+	}
+
+	if (dataLen) {
+		// completes the data with zeros
+		unsigned char *end = TAlloc(sizeof(unsigned char) * 16);
+		memset(end, 0, sizeof(unsigned char) * 16);
+		memcpy(end, ptr, dataLen);
+		
+		snprintf(block, sizeof(block), format, data[0], data[1], data[2], data[3],
+				 data[4], data[5], data[6], data[7],
+				 data[8], data[9], data[10], data[11],
+				 data[12], data[13], data[14], data[15]);
+		TStreamWriteBlock(stream, block, strlen(block));
+		TFree(end);
+	}
+}
+
+void TDebugAssertFailed(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	TDebugOnAbort(fmt, ap);
+	va_end(ap);
 }
 
 unsigned *getRetAddress(unsigned *mBP)
@@ -72,46 +77,34 @@ unsigned *getRetAddress(unsigned *mBP)
 #endif
 }
 
-void TGenerateBlackBox(char *_msg)
-{
-	time_t timet = time(0);
-	struct tm *thetime = localtime(&timet);
+char *TDebugPrintStackTrace(TStream *stream) {
 #ifdef _WINDOWS
 	unsigned *framePtr = 0;
 	unsigned *previousFramePtr = 0;
-#endif
+	//char buffer[64];
 
-	TLogWrite("=========================\n");
-	TLogWrite("=   BLACK BOX REPORT    =\n");
-	TLogWrite("=========================\n\n");
+	__asm { mov[framePtr], ebp }
 
-	TLogWrite("Date %d:%d, %d/%d/%d\n\n", thetime->tm_hour, thetime->tm_min, thetime->tm_mday, thetime->tm_mon+1, thetime->tm_year+1900);
-
-	if(_msg)TLogWrite("ERROR : '%s'\n", _msg);
-
-	//TODO this for Linux
-#ifdef _WINDOWS
-	TLogWrite("\n");
-	TLogWrite("=========================\n");
-	TLogWrite("=      STACKTRACE       =\n");
-	TLogWrite("=========================\n\n");
-
-	__asm { mov [framePtr], ebp }
-
-	while(framePtr) {
-		TLogWrite("retAddress = %p\n", getRetAddress(framePtr));
+	while (framePtr) {
+		TLogWriteMain("retAddress = %p\n", getRetAddress(framePtr));
 		framePtr = *(unsigned **)framePtr;
 
 		// Frame pointer must be aligned on a
 		// DWORD boundary. Bail if not so.
-		if((unsigned long)framePtr & 3)	break;
-		if(framePtr <= previousFramePtr) break;
+		if ((unsigned long)framePtr & 3)	break;
+		if (framePtr <= previousFramePtr) break;
 
 		// Can two DWORDs be read from the supposed frame address?
-		if(IsBadWritePtr(framePtr, sizeof(PVOID)*2)|| IsBadReadPtr(framePtr, sizeof(PVOID)*2))
+		if (IsBadWritePtr(framePtr, sizeof(PVOID) * 2) || IsBadReadPtr(framePtr, sizeof(PVOID) * 2))
 			break;
 
 		previousFramePtr = framePtr;
 	}
-#endif // _WINDOWS				
+#endif
+}
+
+void TDebugSetAbortFunction(TAbortFunc func) {
+	if (!func) func = TDebugDefaultAbort;
+
+	TDebugOnAbort = func;
 }

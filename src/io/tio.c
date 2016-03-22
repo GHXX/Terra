@@ -27,7 +27,7 @@ void TIOInitialize(void)
 
 void TIODestroy(void)
 {
-	TSListFree(searchpaths,TFree);
+	TSListFree(searchpaths, TFree);
 	searchpaths = 0;
 }
 
@@ -44,24 +44,27 @@ TSList *TIOListArchive(const char *_dir, const char *_filter, unsigned char full
 
 void *testpath(const char *searchpath, const char *filename)
 {
-	char *fullFilename = TFileSysConcatPaths(searchpath, filename,NULL);
-	if(TFileSysFileExists(fullFilename)) return fullFilename;
+	char *fullFilename = TFileSysConcatPaths(searchpath, filename, NULL);
+	if (TFileSysFileExists(fullFilename)) return fullFilename;
 
 	TFree(fullFilename);
 
 	return 0;
 }
 
-FILE *TIOGetFile(const char *filename,const char *mode)
+static FILE *TIOGetFileInternal(const char *filename, const char *mode)
 {
 	char *found = 0;
 	if(!filename) return 0;
 
 	if(!mode) mode = "rb";
+	else if (strchr(mode, 'w')) {
+		return fopen(filename, mode);
+	}
 
-	found = (char *) TSListForeachData(searchpaths, (TDataIterFunc) testpath,(void *) filename);
+	found = (char *)TSListForeachData(searchpaths, (TDataIterFunc)testpath, (void *)filename);
 	if(found) {
-		FILE *f = fopen(found,mode);
+		FILE *f = fopen(found, mode);
 		TFree(found);
 		return f;
 	}
@@ -71,23 +74,23 @@ FILE *TIOGetFile(const char *filename,const char *mode)
 	return 0;
 }
 
-TStream *TIOGetRW(const char *filename,const char *mode)
+TStream *TIOGetFile(const char *filename, const char *mode)
 {
 	TStream *trw = 0;
 
-	FILE *f = TIOGetFile(filename,mode);
-	if(f) trw = TStreamFromFilePointer(f,1);
+	FILE *f = TIOGetFileInternal(filename, mode);
+	if (f) trw = TStreamFromFilePointer(f, 1);
 
 	return trw;
 }
 
-unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, unsigned int *size)
+unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, TSize *size)
 {
 	unsigned char *buffer = 0;
 	unsigned int finalsize = 0;
 
-	TStream *trw = TIOGetRW(filename,mode);
-	if(!trw) return 0;
+	TStream *trw = TIOGetFile(filename, mode);
+	if (!trw) return 0;
 
 	finalsize = TStreamSize(trw);
 	buffer = TAlloc(sizeof(unsigned char) * finalsize);
@@ -100,19 +103,19 @@ unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, unsign
 
 void TIOAddSearchPath(const char *path)
 {
-	if(!searchpaths) searchpaths = TSListNew();
+	if (!searchpaths) searchpaths = TSListNew();
 
-	TSListAppend(searchpaths,TStringCopy(path));
+	TSListAppend(searchpaths, TStringCopy(path));
 }
 
 void TIORemoveLastSearchPath(void)
 {
-	TSListRemoveIndex(searchpaths,searchpaths->len - 1);
+	TSListRemoveIndex(searchpaths, searchpaths->len - 1);
 }
 
 void TIOClearSearchPath(void)
 {
-	TSListFree(searchpaths,TFree);
+	TSListFree(searchpaths, TFree);
 	TIOAddSearchPath(TIOGetApplicationPath());
 }
 

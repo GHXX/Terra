@@ -19,20 +19,9 @@ static inline float TMathRadToDeg(float radian)
 #include "ttuple.h"
 #include "tmatrix.h"
 
-#ifdef TERRA_TRANSFORM
 #include "ttransform.h"
-#endif
-
-#ifdef TERRA_LINE
 #include "tline.h"
-#endif
-
-#ifdef TERRA_RECTANGLE
 #include "trectangle.h"
-#endif
-
-#ifdef TERRA_CUBOID
 #include "tcuboid.h"
-#endif
 
 #endif

@@ -70,14 +70,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\debugging\tdebug.c" />
     <ClCompile Include="..\..\src\debugging\tlog.c" />
-    <ClCompile Include="..\..\src\debugging\tmemleak.c" />
+    <ClCompile Include="..\..\src\debugging\tmemcheck.c" />
     <ClCompile Include="..\..\src\debugging\tprofiler.c" />
     <ClCompile Include="..\..\src\hardware\thardware.c" />
     <ClCompile Include="..\..\src\io\tio.c" />
     <ClCompile Include="..\..\src\io\tstream.c" />
-    <ClCompile Include="..\..\src\stdafx.c">
-      <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\..\src\structure\tarray.c" />
     <ClCompile Include="..\..\src\structure\theap.c" />
     <ClCompile Include="..\..\src\structure\tlist.c" />
@@ -85,24 +82,31 @@
     <ClCompile Include="..\..\src\structure\tquadtree.c" />
     <ClCompile Include="..\..\src\structure\trbtree.c" />
     <ClCompile Include="..\..\src\structure\tstack.c" />
-    <ClCompile Include="..\..\src\talloc.c" />
-    <ClCompile Include="..\..\src\tdata.c" />
-    <ClCompile Include="..\..\src\terror.c" />
-    <ClCompile Include="..\..\src\trand.c" />
-    <ClCompile Include="..\..\src\tthread.c" />
-    <ClCompile Include="..\..\src\ttime.c" />
     <ClCompile Include="..\..\src\utility\targparser.c" />
     <ClCompile Include="..\..\src\utility\tconvert.c" />
     <ClCompile Include="..\..\src\utility\tfilesys.c" />
     <ClCompile Include="..\..\src\utility\tinteger.c" />
     <ClCompile Include="..\..\src\utility\tstring.c" />
     <ClCompile Include="..\..\src\utility\ttokenizer.c" />
+    <ClCompile Include="..\..\src\stdafx.c">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\src\talloc.c" />
+    <ClCompile Include="..\..\src\tdata.c" />
+    <ClCompile Include="..\..\src\tencoding.c" />
+    <ClCompile Include="..\..\src\terror.c" />
+    <ClCompile Include="..\..\src\trand.c" />
+    <ClCompile Include="..\..\src\tthread.c" />
+    <ClCompile Include="..\..\src\ttime.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\debugging\tdebug.h" />
     <ClInclude Include="..\..\src\debugging\tlog.h" />
-    <ClInclude Include="..\..\src\debugging\tmemleak.h" />
+    <ClInclude Include="..\..\src\debugging\tmemcheck.h" />
     <ClInclude Include="..\..\src\debugging\tprofiler.h" />
+    <ClInclude Include="..\..\src\hardware\thardware.h" />
+    <ClInclude Include="..\..\src\io\tio.h" />
+    <ClInclude Include="..\..\src\io\tstream.h" />
     <ClInclude Include="..\..\src\math\tcuboid.h" />
     <ClInclude Include="..\..\src\math\tline.h" />
     <ClInclude Include="..\..\src\math\trectangle.h" />
@@ -110,10 +114,6 @@
     <ClInclude Include="..\..\src\math\tmatrix.h" />
     <ClInclude Include="..\..\src\math\ttransform.h" />
     <ClInclude Include="..\..\src\math\ttuple.h" />
-    <ClInclude Include="..\..\src\hardware\thardware.h" />
-    <ClInclude Include="..\..\src\io\tio.h" />
-    <ClInclude Include="..\..\src\io\tstream.h" />
-    <ClInclude Include="..\..\src\stdafx.h" />
     <ClInclude Include="..\..\src\structure\tarray.h" />
     <ClInclude Include="..\..\src\structure\theap.h" />
     <ClInclude Include="..\..\src\structure\tlist.h" />
@@ -121,20 +121,22 @@
     <ClInclude Include="..\..\src\structure\tquadtree.h" />
     <ClInclude Include="..\..\src\structure\trbtree.h" />
     <ClInclude Include="..\..\src\structure\tstack.h" />
-    <ClInclude Include="..\..\src\talloc.h" />
-    <ClInclude Include="..\..\src\tdata.h" />
-    <ClInclude Include="..\..\src\tdefine.h" />
-    <ClInclude Include="..\..\src\terra.h" />
-    <ClInclude Include="..\..\src\terror.h" />
-    <ClInclude Include="..\..\src\trand.h" />
-    <ClInclude Include="..\..\src\tthread.h" />
-    <ClInclude Include="..\..\src\ttime.h" />
     <ClInclude Include="..\..\src\utility\targparser.h" />
     <ClInclude Include="..\..\src\utility\tconvert.h" />
     <ClInclude Include="..\..\src\utility\tfilesys.h" />
     <ClInclude Include="..\..\src\utility\tinteger.h" />
     <ClInclude Include="..\..\src\utility\tstring.h" />
     <ClInclude Include="..\..\src\utility\ttokenizer.h" />
+    <ClInclude Include="..\..\src\stdafx.h" />
+    <ClInclude Include="..\..\src\talloc.h" />
+    <ClInclude Include="..\..\src\tdata.h" />
+    <ClInclude Include="..\..\src\tdefine.h" />
+    <ClInclude Include="..\..\src\tencoding.h" />
+    <ClInclude Include="..\..\src\terra.h" />
+    <ClInclude Include="..\..\src\terror.h" />
+    <ClInclude Include="..\..\src\trand.h" />
+    <ClInclude Include="..\..\src\tthread.h" />
+    <ClInclude Include="..\..\src\ttime.h" />
     <ClInclude Include="..\..\TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

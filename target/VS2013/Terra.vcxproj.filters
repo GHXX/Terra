@@ -21,46 +21,26 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\stdafx.c" />
-    <ClCompile Include="..\..\src\tdata.c" />
-    <ClCompile Include="..\..\src\terror.c" />
-    <ClCompile Include="..\..\src\trand.c" />
-    <ClCompile Include="..\..\src\ttime.c" />
     <ClCompile Include="..\..\src\debugging\tdebug.c">
       <Filter>debugging</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\debugging\tlog.c">
       <Filter>debugging</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\debugging\tmemleak.c">
+    <ClCompile Include="..\..\src\debugging\tmemcheck.c">
       <Filter>debugging</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\debugging\tprofiler.c">
       <Filter>debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hardware\thardware.c">
+      <Filter>hardware</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\tio.c">
       <Filter>io</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\tstream.c">
       <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utility\targparser.c">
-      <Filter>utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utility\tconvert.c">
-      <Filter>utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utility\tfilesys.c">
-      <Filter>utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utility\tinteger.c">
-      <Filter>utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utility\tstring.c">
-      <Filter>utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utility\ttokenizer.c">
-      <Filter>utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\structure\tarray.c">
       <Filter>structure</Filter>
@@ -83,32 +63,54 @@
     <ClCompile Include="..\..\src\structure\tstack.c">
       <Filter>structure</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\hardware\thardware.c">
-      <Filter>hardware</Filter>
+    <ClCompile Include="..\..\src\utility\targparser.c">
+      <Filter>utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\utility\tconvert.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utility\tfilesys.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utility\tinteger.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utility\tstring.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utility\ttokenizer.c">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\stdafx.c" />
     <ClCompile Include="..\..\src\talloc.c" />
+    <ClCompile Include="..\..\src\tdata.c" />
+    <ClCompile Include="..\..\src\tencoding.c" />
+    <ClCompile Include="..\..\src\terror.c" />
+    <ClCompile Include="..\..\src\trand.c" />
     <ClCompile Include="..\..\src\tthread.c" />
+    <ClCompile Include="..\..\src\ttime.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="..\..\src\talloc.h" />
-    <ClInclude Include="..\..\src\tdata.h" />
-    <ClInclude Include="..\..\src\tdefine.h" />
-    <ClInclude Include="..\..\src\terra.h" />
-    <ClInclude Include="..\..\src\terror.h" />
-    <ClInclude Include="..\..\src\trand.h" />
-    <ClInclude Include="..\..\src\ttime.h" />
     <ClInclude Include="..\..\src\debugging\tdebug.h">
       <Filter>debugging</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\debugging\tlog.h">
       <Filter>debugging</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\debugging\tmemleak.h">
+    <ClInclude Include="..\..\src\debugging\tmemcheck.h">
       <Filter>debugging</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\debugging\tprofiler.h">
       <Filter>debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hardware\thardware.h">
+      <Filter>hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\tio.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\tstream.h">
+      <Filter>io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\math\tcuboid.h">
       <Filter>math</Filter>
@@ -131,30 +133,6 @@
     <ClInclude Include="..\..\src\math\ttuple.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\io\tio.h">
-      <Filter>io</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\io\tstream.h">
-      <Filter>io</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utility\targparser.h">
-      <Filter>utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utility\tconvert.h">
-      <Filter>utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utility\tfilesys.h">
-      <Filter>utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utility\tinteger.h">
-      <Filter>utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utility\tstring.h">
-      <Filter>utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utility\ttokenizer.h">
-      <Filter>utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\structure\tarray.h">
       <Filter>structure</Filter>
     </ClInclude>
@@ -176,9 +154,33 @@
     <ClInclude Include="..\..\src\structure\tstack.h">
       <Filter>structure</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\hardware\thardware.h">
-      <Filter>hardware</Filter>
+    <ClInclude Include="..\..\src\utility\targparser.h">
+      <Filter>utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\utility\tconvert.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utility\tfilesys.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utility\tinteger.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utility\tstring.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utility\ttokenizer.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\stdafx.h" />
+    <ClInclude Include="..\..\src\talloc.h" />
+    <ClInclude Include="..\..\src\tdata.h" />
+    <ClInclude Include="..\..\src\tdefine.h" />
+    <ClInclude Include="..\..\src\tencoding.h" />
+    <ClInclude Include="..\..\src\terra.h" />
+    <ClInclude Include="..\..\src\terror.h" />
+    <ClInclude Include="..\..\src\trand.h" />
     <ClInclude Include="..\..\src\tthread.h" />
+    <ClInclude Include="..\..\src\ttime.h" />
   </ItemGroup>
 </Project>

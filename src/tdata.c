@@ -263,93 +263,93 @@ TUInt16 TDataGetType(const TData *context)
 
 TCPtr TDataToConstPointer(const TData *context, TUInt16 *type)
 {
-	if (context) return convertToConstPointer(context->data, context->type);
+	if (context) return TConvertToConstPointer(context->data, context->type);
 	return 0;
 }
 
 TPtr TDataToPointer(const TData *context, TUInt16 *type)
 {
-	if (context) return convertToPointer(context->data, context->type);
+	if (context) return TConvertToPointer(context->data, context->type);
 	return 0;
 }
 
 const char *TDataToConstString(const TData *context)
 {
-	if (context) return convertToConstString(context->data, context->type);
+	if (context) return TConvertToConstString(context->data, context->type);
 	return 0;
 }
 
 char *TDataToString(const TData *context)
 {
-	if (context) return convertToString(context->data, context->type);
+	if (context) return TConvertToString(context->data, context->type);
 	return 0;
 }
 
 char TDataToChar(const TData *context)
 {
-	if (context) return convertToChar(context->data, context->type);
+	if (context) return TConvertToChar(context->data, context->type);
 	return 0;
 }
 
 TInt8 TDataToInt8(const TData *context)
 {
-	if (context) return convertToInt8(context->data, context->type);
+	if (context) return TConvertToInt8(context->data, context->type);
 	return 0;
 }
 
 TUInt8 TDataToUInt8(const TData *context)
 {
-	if (context) return convertToUInt8(context->data, context->type);
+	if (context) return TConvertToUInt8(context->data, context->type);
 	return 0;
 }
 
 TInt16 TDataToInt16(const TData *context)
 {
-	if (context) return convertToInt16(context->data, context->type);
+	if (context) return TConvertToInt16(context->data, context->type);
 	return 0;
 }
 
 TUInt16 TDataToUInt16(const TData *context)
 {
-	if (context) return convertToUInt16(context->data, context->type);
+	if (context) return TConvertToUInt16(context->data, context->type);
 	return 0;
 }
 
 TInt32 TDataToInt32(const TData *context)
 {
-	if (context) return convertToInt32(context->data, context->type);
+	if (context) return TConvertToInt32(context->data, context->type);
 	return 0;
 }
 
 TUInt32 TDataToUInt32(const TData *context)
 {
-	if (context) return convertToUInt32(context->data, context->type);
+	if (context) return TConvertToUInt32(context->data, context->type);
 	return 0;
 }
 
 #ifdef PLATFORM_X86_64
 TInt64 TDataToInt64(const TData *context)
 {
-	if (context) return convertToInt64(context->data, context->type);
+	if (context) return TConvertToInt64(context->data, context->type);
 	return 0;
 }
 
 TUInt64 TDataToUInt64(const TData *context)
 {
-	if (context) return convertToUInt64(context->data, context->type);
+	if (context) return TConvertToUInt64(context->data, context->type);
 	return 0;
 }
 #endif
 
 float TDataToFloat(const TData *context)
 {
-	if (context) return convertToFloat(context->data, context->type);
+	if (context) return TConvertToFloat(context->data, context->type);
 	return 0;
 }
 
 double TDataToDouble(const TData *context)
 {
-	if (context) return convertToDouble(context->data, context->type);
+	if (context) return TConvertToDouble(context->data, context->type);
 	return 0;
 }
 

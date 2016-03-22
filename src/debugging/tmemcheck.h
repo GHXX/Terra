@@ -10,6 +10,8 @@
 #endif
 #endif
 
-void TMemLeakPrint(char *_filename);
+#include "io/tstream.h"
+
+void TMemLeakPrint(TStream *stream);
 
 #endif

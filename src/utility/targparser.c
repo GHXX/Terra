@@ -61,7 +61,7 @@ TUInt8 TArgParserAddArgument(const char *name, TUInt8 type, TUInt8 amount, TUInt
 	TArg *arg;
 
 	if (TArgParser.argFormat->len > UCHAR_MAX - 2) {
-		TErrorReport(T_ERROR_SIZE_EXCEEDED);
+		TErrorReportDefault(T_ERROR_SIZE_EXCEEDED);
 		return -1;
 	}
 
@@ -207,7 +207,7 @@ static unsigned char TArgParserCheck(TArg *pat, const char *arg)
 	// check if the pattern was already used
 
 	if(pat->used) {
-		TErrorReportFull(1,"Pattern for switch already used.");
+		TErrorReport(1, "Pattern for switch already used.");
 		TArgParserHelp();
 		return 1;
 	}
@@ -218,7 +218,7 @@ static unsigned char TArgParserCheck(TArg *pat, const char *arg)
 
 	ndata = TArgParserNumData(TArgParser.idx, limit);
 	if(!TArgParserIsAmountValid(pat->amount,ndata)) {
-		TErrorReportFull(1,"Invalid number of arguments.");
+		TErrorReport(1, "Invalid number of arguments.");
 		return 1;
 	}
 
@@ -226,7 +226,7 @@ static unsigned char TArgParserCheck(TArg *pat, const char *arg)
 	for(; i < ndata; ++i) {
 		arg = TArgParser.argv[TArgParser.idx + i];
 		if(!TArgParserIsTypeValid(pat->type,arg)) {
-			TErrorReportFull(1,"Invalid argument.");
+			TErrorReport(1, "Invalid argument.");
 			return 1;
 		}
 	}
@@ -266,7 +266,7 @@ TUInt8 TArgParserNext(void)
 
 		const char *next = TArgParser.argv[TArgParser.idx];
 		if(!next) {
-			TErrorReport(T_ERROR_NULL_POINTER);
+			TErrorReportDefault(T_ERROR_NULL_POINTER);
 			return -1;
 		}
 

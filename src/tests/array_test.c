@@ -98,7 +98,7 @@ void array_test_free(void)
 
 void array_test(void)
 {
-	TLogReport(T_LOG_PROGRESS,0,"Testing array...\n");
+	TLogWriteMain("Testing array...\n");
 
 	array_test_init();
 
@@ -112,5 +112,5 @@ void array_test(void)
 
 	array_test_free();
 
-	TLogReport(T_LOG_PROGRESS,0,"Array tests completed.\n");
+	TLogWriteMain("Array tests completed.\n");
 }

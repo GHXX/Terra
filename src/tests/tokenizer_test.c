@@ -127,7 +127,7 @@ void tokenizer_test_5(void) {
 }
 
 void tokenizer_test(void) {
-	TLogReport(T_LOG_PROGRESS, 0, "Testing tokenizer ...\n");
+	TLogWriteMain("Testing tokenizer ...\n");
 
 	tokenizer_test_1();
 	tokenizer_test_2();
@@ -135,5 +135,5 @@ void tokenizer_test(void) {
 	tokenizer_test_4();
 	tokenizer_test_5();
 
-	TLogReport(T_LOG_PROGRESS, 0, "tokenizer tests completed.\n");
+	TLogWriteMain("tokenizer tests completed.\n");
 }

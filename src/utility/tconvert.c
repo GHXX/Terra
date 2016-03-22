@@ -8,34 +8,34 @@
 
 // https://msdn.microsoft.com/en-us/library/s3f49ktz.aspx
 
-TPtr convertToPointer(TCPtr data, TUInt16 type) {
+TPtr TConvertToPointer(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_CONST_UNKNOWN || type == T_DATA_UNKNOWN || type >= T_DATA_AMOUNT) {
 		return (TPtr)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TCPtr convertToConstPointer(TCPtr data, TUInt16 type) {
+TCPtr TConvertToConstPointer(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_CONST_UNKNOWN || type == T_DATA_UNKNOWN || type >= T_DATA_AMOUNT) {
 		return data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-const char *convertToConstString(TCPtr data, TUInt16 type) {
+const char *TConvertToConstString(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_CONST_STRING || type == T_DATA_STRING) {
 		return (const char *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-char *convertToString(TCPtr data, TUInt16 type) {
+char *TConvertToString(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_CONST_STRING) {
 		return TStringCopy((const char *)data);
 	}
@@ -112,11 +112,11 @@ char *convertToString(TCPtr data, TUInt16 type) {
 		return res;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-char convertToChar(TCPtr data, TUInt16 type) {
+char TConvertToChar(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_CHAR || type == T_DATA_STRING || type == T_DATA_INT8) {
 		return *(char *)data;
 	}
@@ -156,11 +156,11 @@ char convertToChar(TCPtr data, TUInt16 type) {
 		return (char)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 };
 
-TInt8 convertToInt8(TCPtr data, TUInt16 type) {
+TInt8 TConvertToInt8(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_INT8 || type == T_DATA_CHAR) {
 		return *(TInt8 *)data;
 	}
@@ -200,11 +200,11 @@ TInt8 convertToInt8(TCPtr data, TUInt16 type) {
 		return (TInt8)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TUInt8 convertToUInt8(TCPtr data, TUInt16 type) {
+TUInt8 TConvertToUInt8(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_UINT8) {
 		return *(TUInt8 *)data;
 	}
@@ -247,11 +247,11 @@ TUInt8 convertToUInt8(TCPtr data, TUInt16 type) {
 		return (TUInt8)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TInt16 convertToInt16(TCPtr data, TUInt16 type) {
+TInt16 TConvertToInt16(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_INT16) {
 		return *(TInt16 *)data;
 	}
@@ -288,11 +288,11 @@ TInt16 convertToInt16(TCPtr data, TUInt16 type) {
 		return (TInt16)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TUInt16 convertToUInt16(TCPtr data, TUInt16 type) {
+TUInt16 TConvertToUInt16(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_UINT16) {
 		return *(TUInt16 *)data;
 	}
@@ -332,11 +332,11 @@ TUInt16 convertToUInt16(TCPtr data, TUInt16 type) {
 		return (TUInt16)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TInt32 convertToInt32(TCPtr data, TUInt16 type) {
+TInt32 TConvertToInt32(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_INT32) {
 		return *(TInt32 *)data;
 	}
@@ -376,11 +376,11 @@ TInt32 convertToInt32(TCPtr data, TUInt16 type) {
 		return (TInt32)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TUInt32 convertToUInt32(TCPtr data, TUInt16 type) {
+TUInt32 TConvertToUInt32(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_UINT32) {
 		return *(TUInt32 *)data;
 	}
@@ -420,12 +420,12 @@ TUInt32 convertToUInt32(TCPtr data, TUInt16 type) {
 		return (TUInt32)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
 #ifdef PLATFORM_X86_64
-TInt64 convertToInt64(TCPtr data, TUInt16 type) {
+TInt64 TConvertToInt64(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_INT64) {
 		return *(TInt64 *)data;
 	}
@@ -463,11 +463,11 @@ TInt64 convertToInt64(TCPtr data, TUInt16 type) {
 		return (TInt64)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TUInt64 convertToUInt64(TCPtr data, TUInt16 type) {
+TUInt64 TConvertToUInt64(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_UINT64) {
 		return *(TUInt64 *)data;
 	}
@@ -505,12 +505,12 @@ TUInt64 convertToUInt64(TCPtr data, TUInt16 type) {
 		return (TUInt64)*(double *)data;
 	}
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 #endif
 
-float convertToFloat(TCPtr data, TUInt16 type) {
+float TConvertToFloat(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_FLOAT) {
 		return *(float *)data;
 	}
@@ -550,11 +550,11 @@ float convertToFloat(TCPtr data, TUInt16 type) {
 	}
 #endif
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-double convertToDouble(TCPtr data, TUInt16 type) {
+double TConvertToDouble(TCPtr data, TUInt16 type) {
 	if (type == T_DATA_DOUBLE) {
 		return *(double *)data;
 	}
@@ -597,14 +597,14 @@ double convertToDouble(TCPtr data, TUInt16 type) {
 	}
 #endif
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
-TPtr convertTo(TCPtr data, TUInt16 type, TUInt16 targetType)
+TPtr TConvertTo(TCPtr data, TUInt16 type, TUInt16 targetType)
 {
 	if (type == targetType) return (TPtr) data;
 
-	TErrorReport(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }

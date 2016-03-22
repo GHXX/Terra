@@ -4,97 +4,97 @@
 
 // Common tuples
 
-typedef struct { short x, y; } Tuple2s;
-typedef struct { int   x, y; } Tuple2i;
-typedef struct { float x, y; } Tuple2f;
+typedef struct { short x, y; } TTuple2s;
+typedef struct { int   x, y; } TTuple2i;
+typedef struct { float x, y; } TTuple2f;
 
-typedef struct { int   x, y, z; } Tuple3i;
-typedef struct { float x, y, z; } Tuple3f;
+typedef struct { int   x, y, z; } TTuple3i;
+typedef struct { float x, y, z; } TTuple3f;
 
-typedef struct { int   x, y, z, t; } Tuple4i;
-typedef struct { float x, y, z, t; } Tuple4f;
+typedef struct { int   x, y, z, t; } TTuple4i;
+typedef struct { float x, y, z, t; } TTuple4f;
 
 // common naming
 
-typedef Tuple2f Point;
-typedef Tuple2f Vector2f;
+typedef TTuple2f TPoint;
+typedef TTuple2f TVector2f;
 
-typedef Tuple3f Point3;
-typedef Tuple3f Vector;
+typedef TTuple3f TTPoint3;
+typedef TTuple3f TVector;
 
-typedef Tuple4f Quat;
+typedef TTuple4f TQuat;
 
 // 2D Point operation
 
-inline static void PointAdd(Point *to, const Point *from)
+inline static void TPointAdd(TPoint *to, const TPoint *from)
 {
 	to->x += from->x;
 	to->y += from->y;
 }
 
-inline static void PointSub(Point *to, const Point *from)
+inline static void TPointSub(TPoint *to, const TPoint *from)
 {
 	to->x -= from->x;
 	to->y -= from->y;
 }
 
-inline static unsigned char PointEqual(const Point *p1, const Point *p2)
+inline static unsigned char TPointEqual(const TPoint *p1, const TPoint *p2)
 {
 	return p1->x == p2->x && p1->y == p2->y;
 }
 
-inline static float PointEuclidianDistance(const Point *to, const Point *from)
+inline static float TPointEuclidianDistance(const TPoint *to, const TPoint *from)
 {
-	float y = to->y-from->y, x = to->x-from->x;
+	float y = to->y - from->y, x = to->x - from->x;
 	return sqrtf(y*y + x*x);
 }
 
 // 3-Tuple operations
 
-inline static void Tuple3fSet(Tuple3f *t, float x, float y, float z)
+inline static void TTuple3fSet(TTuple3f *t, float x, float y, float z)
 {
 	t->x = x; t->y = y; t->z = z;
 }
 
-inline static void Tuple3fCopy(Tuple3f *t1, const Tuple3f *t2)
+inline static void TTuple3fCopy(TTuple3f *t1, const TTuple3f *t2)
 {
 	t1->x = t2->x; t1->y = t2->y; t1->z = t2->z;
 }
 
-inline static unsigned char Tuple3fEqual(const Tuple3f *t1,const Tuple3f *t2)
+inline static unsigned char TTuple3fEqual(const TTuple3f *t1, const TTuple3f *t2)
 {
-	return t1->x == t2->x && t1->y == t2->y &&t1->z == t2->z;
+	return t1->x == t2->x && t1->y == t2->y && t1->z == t2->z;
 }
 
-inline static void Tuple3fMin(Tuple3f *t1,const Tuple3f *t2)
+inline static void TTuple3fMin(TTuple3f *t1, const TTuple3f *t2)
 {
-	t1->x = TMIN(t1->x,t2->x);
-	t1->y = TMIN(t1->y,t2->y);
-	t1->z = TMIN(t1->z,t2->z);
+	t1->x = TMIN(t1->x, t2->x);
+	t1->y = TMIN(t1->y, t2->y);
+	t1->z = TMIN(t1->z, t2->z);
 }
 
-inline static void Tuple3fMax(Tuple3f *t1,const Tuple3f *t2)
+inline static void TTuple3fMax(TTuple3f *t1, const TTuple3f *t2)
 {
-	t1->x = TMAX(t1->x,t2->x);
-	t1->y = TMAX(t1->y,t2->y);
-	t1->z = TMAX(t1->z,t2->z);
+	t1->x = TMAX(t1->x, t2->x);
+	t1->y = TMAX(t1->y, t2->y);
+	t1->z = TMAX(t1->z, t2->z);
 }
 
-inline static void Tuple3fAdd(Tuple3f *t1,const Tuple3f *t2)
+inline static void TTuple3fAdd(TTuple3f *t1, const TTuple3f *t2)
 {
 	t1->x += t2->x;
 	t1->y += t2->y;
 	t1->z += t2->z;
 }
 
-inline static void Tuple3fSub(Tuple3f *t1,const Tuple3f *t2)
+inline static void TTuple3fSub(TTuple3f *t1, const TTuple3f *t2)
 {
 	t1->x -= t2->x;
 	t1->y -= t2->y;
 	t1->z -= t2->z;
 }
 
-inline static void Tuple3fRotate(Vector *vector, const Tuple3f *cosangles, const Tuple3f *sinangles)
+inline static void TTuple3fRotate(TVector *vector, const TTuple3f *cosangles, const TTuple3f *sinangles)
 {
 	float cx = cosangles->x, sx = sinangles->x;
 	float cy = cosangles->y, sy = sinangles->y;
@@ -124,12 +124,12 @@ inline static void Tuple3fRotate(Vector *vector, const Tuple3f *cosangles, const
 
 // Vector operations
 
-#define VectorSet Tuple3fSet
-#define VectorRotate Tuple3fRotate
+#define TVectorSet TTuple3fSet
+#define TVectorRotate TTuple3fRotate
 
-inline static Vector VectorCross(const Vector *v1, const Vector *v2)
+inline static TVector TVectorCross(const TVector *v1, const TVector *v2)
 {
-	Vector result = {
+	TVector result = {
 		(v1->y * v2->z) - (v1->z * v2->y),
 		(v1->z * v2->x) - (v1->x * v2->z),
 		(v1->x * v2->y) - (v1->y * v2->x)
@@ -138,39 +138,39 @@ inline static Vector VectorCross(const Vector *v1, const Vector *v2)
 	return result;
 }
 
-inline static float VectorDot(const Vector *v1, const Vector *v2)
+inline static float TVectorDot(const TVector *v1, const TVector *v2)
 {
 	return (v1->x * v2->x) + (v1->y * v2->y) + (v1->z * v2->z);
 }
 
-inline static float VectorLengthSquared(const Vector *v)
+inline static float TVectorLengthSquared(const TVector *v)
 {
 	return (v->x * v->x) + (v->y * v->y) + (v->z * v->z);
 }
 
-inline static float VectorLength(const Vector *v)
+inline static float TVectorLength(const TVector *v)
 {
-	return sqrtf(VectorLengthSquared(v));
+	return sqrtf(TVectorLengthSquared(v));
 }
 
-inline static void VectorNormalize(Vector *v)
+inline static void TVectorNormalize(TVector *v)
 {
-	float length = VectorLength(v);
+	float length = TVectorLength(v);
 
 	v->x /= length;
 	v->y /= length;
 	v->z /= length;
 }
 
-inline static Vector VectorNormalfromTuples(const Tuple3f *v1,const Tuple3f *v2,const Tuple3f *v3)
+inline static TVector TVectorNormalfromTuples(const TTuple3f *v1,const TTuple3f *v2,const TTuple3f *v3)
 {
-	Vector vec1 = *v1,vec2 = *v2,out;
+	TVector vec1 = *v1, vec2 = *v2, out;
 
-	Tuple3fSub(&vec1,v2);
-	Tuple3fSub(&vec2,v3);
+	TTuple3fSub(&vec1,v2);
+	TTuple3fSub(&vec2,v3);
 
-	out = VectorCross(&vec1,&vec2);
-	VectorNormalize(&out);
+	out = TVectorCross(&vec1, &vec2);
+	TVectorNormalize(&out);
 
 	return out;
 }

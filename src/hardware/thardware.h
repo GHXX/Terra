@@ -6,7 +6,6 @@
 #include <Windows.h>
 #endif
 
-#define TERRA_RECTANGLE
 #include "math/tmath.h"
 
 //--- TScreen ------------------------------//
@@ -37,11 +36,7 @@ TMouse TMouseGetInf(void);
 
 //--- TCPU ---------------------------------//
 
-#include <libcpuid.h>
-
-typedef struct cpu_id_t TCPU;
-
-TCPU TCPUGetInf(void);
+#include "tcpu.h"
 
 //--- TRAM ---------------------------------//
 

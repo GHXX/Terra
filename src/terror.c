@@ -17,16 +17,16 @@ const char *TErrorMessages[] = {
 	"Not Initialized",
 };
 
-void TErrorReport(int code)
-{
-	if(code < 0 || code >= T_ERROR_AMOUNT) code = 1;
-	TErrorReportFull(code, TErrorMessages[code]);
-}
-
-void TErrorReportFull(int code, const char *message)
+void TErrorReport(int code, const char *message)
 {
 	TErrorCode = code;
 	TErrorString = message;
+}
+
+void TErrorReportDefault(int code)
+{
+	if (code < 0 || code >= T_ERROR_AMOUNT) code = 1;
+	TErrorReport(code, TErrorMessages[code]);
 }
 
 int TErrorGetCode(void)
