@@ -43,7 +43,7 @@ void argparse_run(void)
 			printf("%d\n", out);
 		}
 	}
-	printf("%s", TErrorGetString());
+	printf("%d", TErrorGet());
 }
 
 void argparse_test(void)

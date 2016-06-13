@@ -15,9 +15,11 @@ void rbtree_test(void);
 
 void stream_test(void);
 
-void stack_test(void);
+void TEncodingTest(void);
 
-void string_test(void);
+void TStringTest(void);
+
+void stack_test(void);
 
 void tokenizer_test(void);
 

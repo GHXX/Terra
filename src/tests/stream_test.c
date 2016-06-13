@@ -10,8 +10,7 @@
 
 #include "test.h"
 
-void test_rw_file(void)
-{
+void test_rw_file(void) {
 	const char data[] = "a 42 this is        a test";
 	const char filename[] = "test_file_for_testing";
 	TStream *testrw;
@@ -34,32 +33,31 @@ void test_rw_file(void)
 
 	TAssert(!strcmp(data + 1, (char *)buffer));
 
-	TStreamSeek(testrw,0,SEEK_SET);
+	TStreamSeek(testrw, 0, SEEK_SET);
 
 	TStreamWriteBlock(testrw, "bleh", sizeof(char) * 4);
-	TAssert(TErrorGetCode() == T_ERROR_OPERATION_NOT_SUPPORTED);
+	TAssert(TErrorGet() == T_ERROR_OPERATION_NOT_SUPPORTED);
 
 	TStreamFree(testrw);
 	TFileSysDelete(filename);
 }
 
-void test_rw_buffer(void)
-{
+void test_rw_buffer(void) {
 	const char data[] = "amazing sample";
 	TStream *testrw;
 	unsigned char buf[32];
 	char *cpy = TStringCopy(data);
 
-	testrw = TStreamFromMem((unsigned char *) cpy, sizeof(data), 1);
+	testrw = TStreamFromMem(&(unsigned char *)cpy, sizeof(data), 1);
 	TAssert(testrw);
 	TAssert(TStreamSize(testrw) == sizeof(data));
 
 	TStreamReadBlock(testrw, buf, 32);
 	TAssert(!strcmp(cpy, (char *)buf));
 
-	TStreamSeek(testrw,0,SEEK_SET);
+	TStreamSeek(testrw, 0, SEEK_SET);
 	TStreamWriteBlock(testrw, (const unsigned char *)"4m4z1ng", 6);
-	TStreamSeek(testrw,0,SEEK_SET);
+	TStreamSeek(testrw, 0, SEEK_SET);
 	TStreamReadBlock(testrw, buf, 32);
 
 	TAssert(!strcmp("4m4z1ng sample", (char *)buf));
@@ -67,8 +65,7 @@ void test_rw_buffer(void)
 	TStreamFree(testrw);
 }
 
-void stream_test(void)
-{
+void stream_test(void) {
 	test_rw_file();
 	test_rw_buffer();
 }

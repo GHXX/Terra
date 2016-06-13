@@ -64,12 +64,12 @@ void tokenizer_test_3(void) {
 	memset(string, 1, TBUFSIZE);
 	string[TBUFSIZE + 1] = 0;
 
-	TStream *stream = TStreamFromMem(string, TBUFSIZE + 2, 1);
+	TStream *stream = TStreamFromMem(&string, TBUFSIZE + 2, 1);
 	TTokenizer *tokenizer = TTokenizerNew(stream, 1);
 
 	token = TTokenizerNext(tokenizer, 0);
 	TAssert(!token);
-	TAssert(TErrorGetCode() == T_ERROR_OUT_OF_MEMORY);
+	TAssert(TErrorGet() == T_ERROR_OUT_OF_MEMORY);
 
 	TTokenizerFree(tokenizer);
 }

@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{491D0ABF-7F4B-4598-9FAA-2EB4147823B6}</ProjectGuid>
-    <RootNamespace>Terra</RootNamespace>
+    <RootNamespace>Terra_Test</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -31,7 +31,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup>
+  <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -42,7 +42,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>../../src;../../contrib/libcpuid/libcpuid;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
       <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
@@ -52,7 +52,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcpuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -83,10 +82,11 @@
     <ClCompile Include="..\..\src\tests\rbtree_test.c" />
     <ClCompile Include="..\..\src\tests\stream_test.c" />
     <ClCompile Include="..\..\src\tests\stack_test.c" />
-    <ClCompile Include="..\..\src\tests\string_test.c" />
+    <ClCompile Include="..\..\src\tests\tencoding.c" />
     <ClCompile Include="..\..\src\tests\test.c" />
     <ClCompile Include="..\..\src\tests\test_utils.c" />
     <ClCompile Include="..\..\src\tests\tokenizer_test.c" />
+    <ClCompile Include="..\..\src\tests\tstring.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\tests\test.h" />

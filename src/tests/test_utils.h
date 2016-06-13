@@ -4,7 +4,11 @@
 
 #include "terra.h"
 
+typedef int(*TestFunc)(void);
+
 void test_create_file(const char *filename, const char *data);
+
+void TTestRun(const char *testCategory, TestFunc *tests, TSize numTests);
 
 static inline void testReport(unsigned char v, const char *testmsg) {
 	TLogWriteMain(testmsg);
@@ -30,5 +34,9 @@ static inline unsigned char testNull(void *v, const char *testmsg) {
 static inline unsigned char testNotNull(void *v, const char *testmsg) {
 	return testNotEqual(v, 0, testmsg);
 }
+
+#define TTestValidate(T) if(!(T)) return 1
+
+#define TTestMustValidate(T) if(!(T)) return 2
 
 #endif

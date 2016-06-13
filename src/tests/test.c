@@ -23,11 +23,13 @@ int main(int argc, char **argv)
 
 	//argparse_test();
 
-	//string_test();
-
 	//filesys_test();
 
 	stream_test();
+
+	TEncodingTest();
+
+	TStringTest();
 
 	tokenizer_test();
 
