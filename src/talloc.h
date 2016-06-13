@@ -8,8 +8,7 @@
 * Terra Memory Allocation
 *
 *   The purpose of this file is to set up accessors to memory
-*   allocation functions. This can be used to improve memory
-*   management, track memory allocation, ...
+*   allocation functions.
 *
 */
 
@@ -21,7 +20,7 @@
 * @return                    A pointer to the memory allocated
 *
 */
-TPtr TAlloc(TSize size);
+extern TPtr (*TAlloc)(TSize size);
 
 /**
 * Re-allocate a block of memory
@@ -31,7 +30,7 @@ TPtr TAlloc(TSize size);
 * @return                    A pointer to the memory allocated
 *
 */
-TPtr TRAlloc(TPtr ptr, TSize size);
+extern TPtr (*TRAlloc)(TPtr ptr, TSize size);
 
 /**
 * De-allocate a block of memory
@@ -39,19 +38,9 @@ TPtr TRAlloc(TPtr ptr, TSize size);
 * @param ptr                 The block pointer
 *
 */
-void TFree(TPtr ptr);
-
-/**
-* Set Accessors to memory allocation functions. Use default function
-* if a parameter is set to null.
-*
-* @param allocFunc           The accessor function for allocating memory
-* @param rallocFunc          The accessor function for re-allocating memory
-* @param freeFunc            The accessor function for de-allocating memory
-*
-*/
-void TAllocSet(TPtr(*allocFunc)(TSize), TPtr(*rallocFunc)(TPtr, TSize), void(*freeFunc) (TPtr));
+extern void (*TFree)(TPtr ptr);
 
 #define TAllocData(T) (T *) TAlloc(sizeof(T))
+#define TAllocNData(T,N) (T *) TAlloc(sizeof(T) * N)
 
 #endif

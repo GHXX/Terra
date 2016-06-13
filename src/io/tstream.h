@@ -1,6 +1,6 @@
 
-#ifndef __included_terra_read_write_h
-#define __included_terra_read_write_h
+#ifndef __included_terra_stream_h
+#define __included_terra_stream_h
 
 /**
 * Terra Stream
@@ -61,7 +61,7 @@ TStream *TStreamFromFilePointer(FILE *file, unsigned char autoclose);
 * @return                    A read write context.
 *
 */
-TStream *TStreamFromMem(unsigned char *buffer, TSize size, unsigned char autofree);
+TStream *TStreamFromMem(unsigned char **buffer, TSize size, unsigned char autofree);
 
 /**
 * Creates and returns a read write context for a const buffer

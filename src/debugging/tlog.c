@@ -52,7 +52,7 @@ int TLogWrite(TLog *context, const char *format, ...) {
 	va_list ap;
 
 	if (!context || !format) {
-		TErrorReportDefault(T_ERROR_INVALID_INPUT);
+		TErrorSet(T_ERROR_INVALID_INPUT);
 		return 1;
 	}
 	va_start(ap, format);
@@ -67,14 +67,14 @@ int TLogWriteV(TLog *context, const char *format, va_list ap) {
 	TInt32 size;
 
 	if (!context || !format) {
-		TErrorReportDefault(T_ERROR_INVALID_INPUT);
+		TErrorSet(T_ERROR_INVALID_INPUT);
 		return 1;
 	}
 
 	size = vsprintf(buffer, format, ap);
 
 	if (size < 0) {
-		TErrorReportDefault(T_ERROR_SIZE_EXCEEDED);
+		TErrorSet(T_ERROR_SIZE_EXCEEDED);
 		return 1;
 	}
 	
@@ -86,7 +86,7 @@ int TLogWriteMain(const char *format, ...) {
 	va_list ap;
 
 	if (!mainLog || !format) {
-		TErrorReportDefault(T_ERROR_INVALID_INPUT);
+		TErrorSet(T_ERROR_INVALID_INPUT);
 		return 1;
 	}
 

@@ -17,6 +17,8 @@
 
 #include "io/tio.h"
 
+#include "tencoding.h"
+
 #include "debugging/tdebug.h"
 
 #include "math/tmath.h"

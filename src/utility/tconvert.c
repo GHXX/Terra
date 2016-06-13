@@ -13,7 +13,7 @@ TPtr TConvertToPointer(TCPtr data, TUInt16 type) {
 		return (TPtr)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -22,7 +22,7 @@ TCPtr TConvertToConstPointer(TCPtr data, TUInt16 type) {
 		return data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -31,7 +31,7 @@ const char *TConvertToConstString(TCPtr data, TUInt16 type) {
 		return (const char *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -112,7 +112,7 @@ char *TConvertToString(TCPtr data, TUInt16 type) {
 		return res;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -156,7 +156,7 @@ char TConvertToChar(TCPtr data, TUInt16 type) {
 		return (char)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 };
 
@@ -200,7 +200,7 @@ TInt8 TConvertToInt8(TCPtr data, TUInt16 type) {
 		return (TInt8)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -247,7 +247,7 @@ TUInt8 TConvertToUInt8(TCPtr data, TUInt16 type) {
 		return (TUInt8)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -288,7 +288,7 @@ TInt16 TConvertToInt16(TCPtr data, TUInt16 type) {
 		return (TInt16)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -332,7 +332,7 @@ TUInt16 TConvertToUInt16(TCPtr data, TUInt16 type) {
 		return (TUInt16)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -376,7 +376,7 @@ TInt32 TConvertToInt32(TCPtr data, TUInt16 type) {
 		return (TInt32)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -420,7 +420,7 @@ TUInt32 TConvertToUInt32(TCPtr data, TUInt16 type) {
 		return (TUInt32)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -463,7 +463,7 @@ TInt64 TConvertToInt64(TCPtr data, TUInt16 type) {
 		return (TInt64)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -505,7 +505,7 @@ TUInt64 TConvertToUInt64(TCPtr data, TUInt16 type) {
 		return (TUInt64)*(double *)data;
 	}
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 #endif
@@ -550,7 +550,7 @@ float TConvertToFloat(TCPtr data, TUInt16 type) {
 	}
 #endif
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -597,7 +597,7 @@ double TConvertToDouble(TCPtr data, TUInt16 type) {
 	}
 #endif
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }
 
@@ -605,6 +605,6 @@ TPtr TConvertTo(TCPtr data, TUInt16 type, TUInt16 targetType)
 {
 	if (type == targetType) return (TPtr) data;
 
-	TErrorReportDefault(T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
 	return 0;
 }

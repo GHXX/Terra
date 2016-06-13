@@ -16,24 +16,17 @@ enum T_ERROR_CODES {
 	T_ERROR_AMOUNT,
 };
 
-void TErrorReport(int code, const char *message);
-void TErrorReportDefault(int code);
-
-int TErrorGetCode(void);
-const char *TErrorGetString(void);
+void TErrorSet(int code);
+int TErrorGet(void);
 
 void TErrorClear(void);
 
 #define TError(code) \
-	TErrorReportDefault(code); \
+	TErrorSet(code); \
 	return
 
 #define TErrorZero(code) \
-	TErrorReportDefault(code); \
+	TErrorSet(code); \
 	return 0
-
-#define TErrorFull(code, message) \
-	TErrorReport(code, message); \
-	return
 
 #endif

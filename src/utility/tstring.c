@@ -8,22 +8,51 @@
 
 #include "tencoding.h"
 
+typedef int(*TEncodeIncrement)(const unsigned char **, TSize *, TLInt);
+
+static TEncodeIncrement TEncodeIncrements[] = {
+	0,
+	TEncodingASCIIIncrement,
+	TEncodingUTF8Increment,
+	0,
+	0,
+	0,
+	0,
+};
+
 struct TString {
 	unsigned char *content;
 	TSize size;
-	TUInt8 encoding;
+	TEncodingStats stats;
 };
 
-TString *TStringFromString(const char *string) {
+TString *TStringFromDataInternal(const unsigned char *data, TSize size, const TEncodingStats *stats) {
 	TString *s = TAllocData(TString);
 	if (s) {
-		s->encoding = T_ENCODING_ASCII;
+		if (data) {
+			s->stats = *stats;
+			s->stats.flags = T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID;
 
-		if (string) {
-			s->size = (strlen(string) + 1) * sizeof(char);
-			s->content = TAlloc(s->size);
-			memcpy(s->content, string, s->size);
+			if (stats->flags & T_ENCODING_BOM_PRESENT) {
+				TUInt8 BOMSize = TEncodingGetBOMSize(stats->encoding);
+				data += BOMSize;
+				size -= BOMSize;
+			}
+
+			s->size = size;
+
+			//check for null termination
+			if (!(stats->flags & T_ENCODING_NULL_TERMINATED)) {
+				s->size++;
+				s->content = TAlloc(s->size);
+				memcpy(s->content, data, s->size);
+				*(s->content + (s->size - 1)) = 0;
+			} else {
+				s->content = TAlloc(s->size);
+				memcpy(s->content, data, s->size);
+			}
 		} else {
+			s->stats.encoding = T_ENCODING_ASCII;
 			s->size = 0;
 			s->content = 0;
 		}
@@ -31,46 +60,63 @@ TString *TStringFromString(const char *string) {
 	return s;
 }
 
-TString *TStringFromTString(TString *string) {
+TString *TStringFromString(const char *string) {
+	return TStringFromBytes(string, (strlen(string) + 1) * sizeof(char));
+}
+
+TString *TStringFromBytes(const unsigned char *data, TSize size) {
+	TEncodingStats *stats;
+
+	if (!data || !size) return 0;
+
+	stats = TEncodingGetStats(data, size);
+	if (!stats) return 0;
+
+	if (stats->flags & T_ENCODING_VALID) {
+		TString *s = TStringFromDataInternal(data, size, stats);
+		TFree(stats);
+		return s;
+	}
+
+	return 0;
+}
+
+TString *TStringFromTString(const TString *string) {
 	TString *s;
 	
-	if (!string) TErrorZero(T_ERROR_INVALID_INPUT);
+	if (!string) { TErrorZero(T_ERROR_INVALID_INPUT); }
 
 	s = TAllocData(TString);
 	if (s) {
-		s->encoding = string->encoding;
-		s->size = string->size;
-		s->content = TAlloc(s->size);
+		memcpy(&s->size, &string->size, sizeof(TSize) + sizeof(TEncodingStats));
+		s->content = TAllocNData(unsigned char, s->size);
 		memcpy(s->content, string->content, s->size);
 	}
+
 	return s;
 }
 
-TString *TStringNCopy(TString *string, TSize num) {
+TString *TStringNCopy(const TString *string, TSize num) {
 	TString *s;
 
-	if (!string || !num) TErrorZero(T_ERROR_INVALID_INPUT);
+	if (!string || !num) { TErrorZero(T_ERROR_INVALID_INPUT); }
 	
-	if (num + 1 >= string->size) return TStringFromTString(string);
+	if (num >= string->stats.numChars) return TStringFromTString(string);
 
 	s = TAllocData(TString);
 	if (s) {
 		TSize size;
 
-		s->encoding = string->encoding;
+		memset(s, 0, sizeof(TString));
+		s->stats.encoding = string->stats.encoding;
+		s->stats.numChars = num;
 
-		if (string->encoding == T_ENCODING_UTF8) {
-			unsigned char *ptr = string->content;
-			size = string->size;
+		if (s->stats.encoding == T_ENCODING_UTF8) {
+			unsigned char *ptr = string->content, *previous = string->content;
 			while (num--) {
-				TEncodingUTF8Increment(ptr, &size);
-				if (size == 0) {
-					s->encoding = string->encoding;
-					s->size = string->size;
-					s->content = TAlloc(s->size);
-					memcpy(s->content, string->content, s->size);
-					return s;
-				}
+				TEncodingUTF8Increment(&ptr, &size, 1);
+				(*((&s->stats.numChars) + (ptr - previous)))++;
+				previous = ptr;
 			}
 			size = ptr - string->content + 1;
 		} else {
@@ -79,10 +125,12 @@ TString *TStringNCopy(TString *string, TSize num) {
 
 		s->size = size;
 		s->content = TAlloc(s->size);
-		memcpy(s->content, string->content, s->size);
+		memcpy(s->content, string->content, s->size - 1);
 
 		//add Termination
 		s->content[s->size - 1] = 0;
+
+		s->stats.flags = T_ENCODING_VALID | T_ENCODING_NULL_TERMINATED;
 	}
 	return s;
 }
@@ -94,14 +142,71 @@ void TStringFree(TString *string) {
 	}
 }
 
-#ifdef _WINDOWS
-wchar_t *TStringToWideChar(TString *string) {
+const unsigned char *TStringToIndex(TString *string, TSize index) {
+	TEncodeIncrement inc;
+	const unsigned char *ptr;
+	TSize remaining;
+
+	if (!string) return 0;
+	if (index > string->stats.numChars) return 0;
+
+	ptr = string->content;
+	inc = TEncodeIncrements[string->stats.encoding];
+	if (inc) inc(&ptr, &remaining, index);
+
+	return ptr;
+}
+
+const unsigned char *TStringEncode(TString *string, int format) {
+	unsigned char *res;
+	TSize oSize;
 	if (!string) return 0;
 
-	//wchar_t is utf-16 little endian in windows
-	return (wchar_t *) TEncodingToUTF16LE(string->content, string->size, string->encoding);
+	//wchar_t is utf-16 little endian
+	if (string->stats.encoding == format) {
+		return string->content;
+	}
+	oSize = string->size;
+
+	if (format == T_ENCODING_ASCII) {
+		res = TEncodingToASCII(string->content, string->size, &string->size, &string->stats);
+	} else if (format == T_ENCODING_UTF8) {
+		res = TEncodingToUTF8(string->content, string->size, &string->size, &string->stats);
+	} else if (format == T_ENCODING_UTF16_LE) {
+		res = TEncodingToUTF16LE(string->content, string->size, &string->size, &string->stats);
+	} else {
+		TErrorZero(T_ERROR_INVALID_INPUT);
+	}
+	
+	if (TErrorGet()) {
+		string->size = oSize;
+		return 0;
+	}
+
+	TFree(string->content);
+	string->content = res;
+	return res;
+}
+
+#ifdef _WINDOWS
+const wchar_t *TStringToWideChar(TString *string) {
+	return (const wchar_t *)TStringEncode(string, T_ENCODING_UTF16_LE);
 }
 #endif
+
+const char *TStringToASCII(TString *string) {
+	return TStringEncode(string, T_ENCODING_ASCII);
+}
+
+const unsigned char *TStringToUTF8(TString *string) {
+	return TStringEncode(string, T_ENCODING_UTF8);
+}
+
+TSize TStringNumCharacters(TString *string) {
+	if (!string) return 0;
+
+	return string->stats.numChars;
+}
 
 int TStringCaseInsensitiveCompare(TString *str1, TString *str2) {
 	TString *lstr1 = TStringLowerCase(str1);
@@ -120,13 +225,13 @@ TSize TStringRCSpn(TString *string, const char *control) {
 	TSize i = 0;
 
 	//sanity check
-	if (!string) TErrorZero(T_ERROR_INVALID_INPUT);
+	if (!string) { TErrorZero(T_ERROR_INVALID_INPUT); }
 
 	i = string->size;
 
 	if (!control) return i + 1;
 
-	if(string->encoding == T_ENCODING_ASCII) {
+	if(string->stats.encoding == T_ENCODING_ASCII) {
 		const char *start = (const char *)string->content;
 		const char *c;
 
@@ -136,7 +241,7 @@ TSize TStringRCSpn(TString *string, const char *control) {
 		}
 
 		if (strchr(control, *c)) return 0;
-	} else if (string->encoding == T_ENCODING_UTF8) {
+	} else if (string->stats.encoding == T_ENCODING_UTF8) {
 		unsigned char const *start = string->content;
 		unsigned char const *c;
 		TSize size = 0, previousSize = 0;
@@ -144,7 +249,7 @@ TSize TStringRCSpn(TString *string, const char *control) {
 
 		c = start + string->size;
 		while (c != start) {
-			TUInt32 ch = TEncodingUTF8GetPreviousChr(c, &size);
+			TUInt32 ch = TEncodingUTF8GetPreviousChr(&c, &size);
 			if (TStringChr(controlStr, ch)) {
 				TStringFree(controlStr);
 				return i;
@@ -164,20 +269,20 @@ const unsigned char *TStringChr(TString *string, TUInt32 character) {
 		TErrorZero(T_ERROR_INVALID_INPUT);
 	}
 
-	if (string->encoding == T_ENCODING_ASCII) {
+	if (string->stats.encoding == T_ENCODING_ASCII) {
 		//check for utf-8 character
 		if (character <= 0x7F) {
 			//there might be a match
 			return (const unsigned char *)strchr((const char *)string->content, character);
 		}
-	} else if (string->encoding == T_ENCODING_UTF8) {
+	} else if (string->stats.encoding == T_ENCODING_UTF8) {
 		TSize size = string->size;
 		TUInt32 ch;
 		unsigned char *ptr = string->content;
 		unsigned char *previous = ptr;
 
 		do {
-			ch = TEncodingUTF8GetChr(ptr, &size);
+			ch = TEncodingUTF8GetChr(&ptr, &size);
 			if (ch == character) return previous;
 			previous = ptr;
 		} while (ch);
@@ -195,16 +300,16 @@ TString *TStringLowerCase(TString *string) {
 	if (s) {
 		TSize size;
 		unsigned char *ptr, *sptr;
-		s->encoding = string->encoding;
+		s->stats = string->stats;
 		size = s->size = string->size;
 
-		s->content = TAlloc(sizeof(unsigned char) * size);
+		s->content = TAllocNData(unsigned char, size);
 
 		sptr = string->content;
 		ptr = s->content;
 
 		while (*sptr) {
-			TUInt32 ch = TEncodingUTF8GetChr(sptr, &size);
+			TUInt32 ch = TEncodingUTF8GetChr(&sptr, &size);
 			ch = tolower(ch);
 			memcpy(ptr, &ch, sizeof(TUInt32));
 			ptr += sizeof(TUInt32);
@@ -213,6 +318,90 @@ TString *TStringLowerCase(TString *string) {
 	}
 
 	return s;
+}
+
+struct TStringIterator {
+	TString *string;
+
+	TSize remainingSize;
+	unsigned char *pos;
+
+	TUInt8 *encoding;
+};
+
+TStringIterator *TStringIteratorNew(TString *string) {
+	TStringIterator *iter;
+	
+	if (!string) { TErrorZero(T_ERROR_INVALID_INPUT); }
+
+	iter = TAllocData(TStringIterator);
+	if (iter) {
+		iter->string = string;
+		iter->remainingSize = string->size;
+		iter->pos = string->content;
+		iter->encoding = &string->stats.encoding;
+	}
+
+	return iter;
+}
+
+void TStringIteratorFree(TStringIterator *context) {
+	TFree(context);
+}
+
+unsigned char *TStringIteratorData(TStringIterator *context) {
+	if (!context) { TErrorZero(T_ERROR_INVALID_INPUT); }
+
+	return context->pos;
+}
+
+unsigned char *TStringIteratorNext(TStringIterator *context) {
+	TEncodeIncrement inc;
+
+	if (!context) { TErrorZero(T_ERROR_INVALID_INPUT); }
+	if (!context->remainingSize) return 0;
+
+	inc = TEncodeIncrements[(*context->encoding)];
+	if (inc) {
+		inc(&context->pos, &context->remainingSize, 1);
+	}
+
+	return context->pos;
+}
+
+unsigned char *TStringIteratorPrevious(TStringIterator *context) {
+	TEncodeIncrement inc;
+
+	if (!context) { TErrorZero(T_ERROR_INVALID_INPUT); }
+	if (context->pos == context->string->content) return 0;
+
+	inc = TEncodeIncrements[(*context->encoding)];
+	if (inc) {
+		inc(&context->pos, &context->remainingSize, -1);
+	}
+
+	return context->pos;
+}
+
+unsigned char *TStringIteratorIncrement(TStringIterator *context, TLInt numCharacters) {
+	TEncodeIncrement inc;
+
+	if (!context) { TErrorZero(T_ERROR_INVALID_INPUT); }
+
+	if (!numCharacters) return context->pos;
+	else if (numCharacters < 0) {
+		if (numCharacters < context->string->content - context->pos)
+			numCharacters = context->string->content - context->pos;
+	} else {
+
+	}
+
+	inc = TEncodeIncrements[(*context->encoding)];
+	if (inc) {
+		inc(&context->pos, &context->remainingSize, numCharacters);
+	}
+
+	return context->pos;
 }
 
 char *TStringCopy(const char *text) {
@@ -510,7 +699,7 @@ char *TStringAppendCharacter(const char *string, char character) {
 	TSize size;
 	char *result;
 
-	if (!string) { TErrorReportDefault(T_ERROR_NULL_POINTER); return 0; }
+	if (!string) { TErrorSet(T_ERROR_NULL_POINTER); return 0; }
 
 	size = strlen(string) + 2;
 	result = (char *)TAlloc(sizeof(char) * size);

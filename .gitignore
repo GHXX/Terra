@@ -9,3 +9,4 @@ lib/
 *.sdf
 *.a
 terra_test
+*.db

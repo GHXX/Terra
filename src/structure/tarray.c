@@ -14,7 +14,7 @@ static inline int TArrayGrow(TArray *arr, TSize minsize) {
 	TSize newSize;
 
 	if (arr->size == SIZE_MAX) {
-		TErrorReportDefault(T_ERROR_SIZE_EXCEEDED);
+		TErrorSet(T_ERROR_SIZE_EXCEEDED);
 		return T_ERROR_SIZE_EXCEEDED;
 	}
 

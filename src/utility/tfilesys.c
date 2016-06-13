@@ -472,7 +472,7 @@ TSize TFileSysGetFileSize(const char *path)
 #ifdef _WINDOWS
 	WIN32_FILE_ATTRIBUTE_DATA data;
 	if(GetFileAttributesEx(path, GetFileExInfoStandard, &data)) {
-		return data.nFileSizeLow + 1;
+		return data.nFileSizeLow;
 	}
 #else
 	struct stat s;

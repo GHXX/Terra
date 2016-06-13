@@ -2,6 +2,14 @@
 #ifndef __included_terra_arg_parser_h
 #define __included_terra_arg_parser_h
 
+#include "terror.h"
+
+enum T_ARGUMENT_PARSER_ERROR {
+	T_ARGPARSER_SWITCH_PATTERN_ALREADY_USED = T_ERROR_AMOUNT,
+	T_ARGPARSER_INVALID_NUMBER_OF_ARGUMENTS,
+	T_ARGPARSER_INVALID_ARGUMENTS,
+};
+
 void TArgParserInit(int argc, const char **argv);
 void TArgParserDestroy(void);
 
