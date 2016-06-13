@@ -70,8 +70,34 @@
 #define TBIT_GET(d,k) (d >> k) & 1
 #define TBYTE_ADVANCE(T,d,k) (T *)(((unsigned char *)d) + k)
 
+#define TBYTESWAP16(n) \
+    ( ((((unsigned short) n) << 8) & 0xFF00) | \
+      ((((unsigned short) n) >> 8) & 0x00FF) )
+
+#define TBYTESWAP32(n) \
+    ( ((((unsigned int) n) << 24) & 0xFF000000) |    \
+      ((((unsigned int) n) <<  8) & 0x00FF0000) |    \
+      ((((unsigned int) n) >>  8) & 0x0000FF00) |    \
+      ((((unsigned int) n) >> 24) & 0x000000FF) )
+
+#define TBYTESWAP64(n) \
+    ( ((((unsigned long long) n) << 56) & 0xFF00000000000000) |    \
+      ((((unsigned long long) n) << 40) & 0x00FF000000000000) |    \
+      ((((unsigned long long) n) << 24) & 0x0000FF0000000000) |    \
+      ((((unsigned long long) n) <<  8) & 0x000000FF00000000) |    \
+      ((((unsigned long long) n) >>  8) & 0x00000000FF000000) |    \
+      ((((unsigned long long) n) >> 24) & 0x0000000000FF0000) |    \
+      ((((unsigned long long) n) >> 40) & 0x000000000000FF00) |    \
+      ((((unsigned long long) n) >> 32) & 0x00000000000000FF) )
+
 // the default buffer size used
 #define TBUFSIZE 512
+
+
+enum BYTE_ORDER {
+	LITTLE_ENDIAN,
+	BIG_ENDIAN,
+};
 
 typedef void * TPtr;
 typedef const void * TCPtr;
