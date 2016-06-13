@@ -4,7 +4,7 @@
 
 #define TERRA_NAME        "Terra"
 #define TERRA_DESCRIPTION "Utility library"
-#define TERRA_VERSION     "0.8.5"
+#define TERRA_VERSION     "0.8.7"
 
 #include "tdefine.h"
 
