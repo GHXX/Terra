@@ -279,8 +279,8 @@ TUInt8 TArgParserNext(void) {
 	return arg;
 }
 
-const void *TArgParserNextParameter(void) {
-	const void *data;
+TCPtr TArgParserNextParameter(void) {
+	TCPtr data;
 	const char *arg;
 	char type = TArgParser.ph.paramtype;
 
