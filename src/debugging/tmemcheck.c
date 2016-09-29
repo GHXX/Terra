@@ -48,21 +48,21 @@ static int TMemLeakParseInput(const char *_inputFilename, TRBTree *input)
 			sourcelocation = thisline;
 			colon = strrchr(thisline, ':');
 			*(colon-1) = '\x0';
-			lowercasesourcelocation = TStringLowerCaseO(sourcelocation);
+			lowercasesourcelocation = TStringLwr(sourcelocation);
 
 			// Put the result into our BTree
 			data = (TMemLeakInput *) TRBTreeFind(input, lowercasesourcelocation);
 			if(!data) {
 				data = (TMemLeakInput *) TAlloc(sizeof(TMemLeakInput));
 				data->combined = data->frequency = 0;
-				data->source = strdup(lowercasesourcelocation);
+				data->source = TStringCopy(lowercasesourcelocation);
 				TRBTreeInsert(input, data->source, data);
 			}
 
 			data->combined += size;
 			data->frequency += 1;
 
-			free(lowercasesourcelocation);
+			TFree(lowercasesourcelocation);
 		} else {
 			char *lastcomma = strrchr(thisline, ',');
 			if(lastcomma) {
