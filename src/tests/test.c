@@ -3,13 +3,15 @@
 
 #include "test.h"
 
-#include "test_utils.h"
+#include "ttest.h"
+
+
 
 int main(int argc, char **argv)
 {
-	TLogInit(0);
+	testLog = TLogNewStream(TStreamFromFilePointer(stdin, 0));
 
-	TLogWriteMain("Running tests...\n");
+	TLogWrite(testLog, "Running tests...\n");
 
 	//array_test();
 
@@ -33,9 +35,9 @@ int main(int argc, char **argv)
 
 	tokenizer_test();
 
-	TLogWriteMain("All Tests have been executed.\n");
+	TLogWrite(testLog, "All Tests have been executed.\n");
 
-	TLogDestroy();
+	TLogFree(testLog);
 
 	return 0;
 }

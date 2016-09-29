@@ -2,7 +2,7 @@
 
 #include "test.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 #include "math/trectangle.h"
 
@@ -134,7 +134,7 @@ void hardware_test_drive_inf(void)
 
 void hardware_test(void)
 {
-	TLogWriteMain("Testing Hardware analyser...\n");
+	TLogWrite(testLog, "Testing Hardware analyser...\n");
 
 	hardware_test_screen_inf();
 
@@ -146,5 +146,5 @@ void hardware_test(void)
 
 	hardware_test_drive_inf();
 
-	TLogWriteMain("hardware analyser tests completed.\n");
+	TLogWrite(testLog, "hardware analyser tests completed.\n");
 }

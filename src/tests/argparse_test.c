@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 static TUInt8 inputArg;
 static TUInt8 pArg;

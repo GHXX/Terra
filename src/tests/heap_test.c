@@ -4,7 +4,7 @@
 
 #include "test.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 static THeap *test = 0;
 

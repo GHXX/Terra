@@ -4,23 +4,23 @@
 
 #include "test.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 void filesys_concat_path(void)
 {
 	const char *test[] = {"/test/","..","..","bleh","..","blah",".","blih"};
 	size_t size = 8;
 
-	char *result = TFileSysConcatPathsArr(test,size);
+	char *result = TFileSysConcatPaths(*test, *(test + 1), *(test + 2), *(test + 3), *(test + 4), *(test + 5), *(test + 6), *(test + 7), 0);
 
-	free(result);
+	TFree(result);
 }
 
 void filesys_test(void)
 {
-	TLogWriteMain("Testing file system utilities...\n");
+	TLogWrite(testLog, "Testing file system utilities...\n");
 
 	filesys_concat_path();
 
-	TLogWriteMain("file system tests completed.\n");
+	TLogWrite(testLog, "file system tests completed.\n");
 }

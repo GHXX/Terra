@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 #include "test.h"
 
@@ -15,7 +15,7 @@ int TEncodingTestNormalASCII(void) {
 	TTestValidate(stats->numTwoByteChars == 0);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID));
+	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	TFree(stats);
 
@@ -33,7 +33,7 @@ int TEncodingTestASCIINoNullEnding(void) {
 	TTestValidate(stats->numTwoByteChars == 0);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == T_ENCODING_VALID);
+	TTestValidate(stats->flags == T_ENCODING_FLAG_VALID);
 
 	TFree(stats);
 
@@ -51,7 +51,7 @@ int TEncodingTestASCIIEmpty(void) {
 	TTestValidate(stats->numTwoByteChars == 0);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID));
+	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	TFree(stats);
 
@@ -69,7 +69,7 @@ int TEncodingTestUTF8Normal(void) {
 	TTestValidate(stats->numTwoByteChars == 1);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID));
+	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	TFree(stats);
 
@@ -82,8 +82,8 @@ int TEncodingTestUTF8Truncated(void) {
 	TEncodingStats *stats = TEncodingGetStats(data, (strlen(data)) * sizeof(unsigned char));
 
 	TTestValidate(TErrorGet() == T_ENCODING_ERROR_TRUNCATED);
-	TTestValidate(!(stats->flags & T_ENCODING_VALID));
-	TTestValidate(!(stats->flags & T_ENCODING_NULL_TERMINATED));
+	TTestValidate(!(stats->flags & T_ENCODING_FLAG_VALID));
+	TTestValidate(!(stats->flags & T_ENCODING_FLAG_NULL_TERMINATED));
 
 	TFree(stats);
 
@@ -105,7 +105,7 @@ int TEncodingTestUTF8WithBOM(void) {
 	TTestValidate(stats->numTwoByteChars == 1);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_BOM_PRESENT | T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID));
+	TTestValidate(stats->flags == (T_ENCODING_FLAG_BOM_PRESENT | T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	TFree(stats);
 
@@ -124,7 +124,7 @@ int TEncodingTestNormalASCIIStream(void) {
 	TTestValidate(stats->numTwoByteChars == 0);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID));
+	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	TFree(stats);
 	TStreamFree(stream);
@@ -144,7 +144,7 @@ int TEncodingTestNormalUTF8Stream(void) {
 	TTestValidate(stats->numTwoByteChars == 1);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID));
+	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	TFree(stats);
 	TStreamFree(stream);
@@ -159,8 +159,8 @@ int TEncodingTestUTF8TruncatedStream(void) {
 	TEncodingStats *stats = TEncodingGetStreamStats(stream);
 
 	TTestValidate(TErrorGet() == T_ENCODING_ERROR_TRUNCATED);
-	TTestValidate(!(stats->flags & T_ENCODING_VALID));
-	TTestValidate(!(stats->flags & T_ENCODING_NULL_TERMINATED));
+	TTestValidate(!(stats->flags & T_ENCODING_FLAG_VALID));
+	TTestValidate(!(stats->flags & T_ENCODING_FLAG_NULL_TERMINATED));
 
 	TFree(stats);
 	TStreamFree(stream);
@@ -185,7 +185,7 @@ int TEncodingTestUTF8WithBOMStream(void) {
 	TTestValidate(stats->numTwoByteChars == 1);
 	TTestValidate(stats->numThreeByteChars == 0);
 	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_BOM_PRESENT | T_ENCODING_NULL_TERMINATED | T_ENCODING_VALID));
+	TTestValidate(stats->flags == (T_ENCODING_FLAG_BOM_PRESENT | T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	TFree(stats);
 

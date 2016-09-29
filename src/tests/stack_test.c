@@ -5,39 +5,40 @@
 #include "structure/tstack.h"
 #include "utility/tinteger.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
-void stack_test_all(void)
-{
+int stack_test_all(void) {
 	int i;
 
 	//init
 	TStack *stack = TStackNew();
 	TAssert(stack);
 
-	for(i = 0; i < 1000; ++i)
-		TStackPush(stack,TIntegerToPtr(i));
+	for (i = 0; i < 1000; ++i)
+		TStackPush(stack, TIntegerToPtr(i));
 
 	TAssert(TStackCount(stack) == 1000);
 
-	TAssert(*((int *) TStackPeek(stack)) == 999);
+	TAssert(*((int *)TStackPeek(stack)) == 999);
 
-	for(i = 999; i >= 0; i--) {
-		int *v = (int *) TStackPop(stack);
+	for (i = 999; i >= 0; i--) {
+		int *v = (int *)TStackPop(stack);
 		TAssert(*v == i);
-		free(v);
+		TFree(v);
 	}
 
 	TAssert(TStackPop(stack) == 0);
 
-	TStackFree(stack,free);
+	TStackFree(stack, free);
+
+	return 0;
 }
 
-void stack_test(void)
-{
-	TLogWriteMain("Testing Stack...\n");
+void stack_test(void) {
+	TestFunc tests[] = {
+		stack_test_all
 
-	stack_test_all();
+	};
 
-	TLogWriteMain("Stack tests completed.\n");
+	TTestRun("Stack", tests, sizeof(tests) / sizeof(TestFunc));
 }

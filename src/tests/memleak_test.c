@@ -4,7 +4,7 @@
 
 #include "debugging/tmemcheck.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 void memleak_test(void)
 {
@@ -12,11 +12,11 @@ void memleak_test(void)
 
 	TStream *stream = TIOGetFile("leak.txt", "w");
 
-	TLogWriteMain("Testing Memory Leak...\n");
+	TLogWrite(testLog, "Testing Memory Leak...\n");
 
 	TMemLeakPrint(stream);
 
-	TLogWriteMain(" Memory Leak tests completed.\n");
+	TLogWrite(testLog, " Memory Leak tests completed.\n");
 
 	TStreamFree(stream);
 	TFree(data);

@@ -1,12 +1,12 @@
 #include "stdafx.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 #include "utility/ttokenizer.h"
 
 #include "test.h"
 
-void tokenizer_test_1(void) {
+int tokenizer_test_1(void) {
 	// uses a valid string
 	const char *validString = "This is a valid string";
 	const char *blocks[] = {
@@ -29,9 +29,11 @@ void tokenizer_test_1(void) {
 	}
 
 	TTokenizerFree(tokenizer);
+
+	return 0;
 }
 
-void tokenizer_test_2(void) {
+int tokenizer_test_2(void) {
 	// uses a valid escaped string
 	const char *validString = "This is\\ a valid\\ string";
 	const char *blocks[] = {
@@ -53,9 +55,11 @@ void tokenizer_test_2(void) {
 	}
 
 	TTokenizerFree(tokenizer);
+
+	return 0;
 }
 
-void tokenizer_test_3(void) {
+int tokenizer_test_3(void) {
 	// uses a large string
 	char *string;
 	const char *token;
@@ -72,9 +76,11 @@ void tokenizer_test_3(void) {
 	TAssert(TErrorGet() == T_ERROR_OUT_OF_MEMORY);
 
 	TTokenizerFree(tokenizer);
+
+	return 0;
 }
 
-void tokenizer_test_4(void) {
+int tokenizer_test_4(void) {
 	// uses strings with adjacent separators
 	const char *validString = "This  is\\ a  valid\\ string ";
 	const char *blocks[] = {
@@ -96,9 +102,11 @@ void tokenizer_test_4(void) {
 	}
 
 	TTokenizerFree(tokenizer);
+
+	return 0;
 }
 
-void tokenizer_test_5(void) {
+int tokenizer_test_5(void) {
 	// uses strings with adjacent separators
 	const char *validString = "This  is\\ a  valid\\ string ";
 	const char *blocks[] = {
@@ -124,16 +132,20 @@ void tokenizer_test_5(void) {
 	}
 
 	TTokenizerFree(tokenizer);
+	
+	return 0;
 }
 
 void tokenizer_test(void) {
-	TLogWriteMain("Testing tokenizer ...\n");
 
-	tokenizer_test_1();
-	tokenizer_test_2();
-	tokenizer_test_3();
-	tokenizer_test_4();
-	tokenizer_test_5();
+	TestFunc tests[] = {
+		tokenizer_test_1,
+		tokenizer_test_2,
+		tokenizer_test_3,
+		tokenizer_test_4,
+		tokenizer_test_5,
 
-	TLogWriteMain("tokenizer tests completed.\n");
+	};
+
+	TTestRun("Tokenizer", tests, sizeof(tests) / sizeof(TestFunc));
 }

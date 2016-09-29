@@ -1,14 +1,15 @@
 #include "stdafx.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
-void test_create_file(const char *filename, const char *data)
-{
-	FILE *f = fopen(filename,"w");
+TLog *testLog = 0;
 
-	if(!f) TAbort("can't open test file for writing");
+void test_create_file(const char *filename, const char *data) {
+	FILE *f = fopen(filename, "w");
 
-	fwrite(data,strlen(data),1,f);
+	if (!f) TAbort("can't open test file for writing");
+
+	fwrite(data, strlen(data), 1, f);
 
 	fclose(f);
 }

@@ -5,7 +5,7 @@
 
 #include "test.h"
 
-#include "test_utils.h"
+#include "ttest.h"
 
 static TArray testarray;
 //static TIArray iarr;
@@ -98,7 +98,7 @@ void array_test_free(void)
 
 void array_test(void)
 {
-	TLogWriteMain("Testing array...\n");
+	TLogWrite(testLog, "Testing array...\n");
 
 	array_test_init();
 
@@ -112,5 +112,5 @@ void array_test(void)
 
 	array_test_free();
 
-	TLogWriteMain("Array tests completed.\n");
+	TLogWrite(testLog, "Array tests completed.\n");
 }
