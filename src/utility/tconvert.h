@@ -37,19 +37,6 @@ TPtr TConvertToPointer(TCPtr data, TUInt16 type);
 TCPtr TConvertToConstPointer(TCPtr data, TUInt16 type);
 
 /**
-* Converts data to a constant char pointer.
-*
-*  Only Supports strings.
-*
-* @param data                The input data.
-* @param type                The data type.
-*
-* @return                    A const pointer to the string
-*
-*/
-const char *TConvertToConstString(TCPtr data, TUInt16 type);
-
-/**
 * Converts data to a char pointer.
 *
 * @param data                The input data.
@@ -137,7 +124,6 @@ TInt32 TConvertToInt32(TCPtr data, TUInt16 type);
 */
 TUInt32 TConvertToUInt32(TCPtr data, TUInt16 type);
 
-#ifdef PLATFORM_X86_64
 /**
 * Converts data to a 64-bit integer representation.
 *
@@ -159,7 +145,6 @@ TInt64 TConvertToInt64(TCPtr data, TUInt16 type);
 *
 */
 TUInt64 TConvertToUInt64(TCPtr data, TUInt16 type);
-#endif
 
 /**
 * Converts data to a float representation.

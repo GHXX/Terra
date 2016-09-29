@@ -28,6 +28,7 @@
 #include "utility/tfilesys.h"
 #include "utility/tinteger.h"
 #include "utility/tstring.h"
+#include "utility/tconvert.h"
 #include "utility/targparser.h"
 #include "utility/ttokenizer.h"
 

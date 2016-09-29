@@ -40,10 +40,7 @@
 #elif defined(__GNUC__)
 #	define COMPILER_GCC
 #	define _GNU_SOURCE
-
-#	ifdef PLATFORM_X86_64
-#		define _FILE_OFFSET_BITS=64
-#	endif
+#   define _LARGEFILE64_SOURCE
 #endif
 
 #define UNREFERENCED_PARAMETER(P) (P)
@@ -67,7 +64,27 @@
 					y = p; \
 					}
 
+#define T_LIL_ENDIAN  12
+#define T_BIG_ENDIAN  21
+
+#ifdef _LINUX
+#	include <endian.h>
+#	define TBYTEORDER  __BYTE_ORDER
+#else
+#	if defined(__hppa__) || \
+		defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
+		(defined(__MIPS__) && defined(__MISPEB__)) || \
+		defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+		defined(__sparc__)
+#		define TBYTEORDER   T_BIG_ENDIAN
+#	else
+#		define TBYTEORDER   T_LIL_ENDIAN
+#	endif
+#endif
+
 #define TBIT_GET(d,k) (d >> k) & 1
+#define TBIT_CLEAR(d,k) d &= ~(k)
+
 #define TBYTE_ADVANCE(T,d,k) (T *)(((unsigned char *)d) + k)
 
 #define TBYTESWAP16(n) \
@@ -88,16 +105,10 @@
       ((((unsigned long long) n) >>  8) & 0x00000000FF000000) |    \
       ((((unsigned long long) n) >> 24) & 0x0000000000FF0000) |    \
       ((((unsigned long long) n) >> 40) & 0x000000000000FF00) |    \
-      ((((unsigned long long) n) >> 32) & 0x00000000000000FF) )
+      ((((unsigned long long) n) >> 56) & 0x00000000000000FF) )
 
 // the default buffer size used
 #define TBUFSIZE 512
-
-
-enum BYTE_ORDER {
-	LITTLE_ENDIAN,
-	BIG_ENDIAN,
-};
 
 typedef void * TPtr;
 typedef const void * TCPtr;
@@ -121,41 +132,16 @@ typedef TInt32 TLInt;
 
 typedef void(*TFreeFunc) (TPtr);
 
-typedef TPtr (*TCopyFunc) (TPtr);
+typedef TPtr(*TCopyFunc) (TPtr);
 
-typedef void (*TIterFunc) (TPtr);
-typedef TPtr (*TDataIterFunc) (TPtr, TPtr);
+typedef void(*TIterFunc) (TPtr);
+typedef TPtr(*TDataIterFunc) (TPtr, TPtr);
 
-typedef void (*TPairIterFunc) (TPtr, TPtr);
-typedef TPtr (*TDataPairIterFunc) (TPtr, TPtr, TPtr);
+typedef void(*TPairIterFunc) (TPtr, TPtr);
+typedef TPtr(*TDataPairIterFunc) (TPtr, TPtr, TPtr);
 
-typedef TInt32 (*TCompareFunc) (TCPtr, TCPtr);
+typedef TInt32(*TCompareFunc) (TCPtr, TCPtr);
 
-typedef TInt32 (*TThreadFunc) (TPtr);
-
-enum T_DATA_TYPE {
-	T_DATA_UNKNOWN = 0,
-	T_DATA_CONST_UNKNOWN,
-
-	T_DATA_NULL,
-
-	T_DATA_INT8,
-	T_DATA_UINT8,
-	T_DATA_INT16,
-	T_DATA_UINT16,
-	T_DATA_INT32,
-	T_DATA_UINT32,
-	T_DATA_INT64,
-	T_DATA_UINT64,
-
-	T_DATA_CONST_STRING,
-	T_DATA_STRING,
-	T_DATA_CHAR,
-
-	T_DATA_FLOAT,
-	T_DATA_DOUBLE,
-
-	T_DATA_AMOUNT,
-};
+typedef TInt32(*TThreadFunc) (TPtr);
 
 #endif
