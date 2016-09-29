@@ -16,17 +16,12 @@ enum T_LOG_EVENT {
 	T_LOG_ERROR,
 };
 
-void TLogInit(TStream *optStream);
-void TLogDestroy(void);
-
-TLog *TLogNew(TStream *stream);
+TLog *TLogNew(const char *path);
+TLog *TLogNewStream(TStream *stream);
 void TLogFree(TLog *context);
 
 int TLogWrite(TLog *context, const char *format, ...);
 int TLogWriteV(TLog *context, const char *format, va_list ap);
-
-int TLogWriteMain(const char *format, ...);
-int TLogWriteVMain(const char *format, va_list ap);
 
 #ifdef __cplusplus
 }

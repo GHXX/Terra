@@ -5,27 +5,25 @@
 
 #include "talloc.h"
 #include "terror.h"
-#include "structure/tlist.h"
+
+#include "io/tio.h"
 
 struct TLog {
 	TStream *stream;
 };
 
-static TLog *mainLog = 0;
+TLog *TLogNew(const char *path) {
+	TStream *stream;
 
-void TLogInit(TStream *stream) {
-	if (!stream) {
-		stream = TStreamFromFilePointer(stdout, 0);
+	if (!path) {
+		TErrorZero(T_ERROR_INVALID_INPUT);
 	}
-	mainLog = TLogNew(stream);
+
+	stream = TIOGetFile(path, "w");
+	return TLogNewStream(stream);
 }
 
-void TLogDestroy(void) {
-	TLogFree(mainLog);
-	mainLog = 0;
-}
-
-TLog *TLogNew(TStream *stream) {
+TLog *TLogNewStream(TStream *stream) {
 	TLog *log;
 
 	if (!stream) {
@@ -51,10 +49,6 @@ int TLogWrite(TLog *context, const char *format, ...) {
 	int res;
 	va_list ap;
 
-	if (!context || !format) {
-		TErrorSet(T_ERROR_INVALID_INPUT);
-		return 1;
-	}
 	va_start(ap, format);
 	res = TLogWriteV(context, format, ap);
 	va_end(ap);
@@ -63,40 +57,25 @@ int TLogWrite(TLog *context, const char *format, ...) {
 }
 
 int TLogWriteV(TLog *context, const char *format, va_list ap) {
-	char buffer[TBUFSIZE];
+	unsigned char *buffer;
 	TInt32 size;
-
-	if (!context || !format) {
-		TErrorSet(T_ERROR_INVALID_INPUT);
-		return 1;
-	}
-
-	size = vsprintf(buffer, format, ap);
-
-	if (size < 0) {
-		TErrorSet(T_ERROR_SIZE_EXCEEDED);
-		return 1;
-	}
-	
-	return TStreamWriteString(context->stream, buffer, size);
-}
-
-int TLogWriteMain(const char *format, ...) {
+	va_list copy;
 	int res;
-	va_list ap;
 
-	if (!mainLog || !format) {
+	if (!context || !format || !format) {
 		TErrorSet(T_ERROR_INVALID_INPUT);
 		return 1;
 	}
 
-	va_start(ap, format);
-	res = TLogWriteV(mainLog, format, ap);
-	va_end(ap);
+	va_copy(copy, ap);
+	size = vsnprintf(0, 0, format, copy) + 1;
+	va_end(copy);
+
+	buffer = TAllocNData(unsigned char, size);
+	vsprintf(buffer, format, ap);
+
+	res = TStreamWriteBlock(context->stream, buffer, size -1);
+	TFree(buffer);
 
 	return res;
-}
-
-int TLogWriteVMain(const char *format, va_list ap) {
-	return TLogWriteV(mainLog, format, ap);
 }
