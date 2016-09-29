@@ -4,14 +4,16 @@
 
 // Common matrices
 
-typedef union {
-	struct {
-		union { float m00; float xx; }; union { float m10; float yx; }; union { float m20; float zx; };
-		union { float m01; float xy; }; union { float m11; float yy; }; union { float m21; float zy; };
-		union { float m02; float xz; }; union { float m12; float yz; }; union { float m22; float zz; };
-	} s;
-	float M[9];
-} TMatrix3f;
+#define TMatrix3(T) union { \
+	struct { \
+		union { T m00; T xx; }; union { T m10; T yx; }; union { T m20; T zx; }; \
+		union { T m01; T xy; }; union { T m11; T yy; }; union { T m21; T zy; }; \
+		union { T m02; T xz; }; union { T m12; T yz; }; union { T m22; T zz; }; \
+	} s; \
+	T M[9]; \
+}
+
+typedef TMatrix3(float) TMatrix3f;
 
 typedef union {
 	struct {
@@ -23,21 +25,18 @@ typedef union {
 	float M[16];
 } TMatrix4f;
 
-// Matrix3f operations
+// Matrix operations
 
-inline static void TMatrix3fSetZero(TMatrix3f *matrix)
-{
-	memset(matrix, 0, sizeof(matrix->M));
-}
+#define TMatrixSetZero(t) memset((t), 0, sizeof((t)->M));
 
-inline static void TMatrix3fSetIdentity(TMatrix3f *matrix)
-{
-	TMatrix3fSetZero(matrix);
+// Matrix3 operations
+
+inline static void TMatrix3fSetIdentity(TMatrix3f *matrix) {
+	TMatrixSetZero(matrix);
 	matrix->s.m00 = matrix->s.m11 = matrix->s.m22 = 1.0f;
 }
 
-inline static void TMatrix3fMulMatrix3f(TMatrix3f *m1, const TMatrix3f * m2)
-{
+inline static TMatrix3f TMatrix3fMulMatrix3f(const TMatrix3f *m1, const TMatrix3f * m2) {
 	TMatrix3f res;
 
 	res.s.m00 = (m1->s.m00 * m2->s.m00) + (m1->s.m01 * m2->s.m10) + (m1->s.m02 * m2->s.m20);
@@ -52,13 +51,12 @@ inline static void TMatrix3fMulMatrix3f(TMatrix3f *m1, const TMatrix3f * m2)
 	res.s.m21 = (m1->s.m20 * m2->s.m01) + (m1->s.m21 * m2->s.m11) + (m1->s.m22 * m2->s.m21);
 	res.s.m22 = (m1->s.m20 * m2->s.m02) + (m1->s.m21 * m2->s.m12) + (m1->s.m22 * m2->s.m22);
 
-	memcpy(m1, &res, sizeof(res));
+	return res;
 }
 
-inline static void TMatrix3fSetScale(TMatrix3f *matrix, float x, float y, float z)
-{
+inline static void TMatrix3fSetScale(TMatrix3f *matrix, float x, float y, float z) {
 	TMatrix3f mat;
-	TMatrix3fSetZero(&mat);
+	TMatrixSetZero(&mat);
 
 	mat.s.xx = x;
 	mat.s.yy = y;
@@ -67,12 +65,11 @@ inline static void TMatrix3fSetScale(TMatrix3f *matrix, float x, float y, float 
 	TMatrix3fMulMatrix3f(matrix, &mat);
 }
 
-inline static void TMatrix3fSetRotate(TMatrix3f *matrix, float angle, float x, float y, float z)
-{
+inline static void TMatrix3fSetRotate(TMatrix3f *matrix, float angle, float x, float y, float z) {
 	TMatrix3f mat;
 	float c = cosf(angle), oc = 1 - c;
 	float s = sinf(angle);
-	TVector v = { x, y, z };
+	TVector v = {x, y, z};
 	TVectorNormalize(&v);
 	x = v.x * v.x;
 	y = v.y * v.y;
@@ -93,8 +90,7 @@ inline static void TMatrix3fSetRotate(TMatrix3f *matrix, float angle, float x, f
 	TMatrix3fMulMatrix3f(matrix, &mat);
 }
 
-inline static void TMatrix3fSetRotationFromQuat(TMatrix3f *matrix, const TQuat * q1)
-{
+inline static void TMatrix3fSetRotationFromQuat(TMatrix3f *matrix, const TQuat * q1) {
 	float n, s;
 	float xs, ys, zs;
 	float wx, wy, wz;
@@ -116,20 +112,13 @@ inline static void TMatrix3fSetRotationFromQuat(TMatrix3f *matrix, const TQuat *
 
 // TMatrix4f operations
 
-inline static void TMatrix4fSetZero(TMatrix4f *matrix)
-{
-	memset(matrix, 0, sizeof(matrix->M));
-}
-
-inline static void TMatrix4fSetIdentity(TMatrix4f *matrix)
-{
-	TMatrix4fSetZero(matrix);
+inline static void TMatrix4fSetIdentity(TMatrix4f *matrix) {
+	TMatrixSetZero(matrix);
 
 	matrix->s.m00 = matrix->s.m11 = matrix->s.m22 = matrix->s.m33 = 1.0f;
 }
 
-inline static void TMatrix4fMulTMatrix4f(TMatrix4f *m1, const TMatrix4f * m2)
-{
+inline static void TMatrix4fMulTMatrix4f(TMatrix4f *m1, const TMatrix4f * m2) {
 	TMatrix4f res;
 	res.s.m00 = (m1->s.m00 * m2->s.m00) + (m1->s.m01 * m2->s.m10) + (m1->s.m02 * m2->s.m20) + (m1->s.m03 * m2->s.m30);
 	res.s.m01 = (m1->s.m00 * m2->s.m01) + (m1->s.m01 * m2->s.m11) + (m1->s.m02 * m2->s.m21) + (m1->s.m03 * m2->s.m31);
@@ -154,8 +143,7 @@ inline static void TMatrix4fMulTMatrix4f(TMatrix4f *m1, const TMatrix4f * m2)
 	memcpy(m1, &res, sizeof(res));
 }
 
-inline static void TMatrix4fSetTranslation(TMatrix4f *matrix, float x, float y, float z)
-{
+inline static void TMatrix4fSetTranslation(TMatrix4f *matrix, float x, float y, float z) {
 	TMatrix4f mat;
 
 	TMatrix4fSetIdentity(&mat);
@@ -167,10 +155,9 @@ inline static void TMatrix4fSetTranslation(TMatrix4f *matrix, float x, float y, 
 	TMatrix4fMulTMatrix4f(matrix, &mat);
 }
 
-inline static void TMatrix4fSetScale(TMatrix4f *matrix, float x, float y, float z)
-{
+inline static void TMatrix4fSetScale(TMatrix4f *matrix, float x, float y, float z) {
 	TMatrix4f mat;
-	TMatrix4fSetZero(&mat);
+	TMatrixSetZero(&mat);
 
 	mat.s.xx = x;
 	mat.s.yy = y;
@@ -180,18 +167,17 @@ inline static void TMatrix4fSetScale(TMatrix4f *matrix, float x, float y, float 
 	TMatrix4fMulTMatrix4f(matrix, &mat);
 }
 
-inline static void TMatrix4fSetRotation(TMatrix4f *matrix, float angle, float x, float y, float z)
-{
+inline static void TMatrix4fSetRotation(TMatrix4f *matrix, float angle, float x, float y, float z) {
 	TMatrix4f mat;
 	float c = cosf(angle), oc = 1 - c;
 	float s = sinf(angle);
-	TVector v = { x, y, z };
+	TVector v = {x, y, z};
 	TVectorNormalize(&v);
 	x = v.x * v.x;
 	y = v.y * v.y;
 	z = v.z * v.z;
 
-	TMatrix4fSetZero(&mat);
+	TMatrixSetZero(&mat);
 
 	mat.s.xx = c + (x * oc);
 	mat.s.xy = (v.x * v.y * oc) - (v.z * s);
@@ -207,27 +193,25 @@ inline static void TMatrix4fSetRotation(TMatrix4f *matrix, float angle, float x,
 
 	mat.s.tt = 1.0f;
 
-	TMatrix4fMulTMatrix4f(matrix,&mat);
+	TMatrix4fMulTMatrix4f(matrix, &mat);
 }
 
-inline static void TMatrix4fSetRotationScaleFromTMatrix4f(TMatrix4f * m1, const TMatrix4f * m2)
-{
+inline static void TMatrix4fSetRotationScaleFromTMatrix4f(TMatrix4f * m1, const TMatrix4f * m2) {
 	m1->s.xx = m2->s.xx; m1->s.yx = m2->s.yx; m1->s.zx = m2->s.zx;
 	m1->s.xy = m2->s.xy; m1->s.yy = m2->s.yy; m1->s.zy = m2->s.zy;
 	m1->s.xz = m2->s.xz; m1->s.yz = m2->s.yz; m1->s.zz = m2->s.zz;
 }
 
-inline static float TMatrix4fSVD(const TMatrix4f *m, TMatrix3f *rot3, TMatrix4f *rot4)
-{
+inline static float TMatrix4fSVD(const TMatrix4f *m, TMatrix3f *rot3, TMatrix4f *rot4) {
 	float s, n;
 
 	// this is a simple svd.
 	// Not complete but fast and reasonable.
 
 	s = sqrtf(
-	        ((m->s.xx * m->s.xx) + (m->s.xy * m->s.xy) + (m->s.xz * m->s.xz) +
-	         (m->s.yx * m->s.yx) + (m->s.yy * m->s.yy) + (m->s.yz * m->s.yz) +
-	         (m->s.zx * m->s.zx) + (m->s.zy * m->s.zy) + (m->s.zz * m->s.zz)) / 3.0f);
+		((m->s.xx * m->s.xx) + (m->s.xy * m->s.xy) + (m->s.xz * m->s.xz) +
+		(m->s.yx * m->s.yx) + (m->s.yy * m->s.yy) + (m->s.yz * m->s.yz) +
+		 (m->s.zx * m->s.zx) + (m->s.zy * m->s.zy) + (m->s.zz * m->s.zz)) / 3.0f);
 
 	if (rot3) {
 		rot3->s.xx = m->s.xx; rot3->s.xy = m->s.xy; rot3->s.xz = m->s.xz;
@@ -277,28 +261,25 @@ inline static float TMatrix4fSVD(const TMatrix4f *m, TMatrix3f *rot3, TMatrix4f 
 	return s;
 }
 
-inline static void TMatrix4fSetRotationScaleFromMatrix3f(TMatrix4f *m1, const TMatrix3f *m2)
-{
+inline static void TMatrix4fSetRotationScaleFromMatrix3f(TMatrix4f *m1, const TMatrix3f *m2) {
 	m1->s.xx = m2->s.xx; m1->s.yx = m2->s.yx; m1->s.zx = m2->s.zx;
 	m1->s.xy = m2->s.xy; m1->s.yy = m2->s.yy; m1->s.zy = m2->s.zy;
 	m1->s.xz = m2->s.xz; m1->s.yz = m2->s.yz; m1->s.zz = m2->s.zz;
 }
 
-inline static void TMatrix4fMulRotationScale(TMatrix4f *m, float scale)
-{
+inline static void TMatrix4fMulRotationScale(TMatrix4f *m, float scale) {
 	m->s.xx *= scale; m->s.yx *= scale; m->s.zx *= scale;
 	m->s.xy *= scale; m->s.yy *= scale; m->s.zy *= scale;
 	m->s.xz *= scale; m->s.yz *= scale; m->s.zz *= scale;
 }
 
-inline static void TMatrix4fSetRotationFromMatrix3f(TMatrix4f *m1, const TMatrix3f *m2)
-{
+inline static void TMatrix4fSetRotationFromMatrix3f(TMatrix4f *m1, const TMatrix3f *m2) {
 	float scale;
 
 	scale = TMatrix4fSVD(m1, 0, 0);
 
 	TMatrix4fSetRotationScaleFromMatrix3f(m1, m2);
-	TMatrix4fMulRotationScale(m1,scale);
+	TMatrix4fMulRotationScale(m1, scale);
 }
 
 #endif

@@ -14,7 +14,7 @@ typedef struct {
 #ifdef _WINDOWS
 	HMONITOR monitorHandle;
 #endif
-	TRectangle dimensions;
+	TRectanglei dimensions;
 } TScreen;
 
 typedef struct {

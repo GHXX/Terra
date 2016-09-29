@@ -17,6 +17,7 @@ static inline float TMathRadToDeg(float radian)
 }
 
 #include "ttuple.h"
+#include "tquaternion.h"
 #include "tmatrix.h"
 
 #include "ttransform.h"

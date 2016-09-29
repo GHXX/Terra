@@ -12,7 +12,7 @@
 
 #include "utility/tinteger.h"
 
-TQuadObj *TQuadObjNew(const TRectangle *rect, TPtr data) {
+TQuadObj *TQuadObjNew(const TRectanglei *rect, TPtr data) {
 	TQuadObj *pt = TAllocData(TQuadObj);
 	if (!pt) return 0;
 
@@ -23,18 +23,18 @@ TQuadObj *TQuadObjNew(const TRectangle *rect, TPtr data) {
 
 typedef struct _TQuadNode {
 	struct _TQuadNode *nodes[4];
-	TRectangle bounds;
+	TRectanglei bounds;
 	TSList *objs;
 } TQuadNode;
 
-void TQuadNodeInit(TQuadNode *q, const TRectangle *bounds) {
+void TQuadNodeInit(TQuadNode *q, const TRectanglei *bounds) {
 	memset(q->nodes, 0, sizeof(TQuadNode *) * 4);
 	q->bounds = *bounds;
 	q->objs = TSListNew();
 }
 
 
-TQuadNode *TQuadNodeNew(const TRectangle *bounds) {
+TQuadNode *TQuadNodeNew(const TRectanglei *bounds) {
 	TQuadNode *qn = TAllocData(TQuadNode);
 	if (qn) TQuadNodeInit(qn, bounds);
 	return qn;
@@ -63,7 +63,7 @@ void TQuadNodeFree(TQuadNode *q, TFreeFunc func) {
 	}
 }
 
-static inline int findObjPosition(TQuadNode **cur, TQuadNode *head, const TRectangle *r) {
+static inline int findObjPosition(TQuadNode **cur, TQuadNode *head, const TRectanglei *r) {
 	TSize i = 0;
 	TQuadNode *c = 0;
 	TSize level = 0;
@@ -92,7 +92,7 @@ static inline int findObjPosition(TQuadNode **cur, TQuadNode *head, const TRecta
 }
 
 void TQuadNodeSplit(TQuadNode *q) {
-	TRectangle bounds = { q->bounds.x, q->bounds.y, q->bounds.w / 2, q->bounds.h / 2 };
+	TRectanglei bounds = { q->bounds.x, q->bounds.y, q->bounds.w / 2, q->bounds.h / 2 };
 	TQuadNode *s;
 	TQuadObj *obj;
 	TSize size = q->objs->len;
@@ -124,7 +124,7 @@ void TQuadNodeInsert(TQuadNode *q, TQuadObj *obj, TSize limit, TSize levellimit)
 	if (q->objs->len >= limit && level < levellimit && !q->nodes[0]) TQuadNodeSplit(q);
 }
 
-void TQuadNodeRemove(TQuadNode *q, TQuadObj *obj, const TRectangle *r) {
+void TQuadNodeRemove(TQuadNode *q, TQuadObj *obj, const TRectanglei *r) {
 	const TQuadObj *cur;
 
 	if (!TRectangleContains(&q->bounds, r)) return;
@@ -161,7 +161,7 @@ const TSList *TQuadNodeFetch(const TQuadNode *q, const TPoint *p) {
 	return found;
 }
 
-TSList *TQuadNodeFetchAll(const TQuadNode *q, const TRectangle *rect) {
+TSList *TQuadNodeFetchAll(const TQuadNode *q, const TRectanglei *rect) {
 	TSList *found, nodes;
 
 	if (!TRectangleContains(&q->bounds, rect)) return 0;
@@ -194,7 +194,7 @@ struct _TQuadTree {
 	TSize obj_limit, level_limit;
 };
 
-TQuadTree *TQuadTreeNew(const TRectangle *bounds) {
+TQuadTree *TQuadTreeNew(const TRectanglei *bounds) {
 	TQuadTree *qt = TAllocData(TQuadTree);
 	if (!qt) return 0;
 
@@ -214,7 +214,7 @@ void TQuadTreeSet(TQuadTree *qt, TSize obj_limit, TSize level_limit) {
 }
 
 void TQuadTreeEmpty(TQuadTree *qt, TFreeFunc func) {
-	TRectangle bounds = qt->head->bounds;
+	TRectanglei bounds = qt->head->bounds;
 	TQuadNodeFree(qt->head, func);
 
 	qt->head = TQuadNodeNew(&bounds);
@@ -227,7 +227,7 @@ void TQuadTreeFree(TQuadTree *qt, TFreeFunc func) {
 	}
 }
 
-TQuadObj *TQuadTreeInsert(TQuadTree *qt, const TRectangle *rect, TPtr data) {
+TQuadObj *TQuadTreeInsert(TQuadTree *qt, const TRectanglei *rect, TPtr data) {
 	if (qt) {
 		TQuadObj *obj = TQuadObjNew(rect, data);
 		TQuadNodeInsert(qt->head, obj, qt->obj_limit, qt->level_limit);
@@ -237,7 +237,7 @@ TQuadObj *TQuadTreeInsert(TQuadTree *qt, const TRectangle *rect, TPtr data) {
 	return 0;
 }
 
-void TQuadTreeUpdate(const TQuadTree *qt, TQuadObj *obj, const TRectangle *newposition) {
+void TQuadTreeUpdate(const TQuadTree *qt, TQuadObj *obj, const TRectanglei *newposition) {
 	if (qt && obj && newposition) {
 		TQuadNodeRemove(qt->head, obj, &obj->rect);
 		obj->rect = *newposition;
@@ -277,7 +277,7 @@ const TSList *TQuadTreeFetch(const TQuadTree *qt, const TPoint *p) {
 	return 0;
 }
 
-TSList *TQuadTreeFetchAll(const TQuadTree *qt, const TRectangle *rect) {
+TSList *TQuadTreeFetchAll(const TQuadTree *qt, const TRectanglei *rect) {
 	if (qt) return TQuadNodeFetchAll(qt->head, rect);
 
 	return 0;
@@ -285,7 +285,7 @@ TSList *TQuadTreeFetchAll(const TQuadTree *qt, const TRectangle *rect) {
 
 TSList *TQuadTreeFetchNear(const TQuadTree *qt, const TPoint *p, float dist) {
 	if(qt) {
-		TRectangle rect = { (int)(p->x - dist), (int)(p->y - dist), (int)(dist * 2), (int)(dist * 2) };
+		TRectanglei rect = { (int)(p->x - dist), (int)(p->y - dist), (int)(dist * 2), (int)(dist * 2) };
 		return TQuadNodeFetchAll(qt->head, &rect);
 	}
 
