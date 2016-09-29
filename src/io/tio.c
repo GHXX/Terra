@@ -8,7 +8,8 @@
 #endif
 
 #include "talloc.h"
-#include "tthread.h"
+
+#include "tencoding.h"
 
 #include "utility/tstring.h"
 #include "utility/tfilesys.h"
@@ -17,105 +18,149 @@
 
 #include "structure/tlist.h"
 
-static TSList *searchpaths = 0;
+static TSList *searchPaths = 0;
+static char *savePath = 0;
+static char *appPath = 0;
 
-void TIOInitialize(void)
-{
-	searchpaths = 0;
-	TIOAddSearchPath(TIOGetApplicationPath());
+static inline int TIOInitSearchPath(void) {
+	searchPaths = TSListNew();
+	if (!searchPaths) return 1;
+	if (appPath) if (TSListInsert(searchPaths, TStringCopy(appPath), 0)) return 1;
+	if (savePath) if (TSListInsert(searchPaths, TStringCopy(savePath), 1)) return 1;
+
+	return 0;
 }
 
-void TIODestroy(void)
-{
-	TSListFree(searchpaths, TFree);
-	searchpaths = 0;
+void TIOInitialize(const char *argv) {
+	searchPaths = 0;
+	savePath = 0;
+
+	if (argv) {
+		appPath = TFileSysGetDirectory(argv);
+		TIOInitSearchPath();
+	}
 }
 
-void TIOParseArchive(const char *filename)
-{
+void TIODestroy(void) {
+	TSListFree(searchPaths, TFree);
+	searchPaths = 0;
+	TFree(savePath);
+	TFree(appPath);
+}
+
+void TIOParseArchive(const char *path) {
 	TAbort("File System: parse archive function not implemented");
 }
 
-TSList *TIOListArchive(const char *_dir, const char *_filter, unsigned char fullFilename)
-{
+TSList *TIOListArchive(const char *_dir, const char *_filter, unsigned char fullFilename) {
 	TAbort("File System: list archive function not implemented");
 	return 0;
 }
 
-void *testpath(const char *searchpath, const char *filename)
-{
-	char *fullFilename = TFileSysConcatPaths(searchpath, filename, NULL);
-	if (TFileSysFileExists(fullFilename)) return fullFilename;
+TPtr TIOTestPath(const char *searchPath, const char *filePath) {
+	char *fullFilename = TFileSysConcat(searchPath, filePath, 0);
+	if (TFileSysFileExists(fullFilename)) {
+		return fullFilename;
+	}
 
 	TFree(fullFilename);
-
 	return 0;
 }
 
-static FILE *TIOGetFileInternal(const char *filename, const char *mode)
-{
-	char *found = 0;
-	if(!filename) return 0;
+char *TIOGetFilePath(const char *path, const char *mode) {
+	char *fullPath;
 
-	if(!mode) mode = "rb";
+	if (!path) return 0;
+
+	if (TFileSysIsFullPath(path)) return TStringCopy(path);
+
+	if (!mode) mode = "rb";
 	else if (strchr(mode, 'w')) {
-		return fopen(filename, mode);
+		return savePath ? TStringConcat(savePath, path, 0) : TStringCopy(path);
 	}
 
-	found = (char *)TSListForeachData(searchpaths, (TDataIterFunc)testpath, (void *)filename);
-	if(found) {
-		FILE *f = fopen(found, mode);
-		TFree(found);
-		return f;
-	}
+	fullPath = (char *)TSListForeachData(searchPaths, (TDataIterFunc)TIOTestPath, (TPtr)path);
+	if (fullPath) return fullPath;
 
 	//TODO : check in archives
 
 	return 0;
 }
 
-TStream *TIOGetFile(const char *filename, const char *mode)
-{
-	TStream *trw = 0;
+static FILE *TIOGetFileInternal(const char *path, const char *mode) {
+	char *fullPath;
 
-	FILE *f = TIOGetFileInternal(filename, mode);
-	if (f) trw = TStreamFromFilePointer(f, 1);
+	if (!mode) mode = "rb";
+	fullPath = TIOGetFilePath(path, mode);
 
-	return trw;
+	if (fullPath) {
+		FILE *f = TFileSysOpen(fullPath, mode);
+		TFree(fullPath);
+
+		return f;
+	}
+
+	return 0;
 }
 
-unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, TSize *size)
-{
+TStream *TIOGetFile(const char *path, const char *mode) {
+	TStream *stream = 0;
+
+	FILE *f = TIOGetFileInternal(path, mode);
+	if (f) stream = TStreamFromFilePointer(f, 1);
+
+	return stream;
+}
+
+unsigned char *TIOGetBufferedFile(const char *path, const char *mode, TSize *size) {
 	unsigned char *buffer = 0;
 	unsigned int finalsize = 0;
 
-	TStream *trw = TIOGetFile(filename, mode);
-	if (!trw) return 0;
+	TStream *stream = TIOGetFile(path, mode);
+	if (!stream) return 0;
 
-	finalsize = TStreamSize(trw);
-	buffer = TAlloc(sizeof(unsigned char) * finalsize);
-	*size = TStreamReadBlock(trw, buffer, finalsize);
+	finalsize = TStreamSize(stream);
+	buffer = TAllocNData(unsigned char, finalsize);
+	*size = TStreamReadBlock(stream, buffer, finalsize);
 
-	TStreamFree(trw);
+	TStreamFree(stream);
 
 	return buffer;
 }
 
-void TIOAddSearchPath(const char *path)
-{
-	if (!searchpaths) searchpaths = TSListNew();
+void TIOAddSearchPath(const char *path) {
+	char *cpy;
 
-	TSListAppend(searchpaths, TStringCopy(path));
+	if (!path) return;
+	if (!searchPaths) if (TIOInitSearchPath()) return;
+
+	cpy = TStringCopy(path);
+	TSListAppend(searchPaths, cpy);
 }
 
-void TIORemoveLastSearchPath(void)
-{
-	TSListRemoveIndex(searchpaths, searchpaths->len - 1);
+void TIORemoveLastSearchPath(void) {
+	TFree(TSListPop(searchPaths));
 }
 
-void TIOClearSearchPath(void)
-{
-	TSListFree(searchpaths, TFree);
+void TIOClearSearchPath(void) {
+	TSListFree(searchPaths, TFree);
 	TIOAddSearchPath(TIOGetApplicationPath());
 }
 
+const char *TIOGetApplicationPath(void) {
+	return appPath;
+}
+
+void TIOSetSavePath(const char *path) {
+	if (savePath) {
+		TFree(TSListPopIndex(searchPaths, 1));
+		TFree(savePath);
+	}
+
+	savePath = TStringCopy(path);
+	if (savePath) TSListInsert(searchPaths, TStringCopy(savePath), 1);
+}
+
+const char *TIOGetSavePath(void) {
+	return savePath;
+}

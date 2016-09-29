@@ -3,20 +3,25 @@
 #define __included_terra_io_h
 
 #include "tstream.h"
+#include "tconsole.h"
 
-void TIOInitialize(void);
+void TIOInitialize(const char *argv);
 void TIODestroy(void);
 
-void TIOParseArchive(const char *filename);
+void TIOParseArchive(const char *path);
 //TSList *TIOListArchive(const char *_dir, const char *_filter, unsigned char fullFilename);
 
-TStream *TIOGetFile(const char *filename, const char *mode);
-unsigned char *TIOGetBufferedFile(const char *filename, const char *mode, TSize *size);
+char *TIOGetFilePath(const char *path, const char *mode);
+TStream *TIOGetFile(const char *path, const char *mode);
+unsigned char *TIOGetBufferedFile(const char *path, const char *mode, TSize *size);
 
 void TIOAddSearchPath(const char *path);
 void TIORemoveLastSearchPath(void);
 void TIOClearSearchPath(void);
 
-static inline const char *TIOGetApplicationPath(void) { return "."; }
+const char *TIOGetApplicationPath(void);
+
+void TIOSetSavePath(const char *path);
+const char *TIOGetSavePath(void);
 
 #endif
