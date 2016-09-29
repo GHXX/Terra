@@ -39,6 +39,9 @@
     <ClCompile Include="..\..\src\hardware\thardware.c">
       <Filter>hardware</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\io\tconsole.c">
+      <Filter>io</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\io\tio.c">
       <Filter>io</Filter>
     </ClCompile>
@@ -118,6 +121,9 @@
     <ClInclude Include="..\..\src\math\tline.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\math\tquaternion.h">
+      <Filter>math</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\math\trectangle.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -132,6 +138,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\math\ttuple.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\tconsole.h">
+      <Filter>io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\io\tio.h">
       <Filter>io</Filter>

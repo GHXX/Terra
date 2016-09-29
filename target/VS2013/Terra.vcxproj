@@ -74,6 +74,7 @@
     <ClCompile Include="..\..\src\debugging\tprofiler.c" />
     <ClCompile Include="..\..\src\hardware\tcpu.c" />
     <ClCompile Include="..\..\src\hardware\thardware.c" />
+    <ClCompile Include="..\..\src\io\tconsole.c" />
     <ClCompile Include="..\..\src\io\tio.c" />
     <ClCompile Include="..\..\src\io\tstream.c" />
     <ClCompile Include="..\..\src\structure\tarray.c" />
@@ -107,10 +108,12 @@
     <ClInclude Include="..\..\src\debugging\tprofiler.h" />
     <ClInclude Include="..\..\src\hardware\tcpu.h" />
     <ClInclude Include="..\..\src\hardware\thardware.h" />
+    <ClInclude Include="..\..\src\io\tconsole.h" />
     <ClInclude Include="..\..\src\io\tio.h" />
     <ClInclude Include="..\..\src\io\tstream.h" />
     <ClInclude Include="..\..\src\math\tcuboid.h" />
     <ClInclude Include="..\..\src\math\tline.h" />
+    <ClInclude Include="..\..\src\math\tquaternion.h" />
     <ClInclude Include="..\..\src\math\trectangle.h" />
     <ClInclude Include="..\..\src\math\tmath.h" />
     <ClInclude Include="..\..\src\math\tmatrix.h" />
