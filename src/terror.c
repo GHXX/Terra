@@ -2,19 +2,34 @@
 
 #include "terror.h"
 
-static int TErrorCode = 0;
+#include "talloc.h"
 
-void TErrorSet(int code)
-{
+#include "utility/tstring.h"
+
+static int TErrorCode = 0;
+static char *TErrorMsg = 0;
+
+void TErrorSet(int code) {
 	TErrorCode = code;
+	TFree(TErrorMsg);
 }
 
-int TErrorGet(void)
-{
+int TErrorGet(void) {
 	return TErrorCode;
 }
 
-void TErrorClear(void)
-{
+void TErrorSetErrMsg(int code, const char *errmsg) {
+	TFree(TErrorMsg);
+	TErrorMsg = TStringCopy(errmsg);
+}
+
+const char *TErrorGetErrMsg(int *code) {
+	if (code) *code = TErrorCode;
+	return TErrorMsg;
+}
+
+void TErrorClear(void) {
 	TErrorCode = 0;
+	TFree(TErrorMsg);
+	TErrorMsg = 0;
 }

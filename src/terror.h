@@ -12,12 +12,16 @@ enum T_ERROR_CODES {
 	T_ERROR_OPERATION_NOT_SUPPORTED,
 	T_ERROR_SIZE_EXCEEDED,
 	T_ERROR_NOT_INITIALIZED,
+	T_ERROR_INITIALIZATION_FAILED,
 
 	T_ERROR_AMOUNT,
 };
 
 void TErrorSet(int code);
 int TErrorGet(void);
+
+void TErrorSetErrMsg(int code, const char *errmsg);
+const char *TErrorGetErrMsg(int *code);
 
 void TErrorClear(void);
 
