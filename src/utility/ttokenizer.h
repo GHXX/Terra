@@ -26,13 +26,43 @@ TTokenizer *TTokenizerNew(TStream *input, TInt8 freeInput);
 void TTokenizerFree(TTokenizer *context);
 
 /**
+* Set the tokenizer stream to a new position
+*
+* @param context             The tokenizer contex.
+* @param offset              The offset from the origin.
+* @param origin              The starting position(SEEK_CUR, SEEK_SET, SEEK_END).
+*
+*/
+void TTokenizerSeek(TTokenizer *context, TLInt offset, TInt8 origin);
+
+/**
+* Get the current stream position.
+*
+* @param context             The tokenizer context.
+*
+* @return                    The stream position.
+*
+*/
+TLInt TTokenizerTell(TTokenizer *context);
+
+/**
 * Set the tokenizer behavior for empty tokens
 *
 * @param context             The tokenizer structure.
-* @param skip                Will return empty strings if set to 0, skip if set to 1.
+* @param skip                Will return empty strings if set to 0, skip if set to 1. Default is 0.
 *
 */
 void TTokenizerSkipEmpty(TTokenizer *context, TInt8 skip);
+
+/**
+* Set the tokenizer behavior for character stripping
+*
+* @param context             The tokenizer structure.
+* @param leadStrip           Set the leading characters to be removed.
+* @param trailStrip          Set the trailing characters to be removed.
+*
+*/
+void TTokenizerSetStrip(TTokenizer *context, const char *leadStrip, const char *trailStrip);
 
 /**
 * Set the character for escaping separators
@@ -53,6 +83,16 @@ void TTokenizerSetEscapeCharacter(TTokenizer *context, char escapeChar);
 void TTokenizerSetSeparators(TTokenizer *context, const char *separators);
 
 /**
+* Returns the current token
+*
+* @param context             The tokenizer structure.
+*
+* @return                    The next token.
+*
+*/
+const unsigned char *TTokenizerGet(TTokenizer *context);
+
+/**
  * Returns the next token
  *
  * @param context             The tokenizer structure.
@@ -61,6 +101,17 @@ void TTokenizerSetSeparators(TTokenizer *context, const char *separators);
  * @return                    The next token.
  *
  */
-const char *TTokenizerNext(TTokenizer *context, char *separator);
+const unsigned char *TTokenizerNext(TTokenizer *context, char *separator);
+
+/**
+* Returns the token up to next matching separator
+*
+* @param context             The tokenizer structure.
+* @param separator           The separator to jump to.
+*
+* @return                    The next token.
+*
+*/
+const unsigned char *TTokenizerJump(TTokenizer *context, char separator);
 
 #endif
