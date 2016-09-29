@@ -9,76 +9,41 @@
 extern "C" {
 #endif
 
-typedef struct TString TString;
+#define TStringSize(s) (strlen(s) + 1) * sizeof(char)
 
-TString *TStringFromString(const char *string);
-TString *TStringFromBytes(const unsigned char *data, TSize size);
-TString *TStringFromTString(const TString *string);
-TString *TStringNCopy(const TString *string, TSize num);
-void TStringFree(TString *string);
-
-const unsigned char *TStringToIndex(TString *string, TSize index);
-
-const unsigned char *TStringEncode(TString *string, int format);
-
-#ifdef _WINDOWS
-const wchar_t *TStringToWideChar(TString *string);
-#endif
-const char *TStringToASCII(TString *string);
-const unsigned char *TStringToUTF8(TString *string);
-
-TSize TStringNumCharacters(TString *string);
-
-int TStringCaseInsensitiveCompare(TString *str1, TString *str2);
-
-TSize TStringRCSpn(TString *string, const char *control);
-
-const unsigned char *TStringChr(TString *string, TUInt32 character);
-TString *TStringLowerCase(TString *string);
-
-typedef struct TStringIterator TStringIterator;
-
-TStringIterator *TStringIteratorNew(TString *string);
-void TStringIteratorFree(TStringIterator *context);
-
-unsigned char *TStringIteratorData(TStringIterator *context);
-
-unsigned char *TStringIteratorNext(TStringIterator *context);
-unsigned char *TStringIteratorPrevious(TStringIterator *context);
-unsigned char *TStringIteratorIncrement(TStringIterator *context, TLInt numCharacters);
-
-static inline char *TStringLwr(char *s) {
-	char *p = s;
-	for (; *p; p++)
-		*p = tolower(*p);
-	return s;
-}
-
-static inline char *TStringUpr(char *s) {
-	char *p = s;
-	for (; *p; p++)
-		*p = toupper(*p);
-	return s;
-}
-
-static inline char TStringIsAlphabetCharacter(char c)
-{
+static inline char TStringIsAlphabetCharacter(char c) {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-static inline char TStringIsDigit(char c)
-{
+static inline char TStringIsDigit(char c) {
 	return (c >= '0' && c <= '9');
 }
 
+char *TStringLwr(const char *s);
+
+char *TStringUpr(const char *s);
+
 char *TStringCopy(const char *text);
-char *TStringNCopyO(const char *text, int num);
+char *TStringNCopy(const char *text, int num);
+char *TStringSCopy(const char *text, TSize size);
 
 int TStringAdjustSize(char **text, TSize oldsize, TSize newsize);
 
-int TStringCaseInsensitiveCompareO(const char *str1, const char *str2);
+#ifdef _WINDOWS
+char *TStringFromWideChar(wchar_t *string);
+wchar_t *TStringToWideChar(const char *string);
+#endif
 
-TSize TStringRCSpnO(const char *_str, const char *_control);
+TSize TStringLen(const char *string);
+
+TUInt32 TStringGetCharacter(const char *string, int position);
+char *TStringGetCharacterStr(const char *string, int position);
+
+int TStringIsCharEscaped(const char *start, const char *pos);
+
+int TStringCaseInsensitiveCompare(const char *str1, const char *str2);
+
+TSize TStringRCSpn(const char *_str, const char *_control);
 
 TSize TStringNumOccurences(const char *target, const char *match);
 
@@ -122,13 +87,14 @@ char **TStringRSplit(const char *string, const char *substr, TSize *size, TSize 
 char *TStringAddCharacter(const char *string, char character, TSize start, TSize end);
 char *TStringAppendCharacter(const char *string, char character);
 
+char *TStringInsert(const char *src, const char *target, int position);
+
 char *TStringConcat(const char *str, ...);
+char *TStringConcatInplace(char *str, ...);
 char *TStringConcatSeparator(const char *separator, const char *str, ...);
 
-void TStringStripTrailingWhitespace(char *string);	// Removes trailing /n, /r, space
+char *TStringStripTrailingWhitespace(const char *string);	// Removes trailing /n, /r, space
 const char *TStringStripLeadingSpaces(const char *string);
-
-char *TStringLowerCaseO(const char *thestring);
 
 char *TStringPasswordEncrypt(const char *src);
 
@@ -144,10 +110,8 @@ TUInt16 stoui16(const char *str);
 
 TUInt32 stoui32(const char *str);
 
-#ifdef PLATFORM_X86_64
 TInt64 stoi64(const char *str);
 TUInt64 stoui64(const char *str);
-#endif
 
 #ifdef __cplusplus
 }
