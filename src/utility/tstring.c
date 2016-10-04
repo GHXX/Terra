@@ -190,7 +190,7 @@ inline void TStringReplaceOp(char *target, const char *match, const char *replac
 	do {
 		curptr = strstr(curptr, match);
 		if (curptr) {
-			strncpy(curptr, replacement, repllen);
+			memcpy(curptr, replacement, repllen);
 			curptr += repllen;
 			i++;
 		}
@@ -270,10 +270,13 @@ char *TStringReplace(const char *source, const char *match, const char *replacem
 		}
 
 		reslen -= ((int)matchlen - (int)repllen) * (int)limit;
+		result = (char *)TAlloc(reslen);
+		if (result) TStringCopyReplaceOp(result, source, match, replacement, limit);
+	} else {
+		result = TStringCopy(source);
+		if (result) TStringReplaceOp(result, match, replacement, repllen, limit);
 	}
 
-	result = (char *)TAlloc(reslen);
-	if (result) TStringCopyReplaceOp(result, source, match, replacement, limit);
 	return result;
 }
 
