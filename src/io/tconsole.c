@@ -651,8 +651,8 @@ unsigned char TConsoleCheckInput(void) {
 			switch (irInRec.Event.KeyEvent.wVirtualKeyCode) {
 				case(VK_RETURN):
 				{
+					TStreamSeek(input, sizeWritten++, SEEK_SET);
 					TStreamWrite8(input, 0);
-					sizeWritten++;
 					return 1;
 				}
 				case(VK_SHIFT): break;
@@ -711,7 +711,7 @@ unsigned char TConsoleCheckInput(void) {
 						size = 0;
 
 						TEncodingUTF8GetPreviousChr(&pos, &size);
-						memcpy(pos, inputString + position - 1, sizeWritten - position);
+						memcpy(pos, inputString + position, sizeWritten - position);
 						sizeWritten -= size;
 						cursorPos.x -= size;
 
@@ -722,8 +722,6 @@ unsigned char TConsoleCheckInput(void) {
 							TConsoleShiftInputRight();
 						}
 						TConsoleUpdateCursorPosition();
-
-						
 
 						flags |= T_CONSOLE_INTERNAL_FLAG_REFRESH_INPUT | T_CONSOLE_INTERNAL_FLAG_MODIFIED;
 					}
