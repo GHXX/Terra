@@ -217,20 +217,20 @@ unsigned char TFileSysFilesIdentical(const char *_name1, const char *_name2) {
 	return rv;
 }
 
-unsigned char TFileSysIsFullPath(const char *path) {
-	if (!path) return 0;
-
-#ifdef _WINDOWS
-	return TStringIsAlphabetCharacter(*path) && *(path + 1) == ':' && (*(path + 2) == '/' || *(path + 2) == '\\');
-#else
-	return *path == '/';
-#endif
-}
-
 unsigned char TFileSysIsWindowsPath(const char *path) {
 	if (!path) return 0;
 
 	return strchr(path, '\\') != 0;
+}
+
+unsigned char TFileSysIsFullPath(const char *path) {
+	if (!path) return 0;
+
+#ifdef _WINDOWS
+	if(TFileSysIsWindowsPath(path)) return TStringIsAlphabetCharacter(*path) && *(path + 1) == ':' && (*(path + 2) == '/' || *(path + 2) == '\\');
+#endif
+
+	return *path == '/';
 }
 
 char *TFileSysGetWorkingDirectory(void) {
@@ -400,18 +400,17 @@ char *TFileSysGetParent(char *_fullFilePath) {
 }
 
 char *TFileSysGetDirectory(const char *_fullFilePath) {
-	char *finalSlash = strrchr(_fullFilePath, '/');
-	if (finalSlash) {
-		char *cpy = TStringNCopy(_fullFilePath, finalSlash - _fullFilePath);
-		return cpy;
-	}
+	char *finalSlash;
+
 #ifdef _WINDOWS
-	finalSlash = strrchr(_fullFilePath, '\\');
-	if (finalSlash) {
-		char *cpy = TStringNCopy(_fullFilePath, finalSlash - _fullFilePath);
-		return cpy;
+	if ((finalSlash = strrchr(_fullFilePath, '\\'))) {
+		return TStringNCopy(_fullFilePath, finalSlash - _fullFilePath);
 	}
 #endif
+
+	if ((finalSlash = strrchr(_fullFilePath, '/'))) {
+		return TStringNCopy(_fullFilePath, finalSlash - _fullFilePath);
+	}
 
 	return 0;
 }
@@ -430,7 +429,7 @@ char *TFileSysGetDirname(const char *_fullFilePath) {
 	} else {
 		const char *cur = _fullFilePath;
 		start = _fullFilePath;
-		while ((cur = strrchr(cur, '/')) != end) { cur += 1; start = cur; }
+		while ((cur = strchr(cur, '/')) != end) { cur += 1; start = cur; }
 	}
 
 	if (!(end - start)) return 0;
