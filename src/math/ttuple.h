@@ -12,11 +12,16 @@
 
 // common naming
 
-typedef TTuple2(float) TPoint2;
-typedef TTuple2(float) TVector2;
+typedef TTuple2(float) TTuple2f;
+typedef TTuple2f TPoint2;
+typedef TTuple2f TVector2;
 
-typedef TTuple3(float) TPoint;
-typedef TTuple3(float) TVector;
+typedef TTuple3(float) TTuple3f;
+typedef TTuple3f TPoint;
+typedef TTuple3f TVector;
+
+
+typedef TTuple4(float) TTuple4f;
 
 // 2D Point operation
 
@@ -70,9 +75,9 @@ static inline float TPoint2EuclidianDistanceO(const TPoint2 *to) {
 // 3-Tuple operations
 
 #define TTuple3Set(t, a, b, c) { \
-	t.x = a; \
-	t.y = b; \
-	t.z = c; \
+	(t).x = a; \
+	(t).y = b; \
+	(t).z = c; \
 }
 
 #define TTuple3Add(t1, t2) { \
@@ -130,14 +135,10 @@ static inline void TVectorRotate(TVector *vector, const TVector *cosangles, cons
 
 // Vector operations
 
-inline static TVector TVectorCross(const TVector *v1, const TVector *v2) {
-	TVector result = {
-		(v1->y * v2->z) - (v1->z * v2->y),
-		(v1->z * v2->x) - (v1->x * v2->z),
-		(v1->x * v2->y) - (v1->y * v2->x)
-	};
-
-	return result;
+#define TVectorCross(v1, v2, r) { \
+	(r).x = ((v1).y * (v2).z) - ((v1).z * (v2).y); \
+	(r).y = ((v1).z * (v2).x) - ((v1).x * (v2).z); \
+	(r).z = ((v1).x * (v2).y) - ((v1).y * (v2).x); \
 }
 
 inline static float TVectorDot(const TVector *v1, const TVector *v2) {
@@ -166,7 +167,7 @@ inline static TVector TVectorNormalfromTuples(const TVector *v1, const TVector *
 	TTuple3Sub(vec1, (*v2));
 	TTuple3Sub(vec2, (*v3));
 
-	out = TVectorCross(&vec1, &vec2);
+	TVectorCross(vec1, vec2, out);
 	TVectorNormalize(&out);
 
 	return out;

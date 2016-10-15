@@ -7,11 +7,11 @@
 typedef TRectangle(TInt32, TSize) TRectanglei;
 typedef TRectangle(float, float) TRectanglef;
 
-static inline void TRectangleSet(TRectanglei *r, TInt32 x, TInt32 y, TSize w, TSize h) {
-	r->x = x;
-	r->y = y;
-	r->w = w;
-	r->h = h;
+#define TRectangleSet(r, a, b, c, d) { \
+	(r).x = a;\
+	(r).y = b;\
+	(r).w = c;\
+	(r).h = d;\
 }
 
 static inline void TRectangleCopy(TRectanglei *r1, const TRectanglei *r2) {

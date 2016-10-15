@@ -4,7 +4,7 @@
 
 #include "ttuple.h"
 
-typedef TTuple4(float) TQuat;
+typedef TTuple4f TQuat;
 
 static inline TQuat TQuatFromEulerAngles(float ax, float ay, float az) {
 	float c1, s1, c2, s2, c3, s3;

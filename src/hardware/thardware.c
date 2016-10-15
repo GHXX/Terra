@@ -20,9 +20,7 @@ int monitorEnum(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM p)
 
 	TScreen *s = data->screens;
 	s->monitorHandle = hm;
-	TRectangleSet(&s->dimensions,
-		rect->left, rect->top,
-		rect->right - rect->left, rect->bottom - rect->top);
+	TRectangleSet(s->dimensions, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top);
 
 	data->screens++;
 
