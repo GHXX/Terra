@@ -74,6 +74,7 @@
     <ClCompile Include="..\..\src\debugging\tprofiler.c" />
     <ClCompile Include="..\..\src\hardware\tcpu.c" />
     <ClCompile Include="..\..\src\hardware\thardware.c" />
+    <ClCompile Include="..\..\src\io\tclipboard.c" />
     <ClCompile Include="..\..\src\io\tconsole.c" />
     <ClCompile Include="..\..\src\io\tio.c" />
     <ClCompile Include="..\..\src\io\tstream.c" />
@@ -108,6 +109,7 @@
     <ClInclude Include="..\..\src\debugging\tprofiler.h" />
     <ClInclude Include="..\..\src\hardware\tcpu.h" />
     <ClInclude Include="..\..\src\hardware\thardware.h" />
+    <ClInclude Include="..\..\src\io\tclipboard.h" />
     <ClInclude Include="..\..\src\io\tconsole.h" />
     <ClInclude Include="..\..\src\io\tio.h" />
     <ClInclude Include="..\..\src\io\tstream.h" />

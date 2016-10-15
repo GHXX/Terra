@@ -4,6 +4,7 @@
 
 #include "tstream.h"
 #include "tconsole.h"
+#include "tclipboard.h"
 
 void TIOInitialize(const char *argv);
 void TIODestroy(void);

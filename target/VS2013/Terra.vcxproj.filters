@@ -39,6 +39,9 @@
     <ClCompile Include="..\..\src\hardware\thardware.c">
       <Filter>hardware</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\io\tclipboard.c">
+      <Filter>io</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\io\tconsole.c">
       <Filter>io</Filter>
     </ClCompile>
@@ -114,6 +117,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\hardware\thardware.h">
       <Filter>hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\tclipboard.h">
+      <Filter>io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\io\tconsole.h">
       <Filter>io</Filter>

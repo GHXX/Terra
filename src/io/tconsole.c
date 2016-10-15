@@ -858,6 +858,13 @@ unsigned char TConsoleCheckInput(void) {
 							TLInt position = TStreamTell(input);
 							TSize bSize;
 
+							if (size == 1 && *ch == '\x16' && irInRec.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) {
+								TFree(ch);
+								ch = TClipBoardGetText();
+								if (!ch) break;
+								size = strlen(ch);
+							}
+
 							//get the buffer size
 							bSize = sizeWritten - position;
 							if (bSize) {
