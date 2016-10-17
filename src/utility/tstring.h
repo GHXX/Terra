@@ -84,7 +84,7 @@ void TStringSafetyString(char *string);
 char **TStringSplit(const char *string, const char *substr, TSize *size, TSize limit);
 char **TStringRSplit(const char *string, const char *substr, TSize *size, TSize limit);
 
-char *TStringAddCharacter(const char *string, char character, TSize start, TSize end);
+char *TStringAddCharacter(const char *string, const char *character, TSize start, TSize end);
 char *TStringAppendCharacter(const char *string, char character);
 
 char *TStringInsert(const char *src, const char *target, int position);

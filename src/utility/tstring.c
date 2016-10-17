@@ -376,24 +376,44 @@ char **TStringRSplit(const char *string, const char *substr, TSize *size, TSize 
 	return sto;
 }
 
-char *TStringAddCharacter(const char *string, char character, TSize start, TSize end) {
+char *TStringAddCharacter(const char *string, const char *character, TSize start, TSize end) {
 	TSize len;
-	int nextindex;
+	TSize cLen;
 	char *newstring = 0;
 
-	if (start > end)
-		TSWAP(start, end);
+	if (!string || !character) return 0;
 
-	len = strlen(string) + (character ? 1 : 0) + 1;
-	nextindex = character ? start + 1 : start;
+	if (start > end) TSWAP(start, end);
+
+	cLen = strlen(character);
+	len = strlen(string);
+
+	{
+		const char *ptr = string;
+		TSize remaining = strlen(string);
+		TSize oStart;
+
+		TEncodingUTF8Increment(&ptr, &remaining, start);
+
+		oStart = start;
+		start = len - remaining;
+
+		if(end == oStart) end = start;
+		else {
+			TEncodingUTF8Increment(&ptr, &remaining, end - oStart);
+			end = len - remaining;
+		}
+	}
+
+	len += cLen + 1;
 
 	if (start != end) len -= end - start;
 
-	newstring = (char *)TAlloc(sizeof(char) * len);
+	newstring = TAllocNData(char, len);
 	if (newstring) {
-		if (start != 0) strncpy(newstring, string, start);
-		newstring[start] = character;
-		strncpy(newstring + nextindex, string + end, len - start);
+		if (start) memcpy(newstring, string, start);
+		memcpy(newstring + start, character, cLen);
+		memcpy(newstring + start + cLen, string + end, len - cLen - end);
 	}
 
 	return newstring;
@@ -403,10 +423,10 @@ char *TStringAppendCharacter(const char *string, char character) {
 	TSize size;
 	char *result;
 
-	if (!string) { TErrorSet(T_ERROR_NULL_POINTER); return 0; }
+	if (!string) { TErrorZero(T_ERROR_NULL_POINTER); }
 
 	size = strlen(string) + 2;
-	result = (char *)TAlloc(sizeof(char) * size);
+	result = TAllocNData(char, size);
 	memcpy(result, string, size - 2);
 	result[size - 2] = character;
 	result[size - 1] = 0;
