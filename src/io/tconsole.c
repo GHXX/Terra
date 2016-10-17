@@ -636,6 +636,21 @@ static inline void TConsolePageDown(void) {
 	}
 }
 
+static inline void TConsoleEmitInput(void) {
+	char *cpy;
+
+	cpy = TStringCopy(inputString);
+
+	//add to history
+	if (*cpy) TArrayAppend(&history, cpy);
+
+	if (callback && !(flags & T_CONSOLE_INTERNAL_FLAG_WAITING)) callback(cpy);
+
+	if (!*cpy) TFree(cpy);
+
+	TBIT_CLEAR(flags, T_CONSOLE_INTERNAL_FLAG_WAITING);
+}
+
 unsigned char TConsoleCheckInput(void) {
 #ifdef _WINDOWS
 	DWORD dwNumRead;
@@ -908,8 +923,6 @@ unsigned char TConsoleCheckInput(void) {
 static int TConsoleRun(TPtr data) {
 
 	while (flags & T_CONSOLE_INTERNAL_FLAG_INIT) {
-		char *cpy;
-
 		TConsoleReset();
 
 		TConsoleUpdate();
@@ -922,16 +935,7 @@ static int TConsoleRun(TPtr data) {
 		if (!(flags & T_CONSOLE_INTERNAL_FLAG_INIT)) return 0;
 
 		//add to history
-		cpy = TStringCopy(inputString);
-		if (*cpy) TArrayAppend(&history, cpy);
-
-		if (callback && !(flags & T_CONSOLE_INTERNAL_FLAG_WAITING)) {
-			callback(cpy);
-		}
-
-		if (!*cpy) TFree(cpy);
-
-		TBIT_CLEAR(flags, T_CONSOLE_INTERNAL_FLAG_WAITING);
+		TConsoleEmitInput();
 	}
 
 	return 0;
@@ -1072,14 +1076,16 @@ const char *TConsoleGetPS1(void) {
 
 const char *TConsoleWaitForInput(void)
 {
+	int len;
 	if (!(flags & T_CONSOLE_INTERNAL_FLAG_INIT)) return 0;
 
 	flags |= T_CONSOLE_INTERNAL_FLAG_WAITING;
+	len = history.len;
 
 	while (flags & T_CONSOLE_INTERNAL_FLAG_WAITING) {
 		if (!(flags & T_CONSOLE_INTERNAL_FLAG_INIT)) return 0;
 		TThreadSleep(10);
 	}
 
-	return TArrayLast(&history);
+	return TArrayGet(&history, len);
 }
