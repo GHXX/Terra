@@ -118,14 +118,14 @@ TUInt32 TEncodingUTF16LEGetChrInternal(const unsigned char **data, TSize *size) 
 	TUInt16 *ptr = (TUInt16 *)*data;
 	TUInt32 code;
 
-	//decode utf-16
+	//decode UTF-16
 	if (*ptr < 0x10000) {
 		code = *ptr;
 		*data += 2;
 		*size -= sizeof(unsigned char) * 2;
 
 	} else if (*ptr & 0xD800) {
-		//decode utf-16 pair
+		//decode UTF-16 pair
 		code = 0x10000;
 		code += (*(ptr++) & 0x03FF) << 10;
 		code += (*ptr & 0x03FF);
@@ -160,185 +160,181 @@ TUInt8 TEncodingCheckBOM(const unsigned char *data, TSize size) {
 	return T_ENCODING_UNKNOWN;
 }
 
-TEncodingStats *TEncodingGetStats(const unsigned char *data, TSize size) {
-	TEncodingStats *stats = TAllocData(TEncodingStats);
-	if (stats) {
-		memset(stats, 0, sizeof(TEncodingStats));
+TEncodingStats TEncodingGetStats(const unsigned char *data, TSize size) {
+	TEncodingStats stats = {0};
 
-		stats->encoding = TEncodingCheckBOM(data, size);
-		if (stats->encoding) {
-			TUInt8 BOMSize = TEncodingGetBOMSize(stats->encoding);
-			stats->flags |= T_ENCODING_FLAG_BOM_PRESENT;
+	stats.encoding = TEncodingCheckBOM(data, size);
+	if (stats.encoding) {
+		TUInt8 BOMSize = TEncodingGetBOMSize(stats.encoding);
+		stats.flags |= T_ENCODING_FLAG_BOM_PRESENT;
 
-			data += BOMSize;
-			size -= BOMSize;
-		}
-
-		if (!stats->encoding || stats->encoding == T_ENCODING_UTF8) {
-			stats->encoding = T_ENCODING_UTF8;
-			while (size) {
-				if (*data < 0x80) {
-					if (!*data && size == sizeof(unsigned char)) {
-						stats->flags |= T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID;
-						break;
-					}
-
-					data += 1;
-					stats->numChars++;
-					stats->numOneByteChars++;
-					size -= sizeof(unsigned char);
-				} else {
-					unsigned char byte;
-					TUInt8 codeLength, i;
-					TUInt32 ch;
-
-					byte = *data;
-					codeLength = TEncodingGetUTF8CodeLength(byte);
-					if (!codeLength) {
-						TErrorSet(T_ENCODING_ERROR_INVALID);
-						return stats;
-					}
-
-					ch = TEncodingGetUTF8Firstbyte(byte, codeLength);
-
-					if (codeLength * sizeof(unsigned char) > size) {
-						// truncated string or invalid byte sequence
-						TErrorSet(T_ENCODING_ERROR_TRUNCATED);
-						return stats;
-					}
-
-					data++;
-					for (i = 1; i < codeLength; i++, data++) {
-						byte = *data;
-						// Check continuation bytes
-						if ((byte & 0xC0) != 0x80) {
-							TErrorSet(T_ENCODING_ERROR_INVALID);
-							return stats;
-						}
-
-						ch = (ch << 6) | (byte & 0x3F);
-					}
-
-					if ((ch > 0x10FFFF) ||
-						((ch >= 0xD800) && (ch <= 0xDFFF)) ||
-						((ch <= 0x007F) && (codeLength != 1)) ||
-						((ch >= 0x0080) && (ch <= 0x07FF) && (codeLength != 2)) ||
-						((ch >= 0x0800) && (ch <= 0xFFFF) && (codeLength != 3)) ||
-						((ch >= 0x10000) && (ch <= 0x1FFFFF) && (codeLength != 4))) {
-						TErrorSet(T_ENCODING_ERROR_INVALID);
-						return stats;
-					}
-
-					size -= sizeof(unsigned char) * codeLength;
-
-					stats->numChars++;
-					(*((&stats->numChars) + codeLength))++;
-				}
-			}
-			if (stats->numOneByteChars == stats->numChars)
-				stats->encoding = T_ENCODING_ASCII;
-		}
+		data += BOMSize;
+		size -= BOMSize;
 	}
 
-	stats->flags |= T_ENCODING_FLAG_VALID;
+	if (!stats.encoding || stats.encoding == T_ENCODING_UTF8) {
+		stats.encoding = T_ENCODING_UTF8;
+		while (size) {
+			if (*data < 0x80) {
+				if (!*data && size == sizeof(unsigned char)) {
+					stats.flags |= T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID;
+					size--;
+					stats.numChars++;
+					stats.numOneByteChars++;
+					break;
+				}
+
+				data += 1;
+				stats.numChars++;
+				stats.numOneByteChars++;
+				size -= sizeof(unsigned char);
+			} else {
+				unsigned char byte;
+				TUInt8 codeLength, i;
+				TUInt32 ch;
+
+				byte = *data;
+				codeLength = TEncodingGetUTF8CodeLength(byte);
+				if (!codeLength) {
+					TErrorSet(T_ENCODING_ERROR_INVALID);
+					return stats;
+				}
+
+				ch = TEncodingGetUTF8Firstbyte(byte, codeLength);
+
+				if (codeLength * sizeof(unsigned char) > size) {
+					// truncated string or invalid byte sequence
+					TErrorSet(T_ENCODING_ERROR_TRUNCATED);
+					return stats;
+				}
+
+				data++;
+				for (i = 1; i < codeLength; i++, data++) {
+					byte = *data;
+					// Check continuation bytes
+					if ((byte & 0xC0) != 0x80) {
+						TErrorSet(T_ENCODING_ERROR_INVALID);
+						return stats;
+					}
+
+					ch = (ch << 6) | (byte & 0x3F);
+				}
+
+				if ((ch > 0x10FFFF) ||
+					((ch >= 0xD800) && (ch <= 0xDFFF)) ||
+					((ch <= 0x007F) && (codeLength != 1)) ||
+					((ch >= 0x0080) && (ch <= 0x07FF) && (codeLength != 2)) ||
+					((ch >= 0x0800) && (ch <= 0xFFFF) && (codeLength != 3)) ||
+					((ch >= 0x10000) && (ch <= 0x1FFFFF) && (codeLength != 4))) {
+					TErrorSet(T_ENCODING_ERROR_INVALID);
+					return stats;
+				}
+
+				size -= sizeof(unsigned char) * codeLength;
+
+				stats.numChars++;
+				(*((&stats.numChars) + codeLength))++;
+			}
+		}
+		if (stats.numOneByteChars == stats.numChars)
+			stats.encoding = T_ENCODING_ASCII;
+	}
+
+	stats.flags |= T_ENCODING_FLAG_VALID;
 	return stats;
 }
 
-TEncodingStats *TEncodingGetStreamStats(TStream *stream) {
-	TEncodingStats *stats = TAllocData(TEncodingStats);
-	if (stats) {
-		unsigned char buffer[4], *ptr;
-		TUInt8 size;
-		TLInt pos;
+TEncodingStats TEncodingGetStreamStats(TStream *stream) {
+	TEncodingStats stats = {0};
+	unsigned char buffer[4], *ptr;
+	TUInt8 size;
+	TLInt pos;
 
-		memset(stats, 0, sizeof(TEncodingStats));
+	pos = TStreamTell(stream);
 
-		pos = TStreamTell(stream);
-
-		size = TStreamReadBlock(stream, buffer, 4 * sizeof(unsigned char));
-		stats->encoding = TEncodingCheckBOM(buffer, size);
-		if (stats->encoding) {
-			if (stats->encoding == T_ENCODING_UTF8) {
-				TStreamSeek(stream, pos + BOM_SIZE_UTF8, SEEK_SET);
-			} else if (stats->encoding == T_ENCODING_UTF16_LE || stats->encoding == T_ENCODING_UTF16_BE) {
-				TStreamSeek(stream, pos + BOM_SIZE_UTF16, SEEK_SET);
-			}
-
-			stats->flags |= T_ENCODING_FLAG_BOM_PRESENT;
-		} else {
-			TStreamSeek(stream, pos, SEEK_SET);
+	size = TStreamReadBlock(stream, buffer, 4 * sizeof(unsigned char));
+	stats.encoding = TEncodingCheckBOM(buffer, size);
+	if (stats.encoding) {
+		if (stats.encoding == T_ENCODING_UTF8) {
+			TStreamSeek(stream, pos + BOM_SIZE_UTF8, SEEK_SET);
+		} else if (stats.encoding == T_ENCODING_UTF16_LE || stats.encoding == T_ENCODING_UTF16_BE) {
+			TStreamSeek(stream, pos + BOM_SIZE_UTF16, SEEK_SET);
 		}
 
-		if (!stats->encoding || stats->encoding == T_ENCODING_UTF8) {
-			stats->encoding = T_ENCODING_UTF8;
-			while (!TStreamEOF(stream)) {
-				TStreamReadBlock(stream, buffer, sizeof(unsigned char));
-				if (*buffer < 0x80) {
-					if (!*buffer && TStreamEOF(stream)) {
-						stats->flags |= T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID;
-						break;
-					}
-
-					stats->numChars++;
-					stats->numOneByteChars++;
-				} else {
-					unsigned char byte;
-					TUInt8 codeLength, i;
-					TUInt32 ch;
-
-					byte = *buffer;
-					codeLength = TEncodingGetUTF8CodeLength(byte);
-					if (!codeLength) {
-						TErrorSet(T_ENCODING_ERROR_INVALID);
-						return stats;
-					}
-
-					ch = TEncodingGetUTF8Firstbyte(byte, codeLength);
-
-					size = TStreamReadBlock(stream, buffer + 1, (codeLength - 1) * sizeof(unsigned char)) + 1;
-					if (codeLength * sizeof(unsigned char) > size) {
-						// truncated string or invalid byte sequence
-						TErrorSet(T_ENCODING_ERROR_TRUNCATED);
-						TStreamSeek(stream, pos, SEEK_SET);
-						return stats;
-					}
-
-					ptr = buffer + 1;
-					for (i = 1; i < codeLength; i++, ptr++) {
-						byte = *ptr;
-						// Check continuation bytes
-						if ((byte & 0xC0) != 0x80) {
-							TErrorSet(T_ENCODING_ERROR_INVALID);
-							TStreamSeek(stream, pos, SEEK_SET);
-							return stats;
-						}
-
-						ch = (ch << 6) | (byte & 0x3F);
-					}
-
-					if ((ch > 0x10FFFF) ||
-						((ch >= 0xD800) && (ch <= 0xDFFF)) ||
-						((ch <= 0x007F) && (codeLength != 1)) ||
-						((ch >= 0x0080) && (ch <= 0x07FF) && (codeLength != 2)) ||
-						((ch >= 0x0800) && (ch <= 0xFFFF) && (codeLength != 3)) ||
-						((ch >= 0x10000) && (ch <= 0x1FFFFF) && (codeLength != 4))) {
-						TErrorSet(T_ENCODING_ERROR_INVALID);
-						TStreamSeek(stream, pos, SEEK_SET);
-						return stats;
-					}
-
-					stats->numChars++;
-					(*((&stats->numChars) + codeLength))++;
-				}
-			}
-			if (stats->numOneByteChars == stats->numChars)
-				stats->encoding = T_ENCODING_ASCII;
-		}
-
+		stats.flags |= T_ENCODING_FLAG_BOM_PRESENT;
+	} else {
 		TStreamSeek(stream, pos, SEEK_SET);
 	}
 
-	stats->flags |= T_ENCODING_FLAG_VALID;
+	if (!stats.encoding || stats.encoding == T_ENCODING_UTF8) {
+		stats.encoding = T_ENCODING_UTF8;
+		while (!TStreamEOF(stream)) {
+			TStreamReadBlock(stream, buffer, sizeof(unsigned char));
+			if (*buffer < 0x80) {
+				if (!*buffer && TStreamEOF(stream)) {
+					stats.flags |= T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID;
+					break;
+				}
+
+				stats.numChars++;
+				stats.numOneByteChars++;
+			} else {
+				unsigned char byte;
+				TUInt8 codeLength, i;
+				TUInt32 ch;
+
+				byte = *buffer;
+				codeLength = TEncodingGetUTF8CodeLength(byte);
+				if (!codeLength) {
+					TErrorSet(T_ENCODING_ERROR_INVALID);
+					return stats;
+				}
+
+				ch = TEncodingGetUTF8Firstbyte(byte, codeLength);
+
+				size = TStreamReadBlock(stream, buffer + 1, (codeLength - 1) * sizeof(unsigned char)) + 1;
+				if (codeLength * sizeof(unsigned char) > size) {
+					// truncated string or invalid byte sequence
+					TErrorSet(T_ENCODING_ERROR_TRUNCATED);
+					TStreamSeek(stream, pos, SEEK_SET);
+					return stats;
+				}
+
+				ptr = buffer + 1;
+				for (i = 1; i < codeLength; i++, ptr++) {
+					byte = *ptr;
+					// Check continuation bytes
+					if ((byte & 0xC0) != 0x80) {
+						TErrorSet(T_ENCODING_ERROR_INVALID);
+						TStreamSeek(stream, pos, SEEK_SET);
+						return stats;
+					}
+
+					ch = (ch << 6) | (byte & 0x3F);
+				}
+
+				if ((ch > 0x10FFFF) ||
+					((ch >= 0xD800) && (ch <= 0xDFFF)) ||
+					((ch <= 0x007F) && (codeLength != 1)) ||
+					((ch >= 0x0080) && (ch <= 0x07FF) && (codeLength != 2)) ||
+					((ch >= 0x0800) && (ch <= 0xFFFF) && (codeLength != 3)) ||
+					((ch >= 0x10000) && (ch <= 0x1FFFFF) && (codeLength != 4))) {
+					TErrorSet(T_ENCODING_ERROR_INVALID);
+					TStreamSeek(stream, pos, SEEK_SET);
+					return stats;
+				}
+
+				stats.numChars++;
+				(*((&stats.numChars) + codeLength))++;
+			}
+		}
+		if (stats.numOneByteChars == stats.numChars)
+			stats.encoding = T_ENCODING_ASCII;
+	}
+
+	TStreamSeek(stream, pos, SEEK_SET);
+
+	stats.flags |= T_ENCODING_FLAG_VALID;
 	return stats;
 }
 
@@ -576,7 +572,7 @@ static inline unsigned char *TEncodingUTF16LEToUTF8(const unsigned char *data, T
 	*sizeOut = 0;
 	stats->numTwoByteChars = stats->numFourByteChars = 0;
 	while (size) {
-		//fetch utf16 character
+		//fetch UTF16 character
 		code = TEncodingUTF16LEGetChrInternal(&data, &size);
 		if (TErrorGet()) goto error;
 
@@ -654,7 +650,7 @@ static inline unsigned char *TEncodingUTF16LEToUTF8NT(const unsigned char *data,
 	*sizeOut = 0;
 	stats->numTwoByteChars = stats->numFourByteChars = 0;
 	do {
-		//fetch utf16 character
+		//fetch UTF16 character
 		size = 4;
 		code = TEncodingUTF16LEGetChrInternal(&data, &size);
 		if (TErrorGet()) goto error;
@@ -713,7 +709,7 @@ static inline unsigned char *TEncodingUTF16LEToUTF8Chr(const unsigned char *data
 	TUInt32 code;
 	TSize size;
 
-	//fetch utf-16 character
+	//fetch UTF-16 character
 	size = 4;
 	code = TEncodingUTF16LEGetChrInternal(&data, &size);
 	if (TErrorGet()) goto error;
@@ -777,7 +773,7 @@ static inline unsigned char *TEncodingASCIIToUTF16LE(const unsigned char *data, 
 
 		size -= sizeof(unsigned char) * 1;
 
-		// write the char in utf-16
+		// write the char in UTF-16
 		if (!TStreamWrite16(out, ch)) {
 			TStreamFree(out);
 			TFree(buffer);
@@ -799,32 +795,51 @@ static inline unsigned char *TEncodingUTF8ToUTF16LE(const unsigned char *data, T
 	TUInt32 ch;
 
 	*sizeOut = (((stats->numTwoByteChars + stats->numOneByteChars + stats->numThreeByteChars) * 2) + stats->numFourByteChars * 4) * sizeof(unsigned char);
-	if (stats->flags & T_ENCODING_FLAG_NULL_TERMINATED) {
-		*sizeOut += 2 * sizeof(unsigned char);
-	}
 
 	buffer = TAlloc(*sizeOut);
 	out = TStreamFromMem(&buffer, *sizeOut, 0);
 
-	while (size) {
-		ch = TEncodingUTF8GetChrInternal(&data, &size);
-		if (TErrorGet()) goto error;
+	if (!*sizeOut) {
+		while (size) {
+			ch = TEncodingUTF8GetChrInternal(&data, &size);
+			if (TErrorGet()) goto error;
 
-		// write the char in utf-16
-		if (ch < 0x10000) {
-			TStreamWrite16(out, ch);
-		} else if (ch < 0x110000) {
-			ch -= 0x10000;
-			TStreamWrite16(out, 0xD800 | (ch >> 10));
-			TStreamWrite16(out, 0xDC00 | (ch & 0x03FF));
-		} else {
-			TErrorSet(T_ENCODING_ERROR_INVALID);
-			goto error;
+			// write the char in UTF-16
+			if (ch < 0x10000) {
+				TStreamWrite16(out, ch);
+				stats->numTwoByteChars++;
+			} else if (ch < 0x110000) {
+				ch -= 0x10000;
+				TStreamWrite16(out, 0xD800 | (ch >> 10));
+				TStreamWrite16(out, 0xDC00 | (ch & 0x03FF));
+				stats->numFourByteChars++;
+			} else {
+				TErrorSet(T_ENCODING_ERROR_INVALID);
+				goto error;
+			}
 		}
+		stats->numChars = stats->numFourByteChars + stats->numTwoByteChars;
+	} else {
+		while (size) {
+			ch = TEncodingUTF8GetChrInternal(&data, &size);
+			if (TErrorGet()) goto error;
+
+			// write the char in UTF-16
+			if (ch < 0x10000) {
+				TStreamWrite16(out, ch);
+			} else if (ch < 0x110000) {
+				ch -= 0x10000;
+				TStreamWrite16(out, 0xD800 | (ch >> 10));
+				TStreamWrite16(out, 0xDC00 | (ch & 0x03FF));
+			} else {
+				TErrorSet(T_ENCODING_ERROR_INVALID);
+				goto error;
+			}
+		}
+		stats->numTwoByteChars += (stats->numOneByteChars + stats->numThreeByteChars);
+		stats->numOneByteChars = stats->numThreeByteChars = 0;
 	}
 
-	stats->numTwoByteChars += (stats->numOneByteChars + stats->numThreeByteChars);
-	stats->numOneByteChars = stats->numThreeByteChars = 0;
 	stats->encoding = T_ENCODING_UTF16_LE;
 
 
@@ -864,9 +879,7 @@ static inline unsigned char *TEncodingUTF8ToUTF16LENT(const unsigned char *data,
 	TUInt32 ch;
 
 	*sizeOut = (((stats->numTwoByteChars + stats->numOneByteChars + stats->numThreeByteChars) * 2) + stats->numFourByteChars * 4) * sizeof(unsigned char);
-	if (stats->flags & T_ENCODING_FLAG_NULL_TERMINATED) {
-		*sizeOut += 2 * sizeof(unsigned char);
-	}
+	*sizeOut += 2 * sizeof(unsigned char);
 
 	buffer = TAlloc(*sizeOut);
 	out = TStreamFromMem(&buffer, *sizeOut, 0);
@@ -877,7 +890,7 @@ static inline unsigned char *TEncodingUTF8ToUTF16LENT(const unsigned char *data,
 		ch = TEncodingUTF8GetChrInternal(&data, &size);
 		if (TErrorGet()) goto error;
 
-		// write the char in utf-16
+		// write the char in UTF-16
 		if (ch < 0x10000) {
 			TStreamWrite16(out, ch);
 			stats->numTwoByteChars++;

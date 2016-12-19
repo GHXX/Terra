@@ -40,6 +40,26 @@ static inline void TTokenizerBufferize(TTokenizer *context, TSize remainingSize)
 	context->buffer[context->used] = 0;
 }
 
+static inline char TTokenizerSetupBuffer(TTokenizer *context) {
+	if (!context->buffer) {
+		TSize tSize = TStreamSize(context->content);
+
+		context->bSize = TBUFSIZE;
+		if (tSize && tSize + 1 < context->bSize) {
+			context->bSize = tSize + 1;
+		}
+		context->buffer = TAllocNData(unsigned char, context->bSize);
+
+		//feed buffer
+		TTokenizerBufferize(context, 0);
+		context->buffer[context->bSize - 1] = 0;
+
+		if (!context->bSize) return 1;
+	}
+
+	return 0;
+}
+
 TTokenizer *TTokenizerNew(TStream *input, TInt8 freeInput)
 {
 	if(input) {
@@ -70,7 +90,8 @@ void TTokenizerSeek(TTokenizer *context, TLInt offset, TInt8 origin) {
 	if (!context) { TError(T_ERROR_INVALID_INPUT); }
 
 	TStreamSeek(context->content, offset, origin);
-	TTokenizerBufferize(context, 0);
+	if (!context->buffer) TTokenizerSetupBuffer(context);
+	else TTokenizerBufferize(context, 0);
 	context->offset = 0;
 }
 
@@ -81,9 +102,6 @@ TLInt TTokenizerTell(TTokenizer *context) {
 
 	pos = TStreamTell(context->content);
 	pos -= context->used - context->offset;
-#ifdef _WINDOWS
-	pos -= TStringNumOccurences(context->buffer + context->offset, "\n");
-#endif
 
 	return pos;
 }
@@ -214,21 +232,7 @@ const unsigned char *TTokenizerNext(TTokenizer *context, char *separator) {
 		TBIT_CLEAR(context->flags, T_TOKENIZER_FLAG_EMPTY);
 	}
 
-	if (!context->buffer) {
-		TSize tSize = TStreamSize(context->content);
-
-		context->bSize = TBUFSIZE;
-		if (tSize && tSize + 1 < context->bSize) {
-			context->bSize = tSize + 1;
-		}
-		context->buffer = TAllocNData(unsigned char, context->bSize);
-
-		//feed buffer
-		TTokenizerBufferize(context, 0);
-		context->buffer[context->bSize - 1] = 0;
-
-		if (!context->bSize) return 0;
-	}
+	if (TTokenizerSetupBuffer(context)) return 0;
 
 	//build control if needed
 	if (!context->control) {
@@ -259,21 +263,7 @@ const unsigned char *TTokenizerJump(TTokenizer *context, char separator) {
 		TBIT_CLEAR(context->flags, T_TOKENIZER_FLAG_EMPTY);
 	}
 
-	if (!context->buffer) {
-		TSize tSize = TStreamSize(context->content);
-
-		context->bSize = TBUFSIZE;
-		if (tSize && tSize + 1 < context->bSize) {
-			context->bSize = tSize + 1;
-		}
-		context->buffer = TAllocNData(unsigned char, context->bSize);
-
-		//feed buffer
-		TTokenizerBufferize(context, 0);
-		context->buffer[context->bSize - 1] = 0;
-
-		if (!context->bSize) return 0;
-	}
+	if (TTokenizerSetupBuffer(context)) return 0;
 
 	//build temporary control
 	control[0] = separator;

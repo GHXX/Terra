@@ -51,7 +51,7 @@ typedef struct TEncodingStats {
 * @return                    Statistics on the data.
 *
 */
-TEncodingStats *TEncodingGetStats(const unsigned char *data, TSize size);
+TEncodingStats TEncodingGetStats(const unsigned char *data, TSize size);
 
 /**
 * Returns the string Encoding statistics
@@ -62,7 +62,7 @@ TEncodingStats *TEncodingGetStats(const unsigned char *data, TSize size);
 * @return                    Statistics on the data.
 *
 */
-TEncodingStats *TEncodingGetStreamStats(TStream *stream);
+TEncodingStats TEncodingGetStreamStats(TStream *stream);
 
 /**
 * Get the BOM of an encoding

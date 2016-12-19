@@ -62,7 +62,7 @@ int TLogWriteV(TLog *context, const char *format, va_list ap) {
 	va_list copy;
 	int res;
 
-	if (!context || !format || !format) {
+	if (!context || !format) {
 		TErrorSet(T_ERROR_INVALID_INPUT);
 		return 1;
 	}
