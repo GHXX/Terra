@@ -33,6 +33,7 @@ char **TFileSysSplitPath(const char *path);
 char **TFileSysSplitPathFull(const char *path, TSize *size);
 
 TSize TFileSysGetFileSize(const char *path);
+int TFileSysIsReadOnly(FILE *f);
 
 FILE *TFileSysOpen(const char *path, const char *mode);
 #define TFileSysClose(f) fclose(f);

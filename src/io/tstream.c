@@ -326,11 +326,8 @@ TStream *TStreamFromFilePointer(FILE *f, unsigned char autoclose) {
 	trw->content = file;
 	trw->operations = TStreamFileOps;
 
-#ifdef _WINDOWS
-	if (f->_flag & FILE_ATTRIBUTE_READONLY) {
+	if(TFileSysIsReadOnly(f))
 		trw->operations.write = TStreamNullWrite;
-	}
-#endif
 
 	return trw;
 }

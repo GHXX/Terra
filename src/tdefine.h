@@ -15,7 +15,6 @@
 #	define _USE_MATH_DEFINES 1
 
 #	define inline _inline
-#	define snprintf _snprintf
 
 #elif defined(__linux) || defined(__linux__)
 #	define _LINUX 1
@@ -31,6 +30,17 @@
 
 #ifdef _MSC_VER
 #	define COMPILER_MICROSOFT
+
+#if _MSC_VER < 1900
+#	define snprintf _snprintf
+#endif
+
+#include <sdkddkver.h>
+#ifdef _WIN32_WINNT_WIN8
+#	define WINDOWS_SDK_V8
+#else
+#	define WINDOWS_SDK_V7
+#endif
 
 #	define __STDC__ 1  // Enforces ANSI C compliance.
 

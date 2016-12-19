@@ -6,9 +6,15 @@
 #ifdef _WINDOWS
 #include <io.h>
 #include <direct.h>
-#ifndef getcwd
-#    define getcwd _getcwd
-#endif // !getcwd
+#    ifndef getcwd
+#        define getcwd _getcwd
+#    endif
+
+#    ifdef PLATFORM_X86_64
+#		define fseek _fseeki64
+#		define ftell _ftelli64
+#    endif
+
 #else
 #include <limits.h>
 #include <dirent.h>
@@ -481,6 +487,30 @@ TSize TFileSysGetFileSize(const char *path) {
 		return s.st_size;
 #endif
 	return 0;
+}
+
+int TFileSysIsReadOnly(FILE *f) {
+#ifdef _WINDOWS
+#	ifdef COMPILER_MICROSOFT
+#		if _MSC_VER < 1900
+	return f->_flag & FILE_ATTRIBUTE_READONLY;
+#		else
+	char buf = 0;
+	
+	fread(&buf, 1, 1, f);
+	fseek(f, -1, SEEK_CUR);
+	if (fwrite(&buf, 1, 1, f)) {
+		fseek(f, -1, SEEK_CUR);
+		return 0;
+	}
+#		endif
+#	endif
+#else
+	int fd = fileno(f);
+	return fcntl(fd, F_GETFL) & O_RDONLY;
+#endif
+
+	return 1;
 }
 
 FILE *TFileSysOpen(const char *path, const char *mode) {
