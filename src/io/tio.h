@@ -3,6 +3,7 @@
 #define __included_terra_io_h
 
 #include "tstream.h"
+#include "tevent.h"
 #include "tconsole.h"
 #include "tclipboard.h"
 

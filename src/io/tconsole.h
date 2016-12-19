@@ -2,24 +2,27 @@
 #ifndef __included_terra_console_h
 #define __included_terra_console_h
 
-#include "utility/tstring.h"
-
-typedef void (*TConsoleCallback) (TString);
-
 void TConsoleInitialize(const char *title);
 void TConsoleDestroy(void);
 
 void TConsoleSetColour(int flags);
 void TConsoleSetTitle(const char *title);
-void TConsoleSetPs1(const char *_ps1);
 void TConsoleSetSize(int w, int h); // w = 0 means screen width
-void TConsoleSetCommandCallback(TConsoleCallback _callback);
+
+char TConsoleGetNextEvent(TEvent *e);
+
+void TConsoleGetDimensions(int *rows, int *columns);
 
 void TConsoleClear(void);
 
-const char *TConsoleGetPS1(void);
+void TConsoleHideCursor(void);
+void TConsoleShowCursor(void);
 
-const char *TConsoleWaitForInput(void);
+void TConsoleUp(int amount);
+void TConsoleRight(int amount);
+void TConsolePlaceCursor(int row, int column);
+
+void TConsoleWrite(unsigned char *text, TSize size);
 
 // Flags used for describing console colour output.
 enum T_CONSOLE_COLOUR_TYPES {
