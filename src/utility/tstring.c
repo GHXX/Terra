@@ -309,7 +309,7 @@ char **TStringSplit(const char *string, const char *substr, TSize *size, TSize l
 	TSize i;
 	if (!size || !string || !substr || !*substr) return 0;
 
-	str = strdup(string);
+	str = TStringCopy(string);
 	len = strlen(substr);
 	ptr = str;
 	*size = 1;

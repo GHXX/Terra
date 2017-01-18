@@ -77,7 +77,7 @@ TRBTree *TRBTreeNew(TCompareFunc key_compare, TFreeFunc free_key, TFreeFunc free
 void TRBTreeFree(TRBTree *t) {
 	if (t) {
 		TRBTreeNodeFree(t->root, t->fk, t->fd);
-		free(t);
+		TFree(t);
 	}
 }
 
