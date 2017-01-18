@@ -44,9 +44,11 @@ TData *TDataFromUInt64(TUInt64 data);
 #ifdef PLATFORM_X86_64
 #define TDataFromSize(data) TDataFromUInt64(data)
 #define TDataFromLInt(data) TDataFromInt64(data)
+#define T_DATA_SIZE T_DATA_UINT64
 #else
 #define TDataFromSize(data) TDataFromUInt32(data)
 #define TDataFromLInt(data) TDataFromInt32(data)
+#define T_DATA_SIZE T_DATA_UINT32
 #endif
 
 TData *TDataFromString(const char *data);
