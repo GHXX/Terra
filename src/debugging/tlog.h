@@ -10,18 +10,14 @@ extern "C" {
 
 typedef struct TLog TLog;
 
-enum T_LOG_EVENT {
-	T_LOG_PROGRESS = 0,
-	T_LOG_WARNING,
-	T_LOG_ERROR,
-};
-
 TLog *TLogNew(const char *path);
 TLog *TLogNewStream(TStream *stream);
 void TLogFree(TLog *context);
 
 int TLogWrite(TLog *context, const char *format, ...);
+int TLogWriteL(TLog *context, const char *format, ...);
 int TLogWriteV(TLog *context, const char *format, va_list ap);
+int TLogWriteLV(TLog *context, const char *format, va_list ap);
 
 #ifdef __cplusplus
 }

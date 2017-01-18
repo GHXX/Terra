@@ -56,6 +56,17 @@ int TLogWrite(TLog *context, const char *format, ...) {
 	return res;
 }
 
+int TLogWriteL(TLog *context, const char *format, ...) {
+	int res;
+	va_list ap;
+
+	va_start(ap, format);
+	res = TLogWriteLV(context, format, ap);
+	va_end(ap);
+
+	return res;
+}
+
 int TLogWriteV(TLog *context, const char *format, va_list ap) {
 	unsigned char *buffer;
 	TInt32 size;
@@ -64,7 +75,7 @@ int TLogWriteV(TLog *context, const char *format, va_list ap) {
 
 	if (!context || !format) {
 		TErrorSet(T_ERROR_INVALID_INPUT);
-		return 1;
+		return 0;
 	}
 
 	va_copy(copy, ap);
@@ -77,5 +88,13 @@ int TLogWriteV(TLog *context, const char *format, va_list ap) {
 	res = TStreamWriteBlock(context->stream, buffer, size -1);
 	TFree(buffer);
 
+	return res;
+}
+
+int TLogWriteLV(TLog *context, const char *format, va_list ap) {
+	int res = TLogWriteV(context, format, ap);
+	if (TErrorGet()) return 0;
+
+	res += TStreamWriteBlock(context->stream, "\n", sizeof(char));
 	return res;
 }
