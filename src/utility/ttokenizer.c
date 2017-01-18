@@ -35,6 +35,8 @@ static inline void TTokenizerBufferize(TTokenizer *context, TSize remainingSize)
 	TSize size = (context->bSize - 1) - remainingSize;
 
 	context->used = TStreamReadBlock(context->content, context->buffer + remainingSize, size);
+	if (context->used) TBIT_CLEAR(context->flags, T_TOKENIZER_FLAG_EMPTY);
+	else context->flags |= T_TOKENIZER_FLAG_EMPTY;
 
 	context->used += remainingSize;
 	context->buffer[context->used] = 0;
