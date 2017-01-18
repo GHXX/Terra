@@ -7,7 +7,7 @@
 #include "tdefine.h"
 
 typedef struct _TArray {
-	void **data;
+	TPtr *data;
 	TSize size, used;
 	TSize len;
 } TArray;
@@ -45,14 +45,14 @@ TSize TArrayFind(TArray *arr, TCPtr data);
 
 void TArraySort(TArray *arr);
 
-void *TArrayPopIndex(TArray *arr, TSize index);
+TPtr TArrayRemove(TArray *arr, TSize index);
+TPtr TArrayRemoveFast(TArray *arr, TSize index); // grab end element and put it in place
+TPtr TArrayRemoveClear(TArray *arr, TSize index); // replace with 0
 
-void TArrayRemove(TArray *arr, TSize index);
-void TArrayRemoveFast(TArray *arr, TSize index); // grab end element and put it in place
-void TArrayRemoveClear(TArray *arr, TSize index); // replace with 0
+#define TArrayLen(a) (a)->len
 
 #define TArrayPush TArrayAppend
-static inline TPtr TArrayPop(TArray *a) { return TArrayPopIndex(a, a->len - 1); }
+static inline TPtr TArrayPop(TArray *a) { return TArrayRemove(a, a->len - 1); }
 static inline TPtr TArrayLast(TArray *a) { return TArrayGet(a, a->len - 1); }
 
 //------------- Integer Array ---------------//

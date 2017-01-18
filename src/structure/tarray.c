@@ -205,15 +205,15 @@ void TArraySort(TArray *arr) {
 	//TODO
 }
 
-TPtr TArrayPopIndex(TArray *arr, TSize index) {
+TPtr TArrayRemove(TArray *arr, TSize index) {
 	TPtr data;
 
 	if (index >= arr->len) return 0;
 
-	data = arr->data[index];
-	if (data) arr->used -= 1;
+	if (arr->data[index]) arr->used -= 1;
 
-	memcpy(arr->data[index], arr->data[index + 1], sizeof(TPtr) *(arr->len - (index + 1)));
+	data = arr->data[index];
+	memcpy(arr->data[index], arr->data[index + 1], sizeof(TPtr) * (arr->len - (index + 1)));
 	arr->len -= 1;
 
 	if (arr->len <= (arr->size >> 2)) TArrayShrink(arr);
@@ -221,35 +221,34 @@ TPtr TArrayPopIndex(TArray *arr, TSize index) {
 	return data;
 }
 
-void TArrayRemove(TArray *arr, TSize index) {
-	if (index >= arr->len) return;
+TPtr TArrayRemoveFast(TArray *arr, TSize index) {
+	TPtr data;
+
+	if (index >= arr->len) return 0;
 
 	if (arr->data[index]) arr->used -= 1;
 
-	memcpy(arr->data[index], arr->data[index + 1], sizeof(TPtr) *(arr->len - (index + 1)));
-	arr->len -= 1;
-
-	if (arr->len <= (arr->size >> 2)) TArrayShrink(arr);
-}
-
-void TArrayRemoveFast(TArray *arr, TSize index) {
-	if (index >= arr->len) return;
-
-	if (arr->data[index]) arr->used -= 1;
-
+	data = arr->data[index];
 	arr->data[index] = arr->data[arr->len - 1];
 	arr->data[arr->len - 1] = 0;
 	arr->len -= 1;
 
 	if (arr->len <= (arr->size >> 2)) TArrayShrink(arr);
+
+	return data;
 }
 
-void TArrayRemoveClear(TArray *arr, TSize index) {
-	if (index >= arr->len) return;
+TPtr TArrayRemoveClear(TArray *arr, TSize index) {
+	TPtr data;
+
+	if (index >= arr->len) return 0;
 
 	if (arr->data[index]) arr->used -= 1;
 
+	data = arr->data[index];
 	arr->data[index] = 0;
+
+	return data;
 }
 
 //------------- Integer TArray ---------------//
