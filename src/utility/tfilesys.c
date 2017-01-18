@@ -454,7 +454,8 @@ const char *TFileSysGetFilename(const char *_fullFilePath) {
 
 const char *TFileSysGetExtension(const char *_fullFilePath) {
 	const char *result = strrchr(_fullFilePath, '.');
-	return result ? result + 1 : result;
+	if (result) if (!strchr(result, '/')) return result + 1;
+	return 0;
 }
 
 char *TFileSysRemoveExtension(const char *_fullFileName) {
