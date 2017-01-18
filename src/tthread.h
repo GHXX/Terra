@@ -49,6 +49,14 @@ int TThreadJoin(TThread *t);
 void TThreadSleep(TUInt32 ms);
 
 /**
+* Let the thread sleep for a specified amount of time
+*
+* @param ms                  The amount of time for the thread to sleep (in millisecond)
+*
+*/
+TUInt8 TThreadGetID(void);
+
+/**
 * Get the cpu binding for the current thread
 *
 * @return                    The binding mask

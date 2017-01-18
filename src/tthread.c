@@ -102,12 +102,23 @@ void TThreadSleep(TUInt32 ms)
 	TTimeSleep(ms);
 }
 
+TUInt8 TThreadGetID(void) {
+	TUInt8 id = 0;
+#ifdef _WINDOWS
+	id = (TUInt8)GetCurrentThreadId();
+#else
+	id = (TUInt8)gettid();
+#endif
+
+	return id;
+}
+
 TUInt32 TThreadGetAffinity(void)
 {
 #ifdef _WINDOWS
 	// Windows doesn't have a function to get the affinity
 	// but does return the previous affinity when setting a
-	// new one. We simply exploit that sillyness
+	// new one. We simply exploit that silliness
 	HANDLE hThread = GetCurrentThread();
 	DWORD_PTR mask = SetThreadAffinityMask(hThread, 1);
 	SetThreadAffinityMask(hThread, mask);
