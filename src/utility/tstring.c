@@ -207,9 +207,9 @@ inline void TStringCopyReplaceOp(char *target, const char *source, const char *m
 
 	repllen = strlen(replacement);
 	prevPtr = srcptr;
-	while ((srcptr = strstr(srcptr, match)) && i++ < limit) {
+	while ((srcptr = strstr(prevPtr, match)) && i++ < limit) {
 		len = srcptr - prevPtr;
-		memcpy(tarptr, prevPtr, len); tarptr += len;
+		if (len) { memcpy(tarptr, prevPtr, len); tarptr += len; }
 		memcpy(tarptr, replacement, repllen); tarptr += repllen;
 		prevPtr = srcptr + 1;
 	}
@@ -218,7 +218,7 @@ inline void TStringCopyReplaceOp(char *target, const char *source, const char *m
 		srcptr = source + strlen(source);
 		memcpy(tarptr, prevPtr, srcptr - prevPtr + 1);
 	} else {
-		memcpy(tarptr, prevPtr, srcptr - prevPtr + 1);
+		memcpy(tarptr, prevPtr, TStringSize(prevPtr));
 	}
 }
 
