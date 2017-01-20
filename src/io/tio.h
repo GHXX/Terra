@@ -17,6 +17,10 @@ char *TIOGetFilePath(const char *path, const char *mode);
 TStream *TIOGetFile(const char *path, const char *mode);
 unsigned char *TIOGetBufferedFile(const char *path, const char *mode, TSize *size);
 
+unsigned char TIOIsFile(const char *path);
+
+const char *TIOMatchPath(const char *path);
+
 void TIOAddSearchPath(const char *path);
 void TIORemoveLastSearchPath(void);
 void TIOClearSearchPath(void);

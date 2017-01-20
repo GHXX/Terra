@@ -72,12 +72,12 @@ char *TIOGetFilePath(const char *path, const char *mode) {
 
 	if (!path) return 0;
 
+	if (TFileSysFileExists(path)) return TStringCopy(path);
 	if (TFileSysIsFullPath(path)) return TStringCopy(path);
 
-	if (!mode) mode = "rb";
-	else if (strchr(mode, 'w')) {
-		return savePath ? TStringConcat(savePath, path, 0) : TStringCopy(path);
-	}
+	if (mode)
+		if(strchr(mode, 'w'))
+			return savePath ? TStringConcat(savePath, path, 0) : TStringCopy(path);
 
 	fullPath = (char *)TSListForeachData(searchPaths, (TDataIterFunc)TIOTestPath, (TPtr)path);
 	if (fullPath) return fullPath;
@@ -90,9 +90,7 @@ char *TIOGetFilePath(const char *path, const char *mode) {
 static FILE *TIOGetFileInternal(const char *path, const char *mode) {
 	char *fullPath;
 
-	if (!mode) mode = "rb";
 	fullPath = TIOGetFilePath(path, mode);
-
 	if (fullPath) {
 		FILE *f = TFileSysOpen(fullPath, mode);
 		TFree(fullPath);
@@ -128,13 +126,37 @@ unsigned char *TIOGetBufferedFile(const char *path, const char *mode, TSize *siz
 	return buffer;
 }
 
+unsigned char TIOIsFile(const char *path) {
+	char *result = TIOGetFilePath(path, 0);
+	if (result) { TFree(result); return 1; }
+	return 0;
+}
+
+const char *TIOMatchPath(const char *path) {
+	if (!path) return 0;
+
+	if (savePath) if (strstr(path, savePath)) return savePath;
+	
+	if (searchPaths) {
+		char *searchPath = (char *)TSListFirst(searchPaths);
+		while (searchPath) {
+			if (strstr(path, searchPath)) return searchPath;
+			searchPath = (char *)TSListNext(searchPaths);
+		}
+	}
+	
+	if (appPath) if (strstr(path, appPath)) return appPath;
+
+	return 0;
+}
+
 void TIOAddSearchPath(const char *path) {
 	char *cpy;
 
 	if (!path) return;
 	if (!searchPaths) if (TIOInitSearchPath()) return;
 
-	cpy = TStringCopy(path);
+	cpy = TFileSysFixFilePath(path);
 	TSListAppend(searchPaths, cpy);
 }
 
