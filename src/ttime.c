@@ -101,7 +101,7 @@ struct TTimer {
 
 TTimer *TTimerNew(void)
 {
-	TTimer *t = (TTimer *) TAlloc(sizeof(TTimer));
+	TTimer *t = TAllocData(TTimer);
 	if(t) TTimerInit(t);
 	return t;
 }
