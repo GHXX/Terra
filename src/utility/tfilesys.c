@@ -183,13 +183,17 @@ unsigned char TFileSysIsDirectory(const char *_fullPath) {
 unsigned char TFileSysFileExists(const char *_fullPath) {
 	char *fixedPath = TFileSysFindCaseInsensitive(_fullPath);
 	FILE *f = TFileSysOpen(fixedPath, "r");
-	TFree(fixedPath);
 
 	if (f) {
+		TFree(fixedPath);
 		fclose(f);
+		return 1;
+	} else if (TFileSysIsDirectory(fixedPath)) {
+		TFree(fixedPath);
 		return 1;
 	}
 
+	TFree(fixedPath);
 	return 0;
 }
 
@@ -335,11 +339,13 @@ char *TFileSysConcat(const char *_firstComponent, ...) {
 	va_list components;
 	const char *component;
 	TSize size;
+	TUInt8 endslash;
 
 	if (!_firstComponent) return 0;
 
 	result = TStringCopy(_firstComponent);
 	size = TStringSize(result);
+	endslash = *(result + size - 2) == '/';
 
 	va_start(components, _firstComponent);
 	while ((component = va_arg(components, const char *))) {
@@ -350,12 +356,15 @@ char *TFileSysConcat(const char *_firstComponent, ...) {
 			ptr = result + size - 1;
 
 		} else if (strcmp(component, ".")) {
-			TSize llen = strlen(component) + 1;
+			TSize llen = strlen(component);
+			if (!endslash) llen += 1;
 			size += llen * sizeof(char);
 			result = TRAlloc(result, size);
 			ptr = result + size - llen - 1;
-			*(ptr++) = '/';
-			memcpy(ptr, component, llen * sizeof(char));
+			if (!endslash) *(ptr++) = '/';
+			else llen++;
+			memcpy(ptr, component, (llen) * sizeof(char));
+			endslash = *(component + size - 1) == '/';
 		}
 	}
 	va_end(components);
@@ -368,11 +377,13 @@ char *TFileSysConcatExt(const char *_firstComponent, ...) {
 	va_list components;
 	const char *component, *peek;
 	TSize size;
+	TUInt8 endslash;
 
 	if (!_firstComponent) return 0;
 
 	result = TStringCopy(_firstComponent);
 	size = TStringSize(result);
+	endslash = *(result + size - 2) == '/';
 
 	va_start(components, _firstComponent);
 	component = va_arg(components, const char *);
@@ -386,12 +397,15 @@ char *TFileSysConcatExt(const char *_firstComponent, ...) {
 			ptr = result + size - 1;
 
 		} else if (strcmp(component, ".")) {
-			TSize llen = strlen(component) + 1;
+			TSize llen = strlen(component);
+			if (!endslash) llen += 1;
 			size += llen * sizeof(char);
 			result = TRAlloc(result, size);
 			ptr = result + size - llen - 1;
-			*(ptr++) = peek ? '/' : '.';
+			if (!endslash) *(ptr++) = peek ? '/' : '.';
+			else llen++;
 			memcpy(ptr, component, llen * sizeof(char));
+			endslash = *(component + size - 1) == '/';
 		}
 		component = peek;
 	}

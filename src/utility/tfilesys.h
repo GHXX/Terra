@@ -11,8 +11,8 @@ unsigned char TFileSysIsDirectory(const char *_fullPath);
 unsigned char TFileSysFileExists(const char *_fullPath);
 unsigned char TFileSysFilesIdentical(const char *_name1, const char *_name2);
 
-unsigned char TFileSysIsFullPath(const char *path);
 unsigned char TFileSysIsWindowsPath(const char *path);
+unsigned char TFileSysIsFullPath(const char *path);
 
 char *TFileSysGetWorkingDirectory(void);
 
