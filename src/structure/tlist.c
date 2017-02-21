@@ -183,7 +183,7 @@ void TListRemovePtr(TList *list, TListNode *ptr) {
 //------------- Single-Linked TList ---------------//
 
 TSListNode *TSListNodeNew(TCPtr  data) {
-	TSListNode *node = (TSListNode *)TAlloc(sizeof(TSListNode));
+	TSListNode *node = TAllocData(TSListNode);
 	if (!node) return 0;
 
 	node->next = 0;
@@ -285,16 +285,20 @@ void TSListConcat(TSList *list, const TSList *list2) {
 	}
 }
 
-int TSListFind(const TList *list, TCPtr  data) {
-	TSListNode * cur = (TSListNode *)list->head;
-	int idx = 0;
+TSize TSListFind(TSList *list, TCPtr data) {
+	list->previous = list->head;
+	list->previousindex = 0;
 
-	while (cur && cur->data != data) {
-		cur = cur->next;
-		idx++;
+	while (list->previous) {
+		if (list->previous->data == data) break;
+		list->previous = list->previous->next;
+		list->previousindex++;
 	}
 
-	if (cur) return idx;
+	if (list->previous) return list->previousindex;
+
+	list->previous = list->head;
+	list->previousindex = 0;
 	return -1;
 }
 
@@ -408,7 +412,7 @@ TPtr TSListPopIndex(TSList *list, TSize index) {
 	return (TPtr)data;
 }
 
-void TSListRemove(TSList *list, TCPtr data) {
+int TSListRemove(TSList *list, TCPtr data) {
 	if (list) {
 		TSListNode *cur = list->head, *origin = 0;
 
@@ -417,8 +421,13 @@ void TSListRemove(TSList *list, TCPtr data) {
 			cur = cur->next;
 		}
 
-		if (cur) TSListRemovePtrFrom(list, origin);
+		if (cur) {
+			TSListRemovePtrFrom(list, origin);
+			return 1;
+		}
 	}
+
+	return 0;
 }
 
 void TSListRemovePtr(TSList *list, TSListNode *ptr) {

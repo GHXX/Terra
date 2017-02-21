@@ -80,13 +80,13 @@ void TSListReplace(TSList *list, TCPtr data, TSize index);
 
 void TSListConcat(TSList *list, const TSList *list2);
 
-int TSListFind(const TList *list, TCPtr data);
+TSize TSListFind(TSList *list, TCPtr data);
 void TSListForeach(const TSList *list, TIterFunc func);
 TPtr TSListForeachData(const TSList *list, TDataIterFunc func, TPtr userData);
 
 TPtr TSListGet(TSList *list, TSize index);
 
-static inline TPtr TSListFirst(TSList *list) { return TSListGet(list, 0); }
+#define TSListFirst(l) TSListGet(l, 0)
 static inline TPtr TSListLast(TSList *l) { return TSListGet(l, TSListLength(l) - 1); }
 TPtr TSListNext(TSList *list);
 
@@ -94,7 +94,7 @@ void TSListSort(TSList *list, TCompareFunc func);
 
 TPtr TSListPopIndex(TSList *list, TSize index);
 
-void TSListRemove(TSList *list, TCPtr data);
+int TSListRemove(TSList *list, TCPtr data);
 void TSListRemovePtr(TSList *list, TSListNode *ptr);
 void TSListRemoveIndex(TSList *list, TSize index);
 void TSListRemoveIndexes(TSList *list, TSize start, TSize range);
