@@ -28,6 +28,8 @@ enum T_DATA_TYPE {
 	T_DATA_AMOUNT,
 };
 
+TUInt8 TDataTypeToSize(TUInt8 type);
+
 TData *TDataCopy(TData *data);
 
 TData *TDataFromPtr(TPtr data, TSize size);

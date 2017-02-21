@@ -13,6 +13,17 @@
 extern "C" {
 #endif
 
+TUInt8 TDataTypeToSize(TUInt8 type) {
+	if (type == T_DATA_NULL) return 0;
+
+	if (type == T_DATA_INT16 || type == T_DATA_UINT16) return sizeof(TInt16);
+
+	if (type == T_DATA_INT32 || type == T_DATA_UINT32 || type == T_DATA_FLOAT) return sizeof(TInt32);
+	if (type == T_DATA_INT64 || type == T_DATA_UINT64 || type == T_DATA_DOUBLE) return sizeof(TInt64);
+
+	return sizeof(char);
+}
+
 #define TDATACPY(data, size, dest) { \
 	TPtr d = TAlloc(size); \
 	if(d) { \
