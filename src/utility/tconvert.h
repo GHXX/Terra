@@ -21,7 +21,7 @@
 * @return                    A pointer to the data
 *
 */
-TPtr TConvertToPointer(TCPtr data, TUInt16 type);
+TPtr TConvertToPointer(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to a constant pointer.
@@ -34,7 +34,7 @@ TPtr TConvertToPointer(TCPtr data, TUInt16 type);
 * @return                    A constant pointer to the data
 *
 */
-TCPtr TConvertToConstPointer(TCPtr data, TUInt16 type);
+TCPtr TConvertToConstPointer(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to a char pointer.
@@ -45,7 +45,7 @@ TCPtr TConvertToConstPointer(TCPtr data, TUInt16 type);
 * @return                    A pointer to the string (needs manual deallocation)
 *
 */
-char *TConvertToString(TCPtr data, TUInt16 type);
+char *TConvertToString(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to a char representation.
@@ -56,7 +56,7 @@ char *TConvertToString(TCPtr data, TUInt16 type);
 * @return                    a character (in case of string, returns the first character)
 *
 */
-char TConvertToChar(TCPtr data, TUInt16 type);
+char TConvertToChar(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to an 8-bit integer representation.
@@ -67,7 +67,7 @@ char TConvertToChar(TCPtr data, TUInt16 type);
 * @return                    an 8-bit integer.
 *
 */
-TInt8 TConvertToInt8(TCPtr data, TUInt16 type);
+TInt8 TConvertToInt8(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to an unsigned 8-bit integer representation.
@@ -78,7 +78,7 @@ TInt8 TConvertToInt8(TCPtr data, TUInt16 type);
 * @return                    an unsigned 8-bit integer.
 *
 */
-TUInt8 TConvertToUInt8(TCPtr data, TUInt16 type);
+TUInt8 TConvertToUInt8(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to a 16-bit integer representation.
@@ -89,7 +89,7 @@ TUInt8 TConvertToUInt8(TCPtr data, TUInt16 type);
 * @return                    a 16-bit integer.
 *
 */
-TInt16 TConvertToInt16(TCPtr data, TUInt16 type);
+TInt16 TConvertToInt16(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to an unsigned 16-bit integer representation.
@@ -100,7 +100,7 @@ TInt16 TConvertToInt16(TCPtr data, TUInt16 type);
 * @return                    an unsigned 16-bit integer.
 *
 */
-TUInt16 TConvertToUInt16(TCPtr data, TUInt16 type);
+TUInt16 TConvertToUInt16(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to a 32-bit integer representation.
@@ -111,7 +111,7 @@ TUInt16 TConvertToUInt16(TCPtr data, TUInt16 type);
 * @return                    a 32-bit integer.
 *
 */
-TInt32 TConvertToInt32(TCPtr data, TUInt16 type);
+TInt32 TConvertToInt32(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to an unsigned 32-bit integer representation.
@@ -122,7 +122,7 @@ TInt32 TConvertToInt32(TCPtr data, TUInt16 type);
 * @return                    an unsigned 32-bit integer.
 *
 */
-TUInt32 TConvertToUInt32(TCPtr data, TUInt16 type);
+TUInt32 TConvertToUInt32(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to a 64-bit integer representation.
@@ -133,7 +133,7 @@ TUInt32 TConvertToUInt32(TCPtr data, TUInt16 type);
 * @return                    a 64-bit integer.
 *
 */
-TInt64 TConvertToInt64(TCPtr data, TUInt16 type);
+TInt64 TConvertToInt64(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to an unsigned 64-bit integer representation.
@@ -144,7 +144,13 @@ TInt64 TConvertToInt64(TCPtr data, TUInt16 type);
 * @return                    an unsigned 64-bit integer.
 *
 */
-TUInt64 TConvertToUInt64(TCPtr data, TUInt16 type);
+TUInt64 TConvertToUInt64(TCPtr data, TUInt8 type);
+
+#ifdef PLATFORM_X86_64
+#define TConvertToTSize TConvertToUInt64
+#else
+#define TConvertToTSize TConvertToUInt32
+#endif
 
 /**
 * Converts data to a float representation.
@@ -155,7 +161,7 @@ TUInt64 TConvertToUInt64(TCPtr data, TUInt16 type);
 * @return                    a float.
 *
 */
-float TConvertToFloat(TCPtr data, TUInt16 type);
+float TConvertToFloat(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to a double representation.
@@ -166,7 +172,7 @@ float TConvertToFloat(TCPtr data, TUInt16 type);
 * @return                    a double.
 *
 */
-double TConvertToDouble(TCPtr data, TUInt16 type);
+double TConvertToDouble(TCPtr data, TUInt8 type);
 
 /**
 * Converts data to another type.
@@ -174,10 +180,25 @@ double TConvertToDouble(TCPtr data, TUInt16 type);
 * @param data                The input data.
 * @param type                The data type.
 * @param targetType          The new data type.
+* @param length              The number of objects to convert.
 *
 * @return                    a pointer to the new data.
 *
 */
-TPtr TConvertTo(TCPtr data, TUInt16 type, TUInt16 targetType);
+TPtr TConvertTo(TCPtr data, TUInt8 type, TUInt8 targetType, TSize length);
+
+/**
+* Converts data to another type and inserts it in target.
+*
+* @param data                The input data.
+* @param type                The data type.
+* @param target              The target buffer.
+* @param targetType          The new data type.
+* @param length              The number of objects to convert.
+*
+* @return                    a pointer to the new data.
+*
+*/
+void TConvertToBuffer(TCPtr data, TUInt8 type, TPtr target, TUInt8 targetType, TSize length);
 
 #endif

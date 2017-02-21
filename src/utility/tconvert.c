@@ -9,7 +9,7 @@
 
 // https://msdn.microsoft.com/en-us/library/s3f49ktz.aspx
 
-TPtr TConvertToPointer(TCPtr data, TUInt16 type) {
+TPtr TConvertToPointer(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_CONST_UNKNOWN || type == T_DATA_UNKNOWN || type >= T_DATA_AMOUNT) {
 		return (TPtr)data;
 	}
@@ -18,7 +18,7 @@ TPtr TConvertToPointer(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TCPtr TConvertToConstPointer(TCPtr data, TUInt16 type) {
+TCPtr TConvertToConstPointer(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_CONST_UNKNOWN || type == T_DATA_UNKNOWN || type >= T_DATA_AMOUNT) {
 		return data;
 	}
@@ -27,7 +27,7 @@ TCPtr TConvertToConstPointer(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-char *TConvertToString(TCPtr data, TUInt16 type) {
+char *TConvertToString(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_STRING) {
 		return TStringCopy((char *)data);
 	} else if (type == T_DATA_CHAR) {
@@ -81,7 +81,7 @@ char *TConvertToString(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-char TConvertToChar(TCPtr data, TUInt16 type) {
+char TConvertToChar(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_CHAR || type == T_DATA_STRING || type == T_DATA_INT8) {
 		return *(char *)data;
 	} else if (type == T_DATA_NULL) {
@@ -110,7 +110,7 @@ char TConvertToChar(TCPtr data, TUInt16 type) {
 	return 0;
 };
 
-TInt8 TConvertToInt8(TCPtr data, TUInt16 type) {
+TInt8 TConvertToInt8(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_INT8 || type == T_DATA_CHAR) {
 		return *(TInt8 *)data;
 	} else if (type == T_DATA_UINT8) {
@@ -141,7 +141,7 @@ TInt8 TConvertToInt8(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TUInt8 TConvertToUInt8(TCPtr data, TUInt16 type) {
+TUInt8 TConvertToUInt8(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_UINT8) {
 		return *(TUInt8 *)data;
 	} else if (type == T_DATA_INT8) {
@@ -174,7 +174,7 @@ TUInt8 TConvertToUInt8(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TInt16 TConvertToInt16(TCPtr data, TUInt16 type) {
+TInt16 TConvertToInt16(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_INT16) {
 		return *(TInt16 *)data;
 	} else if (type == T_DATA_UINT16) {
@@ -203,7 +203,7 @@ TInt16 TConvertToInt16(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TUInt16 TConvertToUInt16(TCPtr data, TUInt16 type) {
+TUInt16 TConvertToUInt16(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_UINT16) {
 		return *(TUInt16 *)data;
 	} else if (type == T_DATA_INT16) {
@@ -234,7 +234,7 @@ TUInt16 TConvertToUInt16(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TInt32 TConvertToInt32(TCPtr data, TUInt16 type) {
+TInt32 TConvertToInt32(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_INT32) {
 		return *(TInt32 *)data;
 	} else if (type == T_DATA_UINT32) {
@@ -265,7 +265,7 @@ TInt32 TConvertToInt32(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TUInt32 TConvertToUInt32(TCPtr data, TUInt16 type) {
+TUInt32 TConvertToUInt32(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_UINT32) {
 		return *(TUInt32 *)data;
 	} else if (type == T_DATA_INT32) {
@@ -296,7 +296,7 @@ TUInt32 TConvertToUInt32(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TInt64 TConvertToInt64(TCPtr data, TUInt16 type) {
+TInt64 TConvertToInt64(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_INT64) {
 		return *(TInt64 *)data;
 	} else if (type == T_DATA_UINT64) {
@@ -327,7 +327,7 @@ TInt64 TConvertToInt64(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TUInt64 TConvertToUInt64(TCPtr data, TUInt16 type) {
+TUInt64 TConvertToUInt64(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_UINT64) {
 		return *(TUInt64 *)data;
 	} else if (type == T_DATA_INT64) {
@@ -358,7 +358,7 @@ TUInt64 TConvertToUInt64(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-float TConvertToFloat(TCPtr data, TUInt16 type) {
+float TConvertToFloat(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_FLOAT) {
 		return *(float *)data;
 	} else if (type == T_DATA_DOUBLE) {
@@ -389,7 +389,7 @@ float TConvertToFloat(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-double TConvertToDouble(TCPtr data, TUInt16 type) {
+double TConvertToDouble(TCPtr data, TUInt8 type) {
 	if (type == T_DATA_DOUBLE) {
 		return *(double *)data;
 	} else if (type == T_DATA_FLOAT) {
@@ -422,9 +422,383 @@ double TConvertToDouble(TCPtr data, TUInt16 type) {
 	return 0;
 }
 
-TPtr TConvertTo(TCPtr data, TUInt16 type, TUInt16 targetType) {
+TPtr TConvertTo(TCPtr data, TUInt8 type, TUInt8 targetType, TSize length) {
+	TPtr result;
 	if (type == targetType) return (TPtr)data;
 
+	result = TAlloc(TDataTypeToSize(targetType) * length);
+	if (result) {
+		TConvertToBuffer(data, type, result, targetType, length);
+		if (TErrorGet()) {
+			TFree(result);
+			result = 0;
+		}
+	}
+
+
+	return result;
+}
+
+#define TConvertDirect(s, sT, t, tT, l) while(l--) *(((tT *)t)++) = (tT)*(((sT *)s)++)
+
+void TConvertToBuffer(TCPtr data, TUInt8 type, TPtr target, TUInt8 targetType, TSize length) {
+	if (type == targetType) {
+		memcpy(target, data, length * TDataTypeToSize(type));
+		return;
+	}
+	else if (targetType == T_DATA_NULL) {
+		memset(target, 0, length * sizeof(char));
+		return;
+	}
+
+	if (type == T_DATA_DOUBLE) {
+		if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, double, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[17];
+			while (length--) {
+				snprintf(res, sizeof(res), "%lf", *(((double *)data)++));
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, double, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, double, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, double, target, TUInt8, length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, double, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, double, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, double, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, double, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, double, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, double, target, TUInt64, length);
+		}
+
+	} else if (type == T_DATA_FLOAT) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, float, target, double, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[9];
+			while (length--) {
+				snprintf(res, sizeof(res), "%f", *(((float *)data)++));
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, float, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, float, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, float, target, TUInt8, length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, float, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, float, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, float, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, float, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, float, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, float, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_STRING) {
+		if (targetType == T_DATA_DOUBLE) {
+			while (length--) *(((double *)target)++) = atof(((const char *)data)++);
+		} else if (targetType == T_DATA_FLOAT) {
+			while (length--) *(((float *)target)++) = (float)atof(((const char *)data)++);
+		} else if (targetType == T_DATA_CHAR) {
+			while (length--) *(((char *)target)++) = *(((const char *)data)++);
+		} else if (targetType == T_DATA_INT8) {
+			while (length--) *(((TInt8 *)target)++) = stoi8(((const char *)data)++);
+		} else if (targetType == T_DATA_UINT8) {
+			while (length--) *(((TUInt8 *)target)++) = stoui8(((const char *)data)++);
+		} else if (targetType == T_DATA_INT16) {
+			while (length--) *(((TInt16 *)target)++) = stoi16(((const char *)data)++);
+		} else if (targetType == T_DATA_UINT16) {
+			while (length--) *(((TUInt16 *)target)++) = stoui16(((const char *)data)++);
+		} else if (targetType == T_DATA_INT32) {
+			while (length--) *(((TInt32 *)target)++) = atoi(((const char *)data)++);
+		} else if (targetType == T_DATA_UINT32) {
+			while (length--) *(((TUInt32 *)target)++) = stoui32(((const char *)data)++);
+		} else if (targetType == T_DATA_INT64) {
+			while (length--) *(((TInt64 *)target)++) = stoi64(((const char *)data)++);
+		} else if (targetType == T_DATA_UINT64) {
+			while (length--) *(((TUInt64 *)target)++) = stoui64(((const char *)data)++);
+		}
+	} else if (type == T_DATA_NULL) {
+		if (targetType == T_DATA_DOUBLE) {
+			memset(target, 0, sizeof(double) * length);
+		} else if (targetType == T_DATA_FLOAT) {
+			memset(target, 0, sizeof(float) * length);
+		} else if (targetType == T_DATA_STRING) {
+			while (length--) *(((char **)target)++) = TStringCopy("<null>");
+		} else if (targetType == T_DATA_CHAR) {
+			memset(target, 0, sizeof(char) * length);
+		} else if (targetType == T_DATA_INT8) {
+			memset(target, 0, sizeof(TInt8) * length);
+		} else if (targetType == T_DATA_UINT8) {
+			memset(target, 0, sizeof(TUInt8) * length);
+		} else if (targetType == T_DATA_INT16) {
+			memset(target, 0, sizeof(TInt16) * length);
+		} else if (targetType == T_DATA_UINT16) {
+			memset(target, 0, sizeof(TUInt16) * length);
+		} else if (targetType == T_DATA_INT32) {
+			memset(target, 0, sizeof(TInt32) * length);
+		} else if (targetType == T_DATA_UINT32) {
+			memset(target, 0, sizeof(TUInt32) * length);
+		} else if (targetType == T_DATA_INT64) {
+			memset(target, 0, sizeof(TInt64) * length);
+		} else if (targetType == T_DATA_UINT64) {
+			memset(target, 0, sizeof(TUInt64) * length);
+		}
+	} else if (type == T_DATA_CHAR) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, char, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, char, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_INT8) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_UINT8) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, char, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, char, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, char, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, char, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, char, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, char, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_INT8) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TInt8, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TInt8, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_CHAR) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_UINT8) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, TInt8, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, TInt8, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, TInt8, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, TInt8, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, TInt8, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, TInt8, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_UINT8) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TUInt8, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TUInt8, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_CHAR) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_INT8) {
+			memcpy(target, data, sizeof(char) * length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, TUInt8, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, TUInt8, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, TUInt8, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, TUInt8, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, TUInt8, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, TUInt8, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_INT16) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TInt16, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TInt16, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[7];
+			while (length--) {
+				snprintf(res, sizeof(res), "%hd", *(TInt16 *)data);
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, TInt16, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, TInt16, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, TInt16, target, TUInt8, length);
+		} else if (targetType == T_DATA_UINT16) {
+			memcpy(target, data, sizeof(TInt16) * length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, TInt16, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, TInt16, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, TInt16, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, TInt16, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_UINT16) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TUInt16, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TUInt16, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[7];
+			while (length--) {
+				snprintf(res, sizeof(res), "%hu", *(TUInt16 *)data);
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, TUInt16, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, TUInt16, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, TUInt16, target, TUInt8, length);
+		} else if (targetType == T_DATA_INT16) {
+			memcpy(target, data, sizeof(TInt16) * length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, TUInt16, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, TUInt16, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, TUInt16, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, TUInt16, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_INT32) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TInt32, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TInt32, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[7];
+			while (length--) {
+				snprintf(res, sizeof(res), "%d", *(TInt32 *)data);
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, TInt32, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, TInt32, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, TInt32, target, TUInt8, length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, TInt32, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, TInt32, target, TUInt16, length);
+		} else if (targetType == T_DATA_UINT32) {
+			memcpy(target, data, sizeof(TInt32) * length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, TInt32, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, TInt32, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_UINT32) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TUInt32, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TUInt32, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[7];
+			while (length--) {
+				snprintf(res, sizeof(res), "%u", *(TUInt32 *)data);
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, TUInt32, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, TUInt32, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, TUInt32, target, TUInt8, length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, TUInt32, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, TUInt32, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			memcpy(target, data, sizeof(TInt32) * length);
+		} else if (targetType == T_DATA_INT64) {
+			TConvertDirect(data, TUInt32, target, TInt64, length);
+		} else if (targetType == T_DATA_UINT64) {
+			TConvertDirect(data, TUInt32, target, TUInt64, length);
+		}
+	} else if (type == T_DATA_INT64) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TInt64, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TInt64, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[7];
+			while (length--) {
+				snprintf(res, sizeof(res), "%lld", *(TInt64 *)data);
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, TInt64, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, TInt64, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, TInt64, target, TUInt8, length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, TInt64, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, TInt64, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, TInt64, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, TInt64, target, TUInt32, length);
+		} else if (targetType == T_DATA_UINT64) {
+			memcpy(target, data, sizeof(TInt64) * length);
+		}
+	} else if (type == T_DATA_UINT64) {
+		if (targetType == T_DATA_DOUBLE) {
+			TConvertDirect(data, TUInt64, target, double, length);
+		} else if (targetType == T_DATA_FLOAT) {
+			TConvertDirect(data, TUInt64, target, float, length);
+		} else if (targetType == T_DATA_STRING) {
+			char res[7];
+			while (length--) {
+				snprintf(res, sizeof(res), "%llu", *(TUInt64 *)data);
+				*(((char **)target)++) = TStringCopy(res);
+			}
+		} else if (targetType == T_DATA_CHAR) {
+			TConvertDirect(data, TUInt64, target, char, length);
+		} else if (targetType == T_DATA_INT8) {
+			TConvertDirect(data, TUInt64, target, TInt8, length);
+		} else if (targetType == T_DATA_UINT8) {
+			TConvertDirect(data, TUInt64, target, TUInt8, length);
+		} else if (targetType == T_DATA_INT16) {
+			TConvertDirect(data, TUInt64, target, TInt16, length);
+		} else if (targetType == T_DATA_UINT16) {
+			TConvertDirect(data, TUInt64, target, TUInt16, length);
+		} else if (targetType == T_DATA_INT32) {
+			TConvertDirect(data, TUInt64, target, TInt32, length);
+		} else if (targetType == T_DATA_UINT32) {
+			TConvertDirect(data, TUInt64, target, TUInt32, length);
+		} else if (targetType == T_DATA_INT64) {
+			memcpy(target, data, sizeof(TInt64) * length);
+		}
+	}
+
 	TErrorSet(T_ERROR_OPERATION_NOT_SUPPORTED);
-	return 0;
 }
