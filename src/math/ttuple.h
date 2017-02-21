@@ -10,6 +10,8 @@
 
 #define TTuple4(T) struct { T x, y, z, t; }
 
+#define TTuple(T, s) struct { TUInt8 size = s; T d[s]; }
+
 // common naming
 
 typedef TTuple2(float) TTuple2f;

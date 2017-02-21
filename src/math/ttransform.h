@@ -20,30 +20,7 @@ inline static void TTransform2Initialize(TTransform2 *context) {
 	}
 }
 
-inline static void TTransform2SetTranslation(TTransform2 *context, float x, float y) {
-	context->translation.x = x;
-	context->translation.y = y;
-}
-
-inline static void TTransform2SetTranslationI(TTransform2 *context, int x, int y) {
-	context->translation.x = (float)x;
-	context->translation.y = (float)y;
-}
-
-inline static void TTransform2SetScale(TTransform2 *context, float x, float y) {
-	context->scaling.x = x;
-	context->scaling.y = y;
-}
-
-inline static void TTransform2SetScaleT(TTransform2 *context, TVector2 scale) {
-	context->scaling = scale;
-}
-
-inline static void TTransform2SetRotation(TTransform2 *context, float angle) {
-	context->rotation = angle;
-}
-
-static inline TMatrix3f TTransform2ToMatrix(TTransform2 *context) {
+static inline TMatrix4f TTransform2ToMatrix(const TTransform2 *context) {
 	TMatrix3f mat, res;
 	float ca, sa;
 
@@ -68,7 +45,30 @@ static inline TMatrix3f TTransform2ToMatrix(TTransform2 *context) {
 	mat.s.yz = context->translation.y;
 	res = TMatrix3fMulMatrix3f(&mat, &res);
 
-	return res;
+	return TMatrix4fFromTMatrix3f(&res);
+}
+
+inline static void TTransform2SetTranslation(TTransform2 *context, float x, float y) {
+	context->translation.x = x;
+	context->translation.y = y;
+}
+
+inline static void TTransform2SetTranslationI(TTransform2 *context, int x, int y) {
+	context->translation.x = (float)x;
+	context->translation.y = (float)y;
+}
+
+inline static void TTransform2SetScale(TTransform2 *context, float x, float y) {
+	context->scaling.x = x;
+	context->scaling.y = y;
+}
+
+inline static void TTransform2SetScaleT(TTransform2 *context, TVector2 scale) {
+	context->scaling = scale;
+}
+
+inline static void TTransform2SetRotation(TTransform2 *context, float angle) {
+	context->rotation = angle;
 }
 
 // 3D Transformations
@@ -84,6 +84,16 @@ inline static void TTransform3Initialize(TTransform3 *context) {
 		memset(context, 0, sizeof(TTransform3));
 		context->scaling.x = context->scaling.y = context->scaling.z = 1.0f;
 	}
+}
+
+static inline TMatrix4f TTransform3ToMatrix(const TTransform3 *context) {
+	TMatrix4f res;
+
+	TMatrixSetZero(&res);
+
+	//TODO
+
+	return res;
 }
 
 inline static void TTransform3SetTranslation(TTransform3 *context, float x, float y, float z) {

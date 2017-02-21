@@ -118,6 +118,19 @@ inline static void TMatrix4fSetIdentity(TMatrix4f *matrix) {
 	matrix->s.m00 = matrix->s.m11 = matrix->s.m22 = matrix->s.m33 = 1.0f;
 }
 
+static inline TMatrix4f TMatrix4fFromTMatrix3f(TMatrix3f *m) {
+	TMatrix4f res;
+	TMatrixSetZero(&res);
+
+	res.s.tt = 1.0f;
+
+	memcpy(&res, m, sizeof(float) * 3);
+	memcpy(&res.s.m01, &m->s.m01, sizeof(float) * 3);
+	memcpy(&res.s.m02, &m->s.m02, sizeof(float) * 3);
+
+	return res;
+}
+
 inline static void TMatrix4fMulTMatrix4f(TMatrix4f *m1, const TMatrix4f * m2) {
 	TMatrix4f res;
 	res.s.m00 = (m1->s.m00 * m2->s.m00) + (m1->s.m01 * m2->s.m10) + (m1->s.m02 * m2->s.m20) + (m1->s.m03 * m2->s.m30);
