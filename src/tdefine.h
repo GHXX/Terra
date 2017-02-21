@@ -55,9 +55,9 @@
 
 #define UNREFERENCED_PARAMETER(P) (P)
 
-#define TMAX(a,b)     ((a > b) ?  a : b)
-#define TMIN(a,b)     ((a < b) ?  a : b)
-#define TABS(a)	      ((a < 0) ? -a : a)
+#define TMAX(a,b)     (((a) > (b)) ?  (a) : (b))
+#define TMIN(a,b)     (((a) < (b)) ?  (a) : (b))
+#define TABS(a)	      (((a) < 0) ? -(a) : (a))
 
 #define TCLAMP(x,l,h) ((x > h) ? h : ((x < l) ? l : x))
 
@@ -117,9 +117,6 @@
       ((((unsigned long long) n) >> 40) & 0x000000000000FF00) |    \
       ((((unsigned long long) n) >> 56) & 0x00000000000000FF) )
 
-// the default buffer size used
-#define TBUFSIZE 512
-
 typedef void * TPtr;
 typedef const void * TCPtr;
 
@@ -139,6 +136,10 @@ typedef TInt64 TLInt;
 typedef TUInt32 TSize;
 typedef TInt32 TLInt;
 #endif
+
+// the default buffer size used
+#define TBUFSIZE 512
+typedef struct { char *data; TSize size; } TBuffer;
 
 typedef void(*TFreeFunc) (TPtr);
 
