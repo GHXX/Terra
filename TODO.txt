@@ -3,23 +3,26 @@ for v1.0:
 
 --PRIORITY
 
-	- Implement event structure
-	- Console should only provide manipulation functions
+	- Implement networking
 
 --REQUIRED
 
 	- Implement better randomizer
 	- Implement Octree
-	- Implement networking
 	- Implement test unit structure
 	- Implement better tests
 	- Set up the License
 	- Comments in header
-	- Implement hardware info (partially done)
+	- Implement hardware info (partial)
+	- Implement event structure (partial)
 
 --OPTIONAL
 
 	- Implement Hash Table
 	- Improve code of data structure (iterators,...)
 	- Implement regex
+	
+--BUGS
+
+	- TEncoding: string to lower case utf8 broken
 	
