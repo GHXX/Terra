@@ -87,7 +87,7 @@ static inline unsigned char TIArrayValid(TIArray *arr, TSize index) {
 	return index < arr->len;
 }
 
-static inline int TIntArrayGet(TIArray *arr, TSize index) {
+static inline int TIArrayGet(TIArray *arr, TSize index) {
 	if (!TIArrayValid(arr, index)) return 0;
 	return arr->data[index];
 }
