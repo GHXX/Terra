@@ -8,10 +8,10 @@
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
-#endif
 
 #include "io/tstream.h"
 
 void TMemLeakPrint(TStream *stream);
+#endif
 
 #endif

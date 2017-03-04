@@ -184,8 +184,4 @@ void TMemLeakPrint(TStream *stream)
 {
 }
 #endif
-#else
-void TMemLeakPrint(TStream *stream)
-{
-}
 #endif
