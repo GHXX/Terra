@@ -21,7 +21,7 @@ static inline TQuat TQuatFromEulerAngles(float ax, float ay, float az) {
 	c3 = cosf(az);
 	s3 = sinf(az);
 
-	q.t = c1*c2*c3 - s1*s2*s3;
+	q.w = c1*c2*c3 - s1*s2*s3;
 	q.x = c1*c2*s3 + s1*s2*c3;
 	q.y = s1*c2*c3 + c1*s2*s3;
 	q.z = c1*s2*c3 - s1*c2*s3;
@@ -39,7 +39,7 @@ static inline TQuat TQuatFromAxisAngle(float a, float rx, float ry, float rz) {
 	q.x = rx * sa;
 	q.y = ry * sa;
 	q.z = rz * sa;
-	q.t = cosf(a);
+	q.w = cosf(a);
 
 	return q;
 }

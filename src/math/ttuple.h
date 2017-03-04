@@ -8,7 +8,7 @@
 
 #define TTuple3(T) struct { T x, y, z; }
 
-#define TTuple4(T) struct { T x, y, z, t; }
+#define TTuple4(T) struct { T x, y, z, w; }
 
 #define TTuple(T, s) struct { TUInt8 size = s; T d[s]; }
 

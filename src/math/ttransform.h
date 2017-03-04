@@ -21,31 +21,22 @@ inline static void TTransform2Initialize(TTransform2 *context) {
 }
 
 static inline TMatrix4f TTransform2ToMatrix(const TTransform2 *context) {
-	TMatrix3f mat, res;
-	float ca, sa;
+	TMatrix4f res;
+
+	TMatrixSetZero(&res);
 
 	//scaling
-	TMatrixSetZero(&mat);
-	mat.s.xx = context->scaling.x;
-	mat.s.yy = context->scaling.y;
-	mat.s.zz = 1;
-	res = mat;
+	res.s.xx = context->scaling.x;
+	res.s.yy = context->scaling.y;
+	res.s.zz = res.s.tt = 1.0f;
 
 	//rotation
-	ca = cosf(context->rotation);
-	sa = sinf(context->rotation);
-	mat.s.xx = mat.s.yy = ca;
-	mat.s.yx = sa;
-	mat.s.xy = -sa;
-	res = TMatrix3fMulMatrix3f(&mat, &res);
+	TMatrix4fSetRotation(&res, context->rotation, 0, 0, 1);
 
 	//translation
-	TMatrix3fSetIdentity(&mat);
-	mat.s.xz = context->translation.x;
-	mat.s.yz = context->translation.y;
-	res = TMatrix3fMulMatrix3f(&mat, &res);
+	TMatrix4fSetTranslation(&res, context->translation.x, context->translation.y, 0.0f);
 
-	return TMatrix4fFromTMatrix3f(&res);
+	return res;
 }
 
 inline static void TTransform2SetTranslation(TTransform2 *context, float x, float y) {
@@ -91,7 +82,17 @@ static inline TMatrix4f TTransform3ToMatrix(const TTransform3 *context) {
 
 	TMatrixSetZero(&res);
 
-	//TODO
+	//scaling
+	res.s.xx = context->scaling.x;
+	res.s.yy = context->scaling.y;
+	res.s.zz = context->scaling.z;
+	res.s.tt = 1.0f;
+
+	//rotation
+	TMatrix4fSetRotationQ(&res, &context->rotation);
+
+	//translation
+	TMatrix4fSetTranslationV(&res, context->translation);
 
 	return res;
 }

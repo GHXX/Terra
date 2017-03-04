@@ -97,11 +97,11 @@ inline static void TMatrix3fSetRotationFromQuat(TMatrix3f *matrix, const TQuat *
 	float xx, xy, xz;
 	float yy, yz, zz;
 
-	n = (q1->x * q1->x) + (q1->y * q1->y) + (q1->z * q1->z) + (q1->t * q1->t);
+	n = (q1->x * q1->x) + (q1->y * q1->y) + (q1->z * q1->z) + (q1->w * q1->w);
 	s = (n > 0.0f) ? (2.0f / n) : 0.0f;
 
 	xs = q1->x * s;  ys = q1->y * s;  zs = q1->z * s;
-	wx = q1->t * xs; wy = q1->t * ys; wz = q1->t * zs;
+	wx = q1->w * xs; wy = q1->w * ys; wz = q1->w * zs;
 	xx = q1->x * xs; xy = q1->x * ys; xz = q1->x * zs;
 	yy = q1->y * ys; yz = q1->y * zs; zz = q1->z * zs;
 
@@ -161,9 +161,21 @@ inline static void TMatrix4fSetTranslation(TMatrix4f *matrix, float x, float y, 
 
 	TMatrix4fSetIdentity(&mat);
 
-	mat.s.xt = x;
-	mat.s.yt = y;
-	mat.s.zt = z;
+	mat.s.tx = x;
+	mat.s.ty = y;
+	mat.s.tz = z;
+
+	TMatrix4fMulTMatrix4f(matrix, &mat);
+}
+
+inline static void TMatrix4fSetTranslationV(TMatrix4f *matrix, TVector v) {
+	TMatrix4f mat;
+
+	TMatrix4fSetIdentity(&mat);
+
+	mat.s.tx = v.x;
+	mat.s.ty = v.y;
+	mat.s.tz = v.z;
 
 	TMatrix4fMulTMatrix4f(matrix, &mat);
 }
@@ -175,6 +187,18 @@ inline static void TMatrix4fSetScale(TMatrix4f *matrix, float x, float y, float 
 	mat.s.xx = x;
 	mat.s.yy = y;
 	mat.s.zz = z;
+	mat.s.tt = 1.0f;
+
+	TMatrix4fMulTMatrix4f(matrix, &mat);
+}
+
+inline static void TMatrix4fSetScaleV(TMatrix4f *matrix, TVector v) {
+	TMatrix4f mat;
+	TMatrixSetZero(&mat);
+
+	mat.s.xx = v.x;
+	mat.s.yy = v.y;
+	mat.s.zz = v.z;
 	mat.s.tt = 1.0f;
 
 	TMatrix4fMulTMatrix4f(matrix, &mat);
@@ -203,6 +227,27 @@ inline static void TMatrix4fSetRotation(TMatrix4f *matrix, float angle, float x,
 	mat.s.zx = (v.x * v.z * oc) - (v.y * s);
 	mat.s.zy = (v.y * v.z * oc) + (v.x * s);
 	mat.s.zz = c + (z * oc);
+
+	mat.s.tt = 1.0f;
+
+	TMatrix4fMulTMatrix4f(matrix, &mat);
+}
+
+inline static void TMatrix4fSetRotationQ(TMatrix4f *matrix, const TQuat *q) {
+	TMatrix4f mat;
+	float xx, yy, zz;
+	float xy, xz, yz;
+	float wx, wy, wz;
+
+	TMatrixSetZero(&mat);
+
+	xx = 2.0f * q->x * q->x; yy = 2.0f * q->y * q->y; zz = 2.0f * q->z * q->z;
+	xy = 2.0f * q->x * q->y; xz = 2.0f * q->x * q->z; yz = 2.0f * q->y * q->z;
+	wx = 2.0f * q->w * q->x; wy = 2.0f * q->w * q->y; wz = 2.0f * q->w * q->z;
+
+	mat.s.xx = 1.0f - (yy + zz); mat.s.yx = xy - wz;          mat.s.zx = xz + wy;
+	mat.s.xy = xy + wz;          mat.s.yy = 1.0f - (xx + zz); mat.s.zy = yz - wx;
+	mat.s.zx = xz - wy;          mat.s.yz = yz + wx;          mat.s.zz = 1.0f - (xx - yy);
 
 	mat.s.tt = 1.0f;
 
