@@ -4,6 +4,12 @@
 
 // Red-Black Tree
 
+static TInt32 TRBTreePtrCompare(TCPtr p1, TCPtr p2) {
+	if (p1 < p2) return -1;
+	else if (p1 > p2) return 1;
+	return 0;
+}
+
 typedef struct TRBTree TRBTree;
 
 TRBTree *TRBTreeNew(TCompareFunc key_compare, TFreeFunc free_key, TFreeFunc free_data);
