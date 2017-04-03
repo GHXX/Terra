@@ -12,6 +12,7 @@ static char *TErrorMsg = 0;
 void TErrorSet(int code) {
 	TErrorCode = code;
 	TFree(TErrorMsg);
+	TErrorMsg = 0;
 }
 
 int TErrorGet(void) {

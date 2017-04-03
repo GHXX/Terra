@@ -25,7 +25,7 @@ typedef struct {
 
 typedef struct {
 	TPtr param;
-	size_t remainingParams;
+	TSize remainingParams;
 	char paramtype;
 	char paramdef;
 } TParamHolder;
@@ -186,8 +186,8 @@ static unsigned char TArgParserIsTypeValid(const char type, const char *arg) {
 }
 
 static unsigned char TArgParserCheck(TArg *pat, const char *arg) {
-	size_t i = 0, ndata;
-	size_t limit;
+	TSize i = 0, ndata;
+	TSize limit;
 
 	if (!pat) return 1;
 
@@ -221,7 +221,7 @@ static unsigned char TArgParserCheck(TArg *pat, const char *arg) {
 	return 0;
 }
 
-static inline void TArgParserStoreParam(char type, char def, size_t amount) {
+static inline void TArgParserStoreParam(char type, char def, TSize amount) {
 	TFree(TArgParser.ph.param);
 	TArgParser.ph.param = 0;
 	TArgParser.ph.paramtype = type;
@@ -268,8 +268,8 @@ TUInt8 TArgParserNext(void) {
 
 		{
 			// keep parameters ready
-			size_t limit = TArgParserAmountLimit(pat->amount);
-			size_t amount = TArgParserNumData(TArgParser.idx, limit);
+			TSize limit = TArgParserAmountLimit(pat->amount);
+			TSize amount = TArgParserNumData(TArgParser.idx, limit);
 			if (amount) TArgParserStoreParam(pat->type, pat->def, amount);
 		}
 

@@ -124,8 +124,8 @@ TSize TFileSysListDirectory(char **results, const char *_dir, const char *_filte
 	return num;
 }
 
-size_t TFileSysListSubDirectoryNames(char **results, const char *_dir) {
-	size_t idx = 0;
+TSize TFileSysListSubDirectoryNames(char **results, const char *_dir) {
+	TSize idx = 0;
 
 	/*#ifdef _WINDOWS
 		struct _finddata_t thisfile;
@@ -353,7 +353,7 @@ char *TFileSysConcat(const char *_firstComponent, ...) {
 			TFileSysGetParentInternal(result);
 			size = TStringSize(result);
 			result = TRAlloc(result, size);
-			ptr = result + size - 1;
+			endslash = *(result + size - 2) == '/';
 
 		} else if (strcmp(component, ".")) {
 			TSize llen = strlen(component);
@@ -364,7 +364,7 @@ char *TFileSysConcat(const char *_firstComponent, ...) {
 			if (!endslash) *(ptr++) = '/';
 			else llen++;
 			memcpy(ptr, component, (llen) * sizeof(char));
-			endslash = *(component + size - 1) == '/';
+			endslash = *(component + size - 2) == '/';
 		}
 	}
 	va_end(components);
@@ -479,13 +479,13 @@ char *TFileSysRemoveExtension(const char *_fullFileName) {
 }
 
 char **TFileSysSplitPath(const char *path) {
-	size_t len = strlen(path), split = 1, size;
+	TSize len = strlen(path), split = 1, size;
 	if (path[len] == '/') split = 2;
 
 	return TStringRSplit(path, "/", &size, split);
 }
 
-char **TFileSysSplitPathFull(const char *path, size_t *size) {
+char **TFileSysSplitPathFull(const char *path, TSize *size) {
 	return TStringSplit(path, "/", size, 0);
 }
 
@@ -543,7 +543,6 @@ FILE *TFileSysOpen(const char *path, const char *mode) {
 
 	TFree(wMode);
 	TFree(wPath);
-
 
 #else
 	if (!path) return 0;

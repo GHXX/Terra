@@ -27,7 +27,7 @@ TUInt8 TDataTypeToSize(TUInt8 type) {
 #define TDATACPY(data, size, dest) { \
 	TPtr d = TAlloc(size); \
 	if(d) { \
-		memcpy(d, &data, (size_t) size); \
+		memcpy(d, &data, (TSize) size); \
 		dest = d; \
 	} \
 }

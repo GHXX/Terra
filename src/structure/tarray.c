@@ -63,7 +63,7 @@ int TArrayResize(TArray *arr, TSize _size) {
 			if (!nptr) return T_ERROR_OUT_OF_MEMORY;
 			arr->data = nptr;
 
-			if (_size > arr->size) memset(arr->data + arr->size, 0, (size_t) sizeof(TPtr) * (_size - arr->size));
+			if (_size > arr->size) memset(arr->data + arr->size, 0, (TSize) sizeof(TPtr) * (_size - arr->size));
 			else arr->len = TMIN(arr->len, _size);
 
 			arr->size = _size;
