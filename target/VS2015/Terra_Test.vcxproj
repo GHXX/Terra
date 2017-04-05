@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\tests\argparse_test.c" />
     <ClCompile Include="..\..\src\tests\array_test.c" />
+    <ClCompile Include="..\..\src\tests\rand_test.c" />
     <ClCompile Include="..\..\src\tests\tfilesys.c" />
     <ClCompile Include="..\..\src\tests\hardware_test.c" />
     <ClCompile Include="..\..\src\tests\heap_test.c" />
