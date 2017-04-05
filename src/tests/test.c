@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	testLog = TLogNewStream(TStreamFromFilePointer(stdin, 0));
+	testLog = TLogNewStream(TStreamFromFilePointer(stdout, 0));
 
 	TLogWrite(testLog, "Running tests...\n");
 
@@ -19,13 +19,11 @@ int main(int argc, char **argv)
 
 	//memleak_test();
 
-	//stack_test();
-
 	hardware_test();
 
 	//argparse_test();
 
-	//filesys_test();
+	TFileSysTest();
 
 	stream_test();
 
@@ -33,7 +31,11 @@ int main(int argc, char **argv)
 
 	TStringTest();
 
-	tokenizer_test();
+	TNetworkTest();
+
+	TStackTest();
+
+	TTokenizerTest();
 
 	TLogWrite(testLog, "All Tests have been executed.\n");
 

@@ -1,10 +1,13 @@
 #include "stdafx.h"
 
+#include "debugging/tdebug.h"
 #include "ttest.h"
+
+#include "terror.h"
 
 TLog *testLog = 0;
 
-void test_create_file(const char *filename, const char *data) {
+void TTestCreateFile(const char *filename, const char *data) {
 	FILE *f = fopen(filename, "w");
 
 	if (!f) TAbort("can't open test file for writing");

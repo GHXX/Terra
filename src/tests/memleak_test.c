@@ -2,7 +2,9 @@
 
 #include "test.h"
 
+#include "io/tio.h"
 #include "debugging/tmemcheck.h"
+#include "talloc.h"
 
 #include "ttest.h"
 

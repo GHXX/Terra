@@ -3,6 +3,8 @@
 #include "ttest.h"
 
 #include "utility/ttokenizer.h"
+#include "talloc.h"
+#include "terror.h"
 
 #include "test.h"
 
@@ -25,7 +27,10 @@ int tokenizer_test_1(void) {
 	TTokenizerSetSeparators(tokenizer, " ");
 
 	while ((token = TTokenizerNext(tokenizer, 0))) {
-		TAssert(!strcmp(token, blocks[idx++]));
+		if (strcmp(token, blocks[idx++])) {
+			TTokenizerFree(tokenizer);
+			TTestMustValidate(1);
+		}
 	}
 
 	TTokenizerFree(tokenizer);
@@ -51,7 +56,10 @@ int tokenizer_test_2(void) {
 	TTokenizerSetSeparators(tokenizer, " ");
 
 	while ((token = TTokenizerNext(tokenizer, 0))) {
-		TAssert(!strcmp(token, blocks[idx++]));
+		if (strcmp(token, blocks[idx++])) {
+			TTokenizerFree(tokenizer);
+			TTestMustValidate(1);
+		}
 	}
 
 	TTokenizerFree(tokenizer);
@@ -63,6 +71,7 @@ int tokenizer_test_3(void) {
 	// uses a large string
 	char *string;
 	const char *token;
+	char sep;
 
 	string = TAlloc(sizeof(char) * (TBUFSIZE + 2));
 	memset(string, 1, TBUFSIZE);
@@ -71,11 +80,13 @@ int tokenizer_test_3(void) {
 	TStream *stream = TStreamFromMem(&string, TBUFSIZE + 2, 1);
 	TTokenizer *tokenizer = TTokenizerNew(stream, 1);
 
-	token = TTokenizerNext(tokenizer, 0);
-	TAssert(!token);
-	TAssert(TErrorGet() == T_ERROR_OUT_OF_MEMORY);
+	token = TTokenizerNext(tokenizer, &sep);
+	if (!token) {
+		TTokenizerFree(tokenizer);
+		TTestMustValidate(1);
+	}
 
-	TTokenizerFree(tokenizer);
+	TTestMustValidate(!sep);
 
 	return 0;
 }
@@ -98,7 +109,10 @@ int tokenizer_test_4(void) {
 	TTokenizerSetSeparators(tokenizer, " ");
 
 	while ((token = TTokenizerNext(tokenizer, 0))) {
-		TAssert(!strcmp(token, blocks[idx++]));
+		if (strcmp(token, blocks[idx++])) {
+			TTokenizerFree(tokenizer);
+			TTestMustValidate(1);
+		}
 	}
 
 	TTokenizerFree(tokenizer);
@@ -128,15 +142,18 @@ int tokenizer_test_5(void) {
 	TTokenizerSkipEmpty(tokenizer, 0);
 
 	while ((token = TTokenizerNext(tokenizer, 0))) {
-		TAssert(!strcmp(token, blocks[idx++]));
+		if (strcmp(token, blocks[idx++])) {
+			TTokenizerFree(tokenizer);
+			TTestMustValidate(1);
+		}
 	}
 
 	TTokenizerFree(tokenizer);
-	
+
 	return 0;
 }
 
-void tokenizer_test(void) {
+void TTokenizerTest(void) {
 
 	TestFunc tests[] = {
 		tokenizer_test_1,

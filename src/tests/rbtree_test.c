@@ -2,6 +2,7 @@
 
 #include "test.h"
 
+#include "debugging/tdebug.h"
 #include "structure/trbtree.h"
 #include "utility/tinteger.h"
 
@@ -14,7 +15,7 @@ void rbtree_test_iteration(const TRBTree *tree) {
 
 	// init
 	iter = TRBTreeIteratorNew(tree);
-	if (!testNotNull(iter, "Initializing iterator\t\t")) return;
+	if (!TTestNotNull(iter, "Initializing iterator\t\t")) return;
 
 	// next
 	while (TRBTreeIteratorNext(iter, (const void **)&key, (const void **)&data)) {
@@ -39,21 +40,21 @@ int rbtree_test_all(void) {
 
 	// init
 	tree = TRBTreeNew((TCompareFunc)TIntegerCompare, free, free);
-	if (!testNotNull(tree, "Initializing tree\t\t")) return 0;
+	if (!TTestNotNull(tree, "Initializing tree\t\t")) return 0;
 
 	// insert
 	for (i = 0; !f && i < 100; ++i) f = TRBTreeInsert(tree, TIntegerToPtr(i), TIntegerToPtr(i));
-	testReport(!f, "Testing Insertion\t\t");
+	TTestReport(!f, "Testing Insertion\t\t");
 
 	// size
-	testReport(TRBTreeSize(tree) == 100, "Testing Size\t\t");
+	TTestReport(TRBTreeSize(tree) == 100, "Testing Size\t\t");
 
 	// find
-	testReport(*(int *)TRBTreeFind(tree, &testv) == 50, "Testing Find function\t\t");
+	TTestReport(*(int *)TRBTreeFind(tree, &testv) == 50, "Testing Find function\t\t");
 
 	// exists
 	testv = 34;
-	testReport(TRBTreeExists(tree, &testv), "Testing Exists function\t\t");
+	TTestReport(TRBTreeExists(tree, &testv), "Testing Exists function\t\t");
 
 	// mem
 	// TODO
@@ -72,11 +73,11 @@ int rbtree_test_all(void) {
 
 	// removal
 	for (i = 0; i < 94; ++i) TRBTreeErase(tree, &i);
-	testReport(TRBTreeSize(tree) == 6, "Testing Erase Function\t\t");;
+	TTestReport(TRBTreeSize(tree) == 6, "Testing Erase Function\t\t");;
 
 	// empty
 	TRBTreeEmpty(tree);
-	testReport(TRBTreeSize(tree) == 0, "Ensuring that the tree is empty\t\t");;
+	TTestReport(TRBTreeSize(tree) == 0, "Ensuring that the tree is empty\t\t");;
 
 	// free
 	TRBTreeFree(tree);

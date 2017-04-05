@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include "debugging/tdebug.h"
+
 #include "io/tstream.h"
 #include "utility/tfilesys.h"
 #include "terror.h"
@@ -18,9 +20,9 @@ void test_rw_file(void) {
 	unsigned char buffer[32];
 	TSize sizeRead;
 
-	test_create_file(filename, data);
+	TTestCreateFile(filename, data);
 
-	testrw = TStreamFromFile(filename, "rb");
+	testrw = TStreamFromFile(filename, "r");
 	TAssert(testrw);
 
 	TAssert(TStreamSize(testrw) == strlen(data));

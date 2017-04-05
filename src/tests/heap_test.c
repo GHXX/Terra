@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "debugging/tdebug.h"
 #include "structure/theap.h"
 
 #include "test.h"

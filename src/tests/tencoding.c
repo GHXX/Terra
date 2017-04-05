@@ -2,22 +2,23 @@
 
 #include "ttest.h"
 
+#include "talloc.h"
+#include "tencoding.h"
+
 #include "test.h"
 
 int TEncodingTestNormalASCII(void) {
 	const unsigned char *data = "ASCII String";
 
-	TEncodingStats *stats = TEncodingGetStats(data, (strlen(data) + 1) * sizeof(unsigned char));
+	TEncodingStats stats = TEncodingGetStats(data, (strlen(data) + 1) * sizeof(unsigned char));
 
-	TTestValidate(stats->encoding == T_ENCODING_ASCII);
-	TTestValidate(stats->numChars == strlen(data));
-	TTestValidate(stats->numOneByteChars == stats->numChars);
-	TTestValidate(stats->numTwoByteChars == 0);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
-
-	TFree(stats);
+	TTestValidate(stats.encoding == T_ENCODING_ASCII);
+	TTestValidate(stats.numChars == strlen(data) + 1);
+	TTestValidate(stats.numOneByteChars == stats.numChars);
+	TTestValidate(stats.numTwoByteChars == 0);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	return 0;
 }
@@ -25,17 +26,15 @@ int TEncodingTestNormalASCII(void) {
 int TEncodingTestASCIINoNullEnding(void) {
 	const unsigned char *data = "ASCII String";
 
-	TEncodingStats *stats = TEncodingGetStats(data, strlen(data) * sizeof(unsigned char));
+	TEncodingStats stats = TEncodingGetStats(data, strlen(data) * sizeof(unsigned char));
 
-	TTestValidate(stats->encoding == T_ENCODING_ASCII);
-	TTestValidate(stats->numChars == strlen(data));
-	TTestValidate(stats->numOneByteChars == stats->numChars);
-	TTestValidate(stats->numTwoByteChars == 0);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == T_ENCODING_FLAG_VALID);
-
-	TFree(stats);
+	TTestValidate(stats.encoding == T_ENCODING_ASCII);
+	TTestValidate(stats.numChars == strlen(data));
+	TTestValidate(stats.numOneByteChars == stats.numChars);
+	TTestValidate(stats.numTwoByteChars == 0);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == T_ENCODING_FLAG_VALID);
 
 	return 0;
 }
@@ -43,17 +42,15 @@ int TEncodingTestASCIINoNullEnding(void) {
 int TEncodingTestASCIIEmpty(void) {
 	const unsigned char *data = "";
 
-	TEncodingStats *stats = TEncodingGetStats(data, 1);
+	TEncodingStats stats = TEncodingGetStats(data, 1);
 
-	TTestValidate(stats->encoding == T_ENCODING_ASCII);
-	TTestValidate(stats->numChars == 0);
-	TTestValidate(stats->numOneByteChars == stats->numChars);
-	TTestValidate(stats->numTwoByteChars == 0);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
-
-	TFree(stats);
+	TTestValidate(stats.encoding == T_ENCODING_ASCII);
+	TTestValidate(stats.numChars == 1);
+	TTestValidate(stats.numOneByteChars == stats.numChars);
+	TTestValidate(stats.numTwoByteChars == 0);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	return 0;
 }
@@ -61,17 +58,15 @@ int TEncodingTestASCIIEmpty(void) {
 int TEncodingTestUTF8Normal(void) {
 	unsigned char *data = "UTF8 String: \xC2\xA9st";
 
-	TEncodingStats *stats = TEncodingGetStats(data, (strlen(data) + 1) * sizeof(unsigned char));
+	TEncodingStats stats = TEncodingGetStats(data, (strlen(data) + 1) * sizeof(unsigned char));
 
-	TTestValidate(stats->encoding == T_ENCODING_UTF8);
-	TTestValidate(stats->numChars == strlen(data) - 1);
-	TTestValidate(stats->numOneByteChars == stats->numChars - 1);
-	TTestValidate(stats->numTwoByteChars == 1);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
-
-	TFree(stats);
+	TTestValidate(stats.encoding == T_ENCODING_UTF8);
+	TTestValidate(stats.numChars == sizeof("UTF8 String: est"));
+	TTestValidate(stats.numOneByteChars == stats.numChars - 1);
+	TTestValidate(stats.numTwoByteChars == 1);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	return 0;
 }
@@ -79,13 +74,11 @@ int TEncodingTestUTF8Normal(void) {
 int TEncodingTestUTF8Truncated(void) {
 	unsigned char *data = "UTF8 String: \xC2";
 
-	TEncodingStats *stats = TEncodingGetStats(data, (strlen(data)) * sizeof(unsigned char));
+	TEncodingStats stats = TEncodingGetStats(data, (strlen(data)) * sizeof(unsigned char));
 
 	TTestValidate(TErrorGet() == T_ENCODING_ERROR_TRUNCATED);
-	TTestValidate(!(stats->flags & T_ENCODING_FLAG_VALID));
-	TTestValidate(!(stats->flags & T_ENCODING_FLAG_NULL_TERMINATED));
-
-	TFree(stats);
+	TTestValidate(!(stats.flags & T_ENCODING_FLAG_VALID));
+	TTestValidate(!(stats.flags & T_ENCODING_FLAG_NULL_TERMINATED));
 
 	return 0;
 }
@@ -93,21 +86,19 @@ int TEncodingTestUTF8Truncated(void) {
 int TEncodingTestUTF8WithBOM(void) {
 	const unsigned char *utf8BOM = TEncodingGetBOM(T_ENCODING_UTF8);
 	unsigned char data[32];
-	TEncodingStats *stats;
+	TEncodingStats stats;
 	
 	snprintf(data, sizeof(data), "%sUTF8 String: \xC2\xA9", utf8BOM);
 
 	stats = TEncodingGetStats(data, (strlen(data) + 1) * sizeof(unsigned char));
 
-	TTestValidate(stats->encoding == T_ENCODING_UTF8);
-	TTestValidate(stats->numChars == strlen(data) - 1 - TEncodingGetBOMSize(stats->encoding));
-	TTestValidate(stats->numOneByteChars == stats->numChars - 1);
-	TTestValidate(stats->numTwoByteChars == 1);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_FLAG_BOM_PRESENT | T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
-
-	TFree(stats);
+	TTestValidate(stats.encoding == T_ENCODING_UTF8);
+	TTestValidate(stats.numChars == sizeof("UTF8 String: a"));
+	TTestValidate(stats.numOneByteChars == stats.numChars - 1);
+	TTestValidate(stats.numTwoByteChars == 1);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == (T_ENCODING_FLAG_BOM_PRESENT | T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	return 0;
 }
@@ -116,17 +107,16 @@ int TEncodingTestNormalASCIIStream(void) {
 	const unsigned char *data = "ASCII String";
 	TStream *stream = TStreamFromConstMem(data, (strlen(data) + 1) * sizeof(unsigned char));
 
-	TEncodingStats *stats = TEncodingGetStreamStats(stream);
+	TEncodingStats stats = TEncodingGetStreamStats(stream);
 
-	TTestValidate(stats->encoding == T_ENCODING_ASCII);
-	TTestValidate(stats->numChars == strlen(data));
-	TTestValidate(stats->numOneByteChars == stats->numChars);
-	TTestValidate(stats->numTwoByteChars == 0);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
+	TTestValidate(stats.encoding == T_ENCODING_ASCII);
+	TTestValidate(stats.numChars == strlen(data));
+	TTestValidate(stats.numOneByteChars == stats.numChars);
+	TTestValidate(stats.numTwoByteChars == 0);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
-	TFree(stats);
 	TStreamFree(stream);
 
 	return 0;
@@ -136,17 +126,16 @@ int TEncodingTestNormalUTF8Stream(void) {
 	unsigned char *data = "UTF8 String: \xC2\xA9st";
 	TStream *stream = TStreamFromConstMem(data, (strlen(data) + 1) * sizeof(unsigned char));
 
-	TEncodingStats *stats = TEncodingGetStreamStats(stream);
+	TEncodingStats stats = TEncodingGetStreamStats(stream);
 
-	TTestValidate(stats->encoding == T_ENCODING_UTF8);
-	TTestValidate(stats->numChars == strlen(data) - 1);
-	TTestValidate(stats->numOneByteChars == stats->numChars - 1);
-	TTestValidate(stats->numTwoByteChars == 1);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
+	TTestValidate(stats.encoding == T_ENCODING_UTF8);
+	TTestValidate(stats.numChars == strlen(data) - 1);
+	TTestValidate(stats.numOneByteChars == stats.numChars - 1);
+	TTestValidate(stats.numTwoByteChars == 1);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == (T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
-	TFree(stats);
 	TStreamFree(stream);
 
 	return 0;
@@ -156,13 +145,12 @@ int TEncodingTestUTF8TruncatedStream(void) {
 	unsigned char *data = "UTF8 String: \xC2";
 	TStream *stream = TStreamFromConstMem(data, (strlen(data)) * sizeof(unsigned char));
 
-	TEncodingStats *stats = TEncodingGetStreamStats(stream);
+	TEncodingStats stats = TEncodingGetStreamStats(stream);
 
 	TTestValidate(TErrorGet() == T_ENCODING_ERROR_TRUNCATED);
-	TTestValidate(!(stats->flags & T_ENCODING_FLAG_VALID));
-	TTestValidate(!(stats->flags & T_ENCODING_FLAG_NULL_TERMINATED));
+	TTestValidate(!(stats.flags & T_ENCODING_FLAG_VALID));
+	TTestValidate(!(stats.flags & T_ENCODING_FLAG_NULL_TERMINATED));
 
-	TFree(stats);
 	TStreamFree(stream);
 
 	return 0;
@@ -172,22 +160,20 @@ int TEncodingTestUTF8WithBOMStream(void) {
 	const unsigned char *utf8BOM = TEncodingGetBOM(T_ENCODING_UTF8);
 	unsigned char data[32];
 	TStream *stream;
-	TEncodingStats *stats;
+	TEncodingStats stats;
 
 	snprintf(data, sizeof(data), "%sUTF8 String: \xC2\xA9", utf8BOM);
 	stream = TStreamFromConstMem(data, (strlen(data) + 1) * sizeof(unsigned char));
 
 	stats = TEncodingGetStreamStats(stream);
 
-	TTestValidate(stats->encoding == T_ENCODING_UTF8);
-	TTestValidate(stats->numChars == strlen(data) - 1 - TEncodingGetBOMSize(stats->encoding));
-	TTestValidate(stats->numOneByteChars == stats->numChars - 1);
-	TTestValidate(stats->numTwoByteChars == 1);
-	TTestValidate(stats->numThreeByteChars == 0);
-	TTestValidate(stats->numFourByteChars == 0);
-	TTestValidate(stats->flags == (T_ENCODING_FLAG_BOM_PRESENT | T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
-
-	TFree(stats);
+	TTestValidate(stats.encoding == T_ENCODING_UTF8);
+	TTestValidate(stats.numChars == strlen(data) - 1 - TEncodingGetBOMSize(stats.encoding));
+	TTestValidate(stats.numOneByteChars == stats.numChars - 1);
+	TTestValidate(stats.numTwoByteChars == 1);
+	TTestValidate(stats.numThreeByteChars == 0);
+	TTestValidate(stats.numFourByteChars == 0);
+	TTestValidate(stats.flags == (T_ENCODING_FLAG_BOM_PRESENT | T_ENCODING_FLAG_NULL_TERMINATED | T_ENCODING_FLAG_VALID));
 
 	return 0;
 }
@@ -212,12 +198,12 @@ int TEncodingTestASCIIToUTF16LE(void) {
 		0, 0,
 	};
 
-	TEncodingStats *stats;
+	TEncodingStats stats;
 
 	size = (strlen(data) + 1) * sizeof(unsigned char);
 	stats = TEncodingGetStats(data, size);
 
-	result = TEncodingToUTF16LE(data, size, &out, stats);
+	result = TEncodingToUTF16LE(data, size, &out, &stats);
 
 	TTestValidate(out == size * 2);
 
@@ -227,7 +213,6 @@ int TEncodingTestASCIIToUTF16LE(void) {
 	}
 
 	TFree(result);
-	TFree(stats);
 
 	return 0;
 }
@@ -245,11 +230,11 @@ int TEncodingTestUTF8ToUTF16LE(void) {
 		0, 0,
 	};
 
-	TEncodingStats *stats;
+	TEncodingStats stats;
 	size = (strlen(data) + 1) * sizeof(unsigned char);
 	stats = TEncodingGetStats(data, size);
 
-	result = TEncodingToUTF16LE(data, size, &out, stats);
+	result = TEncodingToUTF16LE(data, size, &out, &stats);
 
 	wchar_t *validate = (wchar_t *)result;
 	wprintf(validate);
@@ -262,7 +247,6 @@ int TEncodingTestUTF8ToUTF16LE(void) {
 	}
 
 	TFree(result);
-	TFree(stats);
 
 	return 0;
 }

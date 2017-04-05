@@ -4,7 +4,7 @@
 
 void argparse_test(void);
 void array_test(void);
-void filesys_test(void);
+void TFileSysTest(void);
 void hardware_test(void);
 
 void heap_test(void);
@@ -19,8 +19,10 @@ void TEncodingTest(void);
 
 void TStringTest(void);
 
-void stack_test(void);
+void TNetworkTest(void);
 
-void tokenizer_test(void);
+void TStackTest(void);
+
+void TTokenizerTest(void);
 
 #endif
