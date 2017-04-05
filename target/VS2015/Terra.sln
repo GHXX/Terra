@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Terra", "Terra.vcxproj", "{55172D03-5A24-4097-A88B-905CE276A879}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Terra", "Terra.vcxproj", "{58A31A79-8ED4-460B-9E9D-AB840B8E91D5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Terra_Test", "Terra_Test.vcxproj", "{F945A2FB-31A6-411B-8DBE-080286508E7D}"
 	ProjectSection(ProjectDependencies) = postProject
-		{55172D03-5A24-4097-A88B-905CE276A879} = {55172D03-5A24-4097-A88B-905CE276A879}
+		{58A31A79-8ED4-460B-9E9D-AB840B8E91D5} = {58A31A79-8ED4-460B-9E9D-AB840B8E91D5}
 	EndProjectSection
 EndProject
 Global
@@ -16,10 +16,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{55172D03-5A24-4097-A88B-905CE276A879}.Debug|x86.ActiveCfg = Debug|Win32
-		{55172D03-5A24-4097-A88B-905CE276A879}.Debug|x86.Build.0 = Debug|Win32
-		{55172D03-5A24-4097-A88B-905CE276A879}.Release|x86.ActiveCfg = Release|Win32
-		{55172D03-5A24-4097-A88B-905CE276A879}.Release|x86.Build.0 = Release|Win32
+		{58A31A79-8ED4-460B-9E9D-AB840B8E91D5}.Debug|x86.ActiveCfg = Debug|Win32
+		{58A31A79-8ED4-460B-9E9D-AB840B8E91D5}.Debug|x86.Build.0 = Debug|Win32
+		{58A31A79-8ED4-460B-9E9D-AB840B8E91D5}.Release|x86.ActiveCfg = Release|Win32
+		{58A31A79-8ED4-460B-9E9D-AB840B8E91D5}.Release|x86.Build.0 = Release|Win32
 		{F945A2FB-31A6-411B-8DBE-080286508E7D}.Debug|x86.ActiveCfg = Debug|Win32
 		{F945A2FB-31A6-411B-8DBE-080286508E7D}.Debug|x86.Build.0 = Debug|Win32
 		{F945A2FB-31A6-411B-8DBE-080286508E7D}.Release|x86.ActiveCfg = Release|Win32

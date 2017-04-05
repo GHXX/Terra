@@ -95,6 +95,7 @@
     <ClCompile Include="..\..\src\tdata.c" />
     <ClCompile Include="..\..\src\tencoding.c" />
     <ClCompile Include="..\..\src\terror.c" />
+    <ClCompile Include="..\..\src\tnetwork.c" />
     <ClCompile Include="..\..\src\trand.c" />
     <ClCompile Include="..\..\src\tthread.c" />
     <ClCompile Include="..\..\src\ttime.c" />
@@ -209,6 +210,7 @@
     <ClInclude Include="..\..\src\tencoding.h" />
     <ClInclude Include="..\..\src\terra.h" />
     <ClInclude Include="..\..\src\terror.h" />
+    <ClInclude Include="..\..\src\tnetwork.h" />
     <ClInclude Include="..\..\src\trand.h" />
     <ClInclude Include="..\..\src\tthread.h" />
     <ClInclude Include="..\..\src\ttime.h" />

@@ -18,6 +18,7 @@
 #include "io/tio.h"
 
 #include "tencoding.h"
+#include "tnetwork.h"
 
 #include "debugging/tdebug.h"
 
