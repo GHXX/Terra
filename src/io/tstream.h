@@ -91,7 +91,7 @@ TStream *TStreamFromConstMem(const unsigned char *buffer, TSize size);
 * @return                    A stream context.
 *
 */
-TStream *TStreamFromContent(TStreamContent content, const TStreamOps ops);
+TStream *TStreamFromContent(TStreamContent content, TStreamOps *ops, TFreeFunc clean);
 
 /**
 * Frees a stream context
@@ -108,7 +108,7 @@ void TStreamFree(TStream *context);
 * @param ops                 A set of operations.
 *
 */
-void TStreamSetOps(TStream *context, const TStreamOps ops);
+void TStreamSetOps(TStream *context, TStreamOps *ops);
 
 /**
 * Get the remaining size for the stream context.
