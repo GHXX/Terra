@@ -41,5 +41,8 @@ int main(int argc, char **argv)
 
 	TLogFree(testLog);
 
+	printf("Press any key to close this window...");
+	getchar();
+
 	return 0;
 }
