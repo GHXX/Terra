@@ -41,16 +41,15 @@ int getRandomNumberForTesting(int min, int max) {
 void rand_test_init(void) {
 
 	srand(0xFF);
-	randtest_min_range = 1;// getRandomNumberForTesting(0, 50);
-	randtest_max_range = 10;// getRandomNumberForTesting(51, 100);
-	printf("Random start value: %d\nRandom stop value:%d\n",randtest_min_range, randtest_max_range);
+	randtest_min_range = getRandomNumberForTesting(0, 50);
+	randtest_max_range = getRandomNumberForTesting(51, 100);
+	printf("\tRandom start value: %d\n\tRandom stop value:%d\n",randtest_min_range, randtest_max_range);
 
 }
 
-
-void rand_test_min_max(void) {
+void rand_test_min_max_rand(void) {
 	boolean success = FALSE;
-	printf("Testing Min/Max boundaries.\n");
+	printf("\tTesting Min/Max boundaries.\n");
 
 	unsigned int calculations = 0;
 	unsigned int calculations_max = MAXUINT32>>14;
@@ -59,7 +58,7 @@ void rand_test_min_max(void) {
 	for (calculations = 0; calculations< calculations_max; calculations++)
 	{
 		
-		int rand = getRandomNumberForTesting(randtest_min_range, randtest_max_range);
+		int rand = TRandInteger(randtest_min_range, randtest_max_range);
 		if (rand > randtest_max_range_test)
 		{
 			randtest_max_range_test = rand;
@@ -68,28 +67,28 @@ void rand_test_min_max(void) {
 		{ 
 			randtest_min_range_test = rand;
 		}
-		printf("\r[%d/%d calculations done] (%f%%)..",calculations,calculations_max, (double)calculations / (double)calculations_max * (float)100);
+		printf("\r\t[%d/%d calculations done] (%f%%)..",calculations,calculations_max, (double)calculations / (double)calculations_max * (float)100);
 		//printf("\r                                                                      \rSmallest random value:%d | Biggest random value:%d | Total generated values:%d", randtest_min_range_test, randtest_max_range_test, calculations);
 		sum += rand;
 	} 
-	printf("\r\t\t\t\t\t\t\r100%% done.");
-	printf("\n\nSmallest random value:%d | Biggest random value:%d | Total generated values:%d\n", randtest_min_range_test, randtest_max_range_test, calculations);
+	printf("\r\t\t\t\t\t\t\t\r\t100%% done.");
+	printf("\n\n\tSmallest random value:%d | Biggest random value:%d | Total generated values:%d\n", randtest_min_range_test, randtest_max_range_test, calculations);
 	if (randtest_max_range_test != randtest_max_range || randtest_min_range_test != randtest_min_range) {
 		success = FALSE;
-		printf("\nError: Boundaries werent matched properly after %d tries:",calculations);
-		printf("\nLower Boundary | Upper Boundary | Your Lower Boundary | Your Upper Boundary");
-		printf("\n     %d        |      %d        |         %d          |         %d        ",randtest_min_range_test,randtest_max_range_test,randtest_min_range,randtest_max_range);
+		printf("\n\tError: Boundaries werent matched properly after %d tries:",calculations);
+		printf("\n\tLower Boundary | Upper Boundary | Your Lower Boundary | Your Upper Boundary");
+		printf("\n\t     %d        |      %d        |         %d          |         %d        ",randtest_min_range_test,randtest_max_range_test,randtest_min_range,randtest_max_range);
 	}
 	else
 	{
-		printf("\nBoundary test was successful. Average weight of the random number:");
+		printf("\n\tBoundary test was successful. Average weight of the random number:");
 		int avg = (int)(sum / (double)calculations);
 		int middle = (randtest_max_range_test + randtest_min_range_test) / 2;
 		int zerobased = avg - middle;
 		double normalized = (double)zerobased /(double) (randtest_max_range_test - randtest_min_range_test);
 		//printf("\n%d\n%d\n%d\n%f\n",avg,middle,zerobased,normalized);
 		short drawQuality = 21;
-		printf("\n|");
+		printf("\n\t|");
 		for (short i = 0; i < drawQuality; i++)
 		{
 			if (((int)(normalized*drawQuality+0.5*drawQuality)) == i) {
@@ -102,8 +101,8 @@ void rand_test_min_max(void) {
 				printf("-");
 			}
 		}
-		printf("|\nO..current average weight      =..ideal average weight\n");
-		printf("Result: Weighting is ");
+		printf("|\n\tO..current average weight      =..ideal average weight\n");
+		printf("\tResult: Weighting is ");
 		if (normalized == 0) { printf("perfect!"); }
 		else if (normalized == -1) { printf("far too low."); }
 		else if (normalized <= -0.5) { printf("too low."); }
@@ -113,25 +112,36 @@ void rand_test_min_max(void) {
 		else if (normalized >= 0.5) { printf("too high."); }
 		else if (normalized >= 0.25) { printf("a bit too high."); }
 		else if (normalized > 0) { printf("slightly too high."); }
-		printf("\nWeight distribution: %s%f\n\n\n", ((normalized == 0) ? "+/-" : (normalized < 0) ? "" : "+"), normalized);
+		printf("\n\tWeight distribution: %s%f\n\n\n", ((normalized == 0) ? "+/-" : (normalized < 0) ? "" : "+"), normalized);
 		
 	}
 }
 
 
-void rand_test_randomness(void) {
-
-
-
-}
-
-
+//#pragma optimize("",off)
+#define rand_test_len 0xFFFFFFF
 void rand_test_cost(void) {
 
-
-
+	printf("\tRunning Speed test...(This may take a while)\n");
+	long clockEnd;
+	long clockStart;
+	clockStart = clock();
+	for (unsigned long i = 0; i<100200; i++)
+	{
+		int rand = TRandInteger(randtest_min_range, randtest_max_range);
+	}
+	clockEnd = clock();
+	printf("\tExpected time to wait: %.2f seconds\n", ((double)clockEnd - (double)clockStart) / (double)CLOCKS_PER_SEC/(double)100200 *(double)rand_test_len);
+	clockStart = clock();
+	for (unsigned long i = 0; i<rand_test_len; i++)
+	{
+		int rand = TRandInteger(randtest_min_range, randtest_max_range);
+	}
+	clockEnd = clock();
+	double diff = clockEnd - clockStart;
+	printf("\tAverage generation time of one random number: %Lf nanoseconds\n\n",(( (long double) diff / (long double)CLOCKS_PER_SEC )/ (long double)rand_test_len)* (long double)1E9);
 }
-
+//#pragma optimize("",on)
 
 void rand_test(void) {
 
@@ -139,9 +149,7 @@ void rand_test(void) {
 
 	rand_test_init();
 
-	rand_test_min_max();
-
-	rand_test_randomness();
+	rand_test_min_max_rand();
 
 	rand_test_cost();
 
