@@ -6,7 +6,6 @@
 #include "ttest.h"
 
 
-
 int main(int argc, char **argv)
 {
 	testLog = TLogNewStream(TStreamFromFilePointer(stdout, 0));
@@ -36,6 +35,8 @@ int main(int argc, char **argv)
 	TStackTest();
 
 	TTokenizerTest();
+
+	rand_test();
 
 	TLogWrite(testLog, "All Tests have been executed.\n");
 

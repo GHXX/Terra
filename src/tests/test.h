@@ -25,4 +25,6 @@ void TStackTest(void);
 
 void TTokenizerTest(void);
 
+void rand_test(void);
+
 #endif
