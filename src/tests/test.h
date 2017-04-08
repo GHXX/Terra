@@ -19,6 +19,8 @@ void TEncodingTest(void);
 
 void TStringTest(void);
 
+void TRandTest(void);
+
 void TNetworkTest(void);
 
 void TStackTest(void);
