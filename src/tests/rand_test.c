@@ -117,8 +117,10 @@ void rand_test_min_max_rand(void) {
 	}
 }
 
+#if !DEBUG
+	/#pragma optimize("",on)
+#endif
 
-//#pragma optimize("",off)
 #define rand_test_len 0xFFFFFFF
 void rand_test_cost(void) {
 
@@ -141,7 +143,9 @@ void rand_test_cost(void) {
 	double diff = clockEnd - clockStart;
 	printf("\tAverage generation time of one random number: %Lf nanoseconds\n\n",(( (long double) diff / (long double)CLOCKS_PER_SEC )/ (long double)rand_test_len)* (long double)1E9);
 }
-//#pragma optimize("",on)
+#if !DEBUG
+	//#pragma optimize("",off)
+#endif
 
 void rand_test(void) {
 
