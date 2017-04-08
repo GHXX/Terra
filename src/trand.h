@@ -8,7 +8,7 @@ unsigned char TRandBool(void);
 
 int TRandInteger(int begin, int end);
 TSize TRandUInteger(TSize begin, TSize end);
-#define TRandRangeInteger(r) TRandInteger(0,r)
+#define TRandRangeInteger(r) TRandInteger(0, r)
 
 void TRandUniqueIntegersArray(int offset, TSize range, int *intarray, TSize size);
 
