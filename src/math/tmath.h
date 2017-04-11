@@ -18,7 +18,7 @@ static inline float TMathRadToDeg(float radian)
 
 // Additional math related utilities
 
-static inline float TLOGbOFv(float base, float value)
+static inline float TMathLog(float base, float value)
 {
 	return (float)(log10f(value) / log10f(base));
 	//log_a(x) = log_10(x)/log_10(a)
