@@ -39,8 +39,9 @@ int getRandomNumberForTesting(int min, int max) {
 }*/
 
 void rand_test_init(void) {
-
-	srand(0xFF);
+	SYSTEMTIME system_time;
+	GetSystemTime(&system_time);
+	srand(system_time.wMilliseconds);
 	randtest_min_range = getRandomNumberForTesting(0, 50);
 	randtest_max_range = getRandomNumberForTesting(51, 100);
 	printf("\tRandom start value: %d\n\tRandom stop value:%d\n",randtest_min_range, randtest_max_range);
@@ -58,7 +59,7 @@ void rand_test_min_max_rand(void) {
 	for (calculations = 0; calculations< calculations_max; calculations++)
 	{
 		
-		int rand = TRandInteger(randtest_min_range, randtest_max_range);
+		int rand =(int) TRandInteger(randtest_min_range, randtest_max_range);
 		if (rand > randtest_max_range_test)
 		{
 			randtest_max_range_test = rand;
@@ -76,8 +77,8 @@ void rand_test_min_max_rand(void) {
 	if (randtest_max_range_test != randtest_max_range || randtest_min_range_test != randtest_min_range) {
 		success = FALSE;
 		printf("\n\tError: Boundaries werent matched properly after %d tries:",calculations);
-		printf("\n\tLower Boundary | Upper Boundary | Your Lower Boundary | Your Upper Boundary");
-		printf("\n\t     %d        |      %d        |         %d          |         %d        ",randtest_min_range_test,randtest_max_range_test,randtest_min_range,randtest_max_range);
+		printf("\n\tLower Boundary | Upper Boundary | Required Lower Boundary | Required Upper Boundary");
+		printf("\n\t     %d        |      %d        |         %d              |         %d        \n",randtest_min_range_test,randtest_max_range_test,randtest_min_range,randtest_max_range);
 	}
 	else
 	{
