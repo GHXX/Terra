@@ -9,6 +9,12 @@
 static int TErrorCode = 0;
 static char *TErrorMsg = 0;
 
+void TErrorReset(void) {
+	TErrorCode = 0;
+	TFree(TErrorMsg);
+	TErrorMsg = 0;
+}
+
 void TErrorSet(int code) {
 	TErrorCode = code;
 	TFree(TErrorMsg);

@@ -64,8 +64,7 @@ static inline void TThreadRun(TThread *context, TThreadFunctionData *data) {
 #endif
 }
 
-TThread *TThreadCreate(TThreadFunc fn, TPtr data)
-{
+TThread *TThreadCreate(TThreadFunc fn, TPtr data) {
 	TThreadFunctionData *tf;
 	TThread *t;
 
@@ -81,8 +80,7 @@ TThread *TThreadCreate(TThreadFunc fn, TPtr data)
 	return t;
 }
 
-int TThreadJoin(TThread *t)
-{
+int TThreadJoin(TThread *t) {
 	int retval = 0;
 	if (!t) return retval;
 #ifdef _WINDOWS
@@ -90,15 +88,14 @@ int TThreadJoin(TThread *t)
 	GetExitCodeThread(t->thread, (unsigned long *)&retval);
 	CloseHandle(t->thread);
 #else
-	pthread_join(t->thread, (void **) &retval);
+	pthread_join(t->thread, (void **)&retval);
 #endif
 	TFree(t);
 
 	return retval;
 }
 
-void TThreadSleep(TUInt32 ms)
-{
+void TThreadSleep(TUInt32 ms) {
 	TTimeSleep(ms);
 }
 
@@ -113,8 +110,7 @@ TUInt8 TThreadGetID(void) {
 	return id;
 }
 
-TUInt32 TThreadGetAffinity(void)
-{
+TUInt32 TThreadGetAffinity(void) {
 #ifdef _WINDOWS
 	// Windows doesn't have a function to get the affinity
 	// but does return the previous affinity when setting a
@@ -149,8 +145,7 @@ TUInt32 TThreadGetAffinity(void)
 #endif
 }
 
-TUInt8 TThreadSetAffinity(TUInt32 _mask)
-{
+TUInt8 TThreadSetAffinity(TUInt32 _mask) {
 #ifdef _WINDOWS
 	DWORD ret;
 	HANDLE hThread = GetCurrentThread();
@@ -191,20 +186,19 @@ struct _TMutex {
 #endif
 };
 
-TMutex *TMutexNew(enum T_MUTEX_TYPE type)
-{
+TMutex *TMutexNew(enum T_MUTEX_TYPE type) {
 	TMutex *m = TAllocData(TMutex);
 
 #ifdef _WINDOWS
 	InitializeCriticalSection(&m->mutex);
 #else
 	int error = pthread_mutexattr_init(&m->mutexAttr);
-	if(error) {
+	if (error) {
 		TFree(m);
 		return 0;
 	}
 
-	if(type == T_MUTEX_NORMAL) {
+	if (type == T_MUTEX_NORMAL) {
 		type = PTHREAD_MUTEX_NORMAL;
 	} else if (type == T_MUTEX_RECURSIVE) {
 		type = PTHREAD_MUTEX_RECURSIVE;
@@ -215,7 +209,7 @@ TMutex *TMutexNew(enum T_MUTEX_TYPE type)
 	}
 
 	error = pthread_mutexattr_settype(&m->mutexAttr, type);
-	if(error) {
+	if (error) {
 		TFree(m);
 		return 0;
 	}
@@ -230,8 +224,7 @@ TMutex *TMutexNew(enum T_MUTEX_TYPE type)
 	return m;
 }
 
-void TMutexFree(TMutex *m)
-{
+void TMutexFree(TMutex *m) {
 #ifdef _WINDOWS
 	DeleteCriticalSection(&m->mutex);
 #else
@@ -242,8 +235,7 @@ void TMutexFree(TMutex *m)
 	TFree(m);
 }
 
-void TMutexLock(TMutex *m)
-{
+void TMutexLock(TMutex *m) {
 #ifdef _WINDOWS
 	EnterCriticalSection(&m->mutex);
 #else
@@ -251,8 +243,7 @@ void TMutexLock(TMutex *m)
 #endif
 }
 
-void TMutexUnlock(TMutex *m)
-{
+void TMutexUnlock(TMutex *m) {
 #ifdef _WINDOWS
 	LeaveCriticalSection(&m->mutex);
 #else
@@ -272,23 +263,21 @@ struct _TCV {
 #endif
 };
 
-TCV *TCVNew(TMutex *m)
-{
+TCV *TCVNew(TMutex *m) {
 	TCV *v = TAllocData(TCV);
 	v->m = m;
 
 #ifdef _WINDOWS
 	InitializeConditionVariable(&v->var);
 #else
-	pthread_cond_init(&v->var,0);
+	pthread_cond_init(&v->var, 0);
 #endif
 
 	return v;
 }
 
-void TCVFree(TCV *v)
-{
-	if(v) {
+void TCVFree(TCV *v) {
+	if (v) {
 #ifndef _WINDOWS
 		pthread_cond_destroy(&v->var);
 #endif
@@ -306,10 +295,10 @@ int TCVSleepTimed(TCV *context, TUInt32 msec) {
 	struct timespec   ts;
 	struct timeval    tp;
 
-	gettimeofday(&tp,0);
+	gettimeofday(&tp, 0);
 
-	ts.tv_sec = tp.tv_sec+5;
-	ts.tv_nsec = (tp.tv_usec+1000UL*msec)*1000UL;
+	ts.tv_sec = tp.tv_sec + 5;
+	ts.tv_nsec = (tp.tv_usec + 1000UL * msec) * 1000UL;
 
 	return pthread_cond_timedwait(&context->var, &context->m->mutex, &ts);
 #endif
@@ -324,8 +313,7 @@ int TCVSleep(TCV *context) {
 #endif
 }
 
-void TCVWake(TCV *v)
-{
+void TCVWake(TCV *v) {
 #ifdef _WINDOWS
 	WakeAllConditionVariable(&v->var);
 #else
@@ -333,8 +321,7 @@ void TCVWake(TCV *v)
 #endif
 }
 
-void TCVWakeSingle(TCV *v)
-{
+void TCVWakeSingle(TCV *v) {
 #ifdef _WINDOWS
 	WakeConditionVariable(&v->var);
 #else

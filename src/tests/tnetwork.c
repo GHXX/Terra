@@ -65,8 +65,7 @@ int TNetworkTestConnect(void) {
 }
 
 
-void TNetworkTest(void)
-{
+void TNetworkTest(void) {
 	TestFunc tests[] = {
 		TNetworkTestConnect
 

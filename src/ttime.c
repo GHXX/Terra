@@ -15,16 +15,14 @@ static double tTickInterval = 1.0;
 
 #include <windows.h>
 
-void TTimeInitialise()
-{
+void TTimeInitialise() {
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	tTickInterval = 1.0 / (double)freq.QuadPart;
 	tCurrentTime = 0.0;
 }
 
-double TTimeComputeTime()
-{
+double TTimeComputeTime() {
 	LARGE_INTEGER count;
 	QueryPerformanceCounter(&count);
 	tCurrentTime = (double)count.QuadPart * tTickInterval;
@@ -33,19 +31,16 @@ double TTimeComputeTime()
 #endif
 
 #ifdef _MACOSX
+static uint64_t tStart;
+static mach_timebase_info_data_t tTimebase;
 
-static uint64_t						tStart;
-static mach_timebase_info_data_t 	tTimebase;
-
-void TTimeInitialise()
-{
+void TTimeInitialise() {
 	mach_timebase_info(&tTimebase);
 	tStart = mach_absolute_time();
 	tCurrentTime = 0.0;
 }
 
-double TTimeComputeTime()
-{
+double TTimeComputeTime() {
 	uint64_t elapsed = mach_absolute_time() - tStart;
 	tCurrentTime = (double)elapsed * (tTimebase.numer / tTimebase.denom) / 1000000000.0;
 	return tCurrentTime;
@@ -56,14 +51,12 @@ double TTimeComputeTime()
 #include <sys/time.h>
 static struct timeval tStart;
 
-void TTimeInitialise()
-{
+void TTimeInitialise() {
 	gettimeofday(&tStart, NULL);
 	tCurrentTime = 0.0;
 }
 
-double TTimeComputeTime()
-{
+double TTimeComputeTime() {
 	struct timeval now;
 	gettimeofday(&now, NULL);
 
@@ -72,14 +65,7 @@ double TTimeComputeTime()
 }
 #endif
 
-double TTimeGetTime()
-{
-	TTimeComputeTime();
-	return tCurrentTime;
-}
-
-double TTimeFetchTime()
-{
+double TTimeFetchTime() {
 	return tCurrentTime;
 }
 
@@ -99,43 +85,36 @@ struct TTimer {
 	TUInt8 running;
 };
 
-TTimer *TTimerNew(void)
-{
+TTimer *TTimerNew(void) {
 	TTimer *t = TAllocData(TTimer);
-	if(t) TTimerInit(t);
+	if (t) TTimerInit(t);
 	return t;
 }
 
-void TTimerInit(TTimer *context)
-{
+void TTimerInit(TTimer *context) {
 	memset(context, 0, sizeof(TTimer));
 }
 
-void TTimerFree(TTimer *context)
-{
+void TTimerFree(TTimer *context) {
 	TFree(context);
 }
 
-void TTimerStart(TTimer *context)
-{
+void TTimerStart(TTimer *context) {
 	context->start = TTimeComputeTime();
 	context->running = 1;
 }
 
-void TTimerStop(TTimer *context)
-{
+void TTimerStop(TTimer *context) {
 	context->stop = TTimeComputeTime();
 	context->running = 0;
 	context->accumulation += context->stop - context->start;
 }
 
-double TTimerElapsed(TTimer *context)
-{
+double TTimerElapsed(TTimer *context) {
 	return (context->running ? TTimeComputeTime() : context->stop) - context->start;
 }
 
-double TTimerGetAccumulatedTime(TTimer *context)
-{
+double TTimerGetAccumulatedTime(TTimer *context) {
 	if (context->running)
 		return context->accumulation + (TTimeComputeTime() - context->start);
 

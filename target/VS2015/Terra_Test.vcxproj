@@ -94,6 +94,7 @@
     <ClCompile Include="..\..\src\ttest.c" />
     <ClCompile Include="..\..\src\tests\tnetwork.c" />
     <ClCompile Include="..\..\src\tests\ttokenizer.c" />
+    <ClCompile Include="..\..\src\tests\trand.c" />
     <ClCompile Include="..\..\src\tests\tstring.c" />
   </ItemGroup>
   <ItemGroup>

@@ -30,6 +30,8 @@ int main(int argc, char **argv)
 
 	TStringTest();
 
+	TRandTest();
+
 	TNetworkTest();
 
 	TStackTest();

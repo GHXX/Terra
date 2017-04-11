@@ -39,6 +39,7 @@ void test_rw_file(void) {
 
 	TStreamWriteBlock(testrw, "bleh", sizeof(char) * 4);
 	TAssert(TErrorGet() == T_ERROR_OPERATION_NOT_SUPPORTED);
+	TErrorReset();
 
 	TStreamFree(testrw);
 	TFileSysDelete(filename);

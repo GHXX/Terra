@@ -17,6 +17,8 @@ enum T_ERROR_CODES {
 	T_ERROR_AMOUNT,
 };
 
+void TErrorReset(void);
+
 void TErrorSet(int code);
 int TErrorGet(void);
 
