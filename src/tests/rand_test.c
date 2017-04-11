@@ -6,7 +6,7 @@
 //#include "utility/tinteger.h"
 #include "trand.h"
 #include "test.h"
-
+#include "ttime.h"
 #include "ttest.h"
 
 unsigned int randtest_min_range, randtest_max_range;
@@ -112,37 +112,33 @@ void rand_test_min_max_rand(void) {
 		else if (normalized >= 0.5) { printf("too high."); }
 		else if (normalized >= 0.25) { printf("a bit too high."); }
 		else if (normalized > 0) { printf("slightly too high."); }
-		printf("\n\tWeight distribution: %s%f\n\n\n", ((normalized == 0) ? "+/-" : (normalized < 0) ? "" : "+"), normalized);
+		printf("\n\tWeight distribution: %s%f\n", ((normalized == 0) ? "+/-" : (normalized < 0) ? "" : "+"), normalized);
 		
 	}
 }
 
 #if !DEBUG
-	/#pragma optimize("",on)
+	//#pragma optimize("",on)
 #endif
 
-#define rand_test_len 0xFFFFFFF
+#define rand_test_len 1E6
 void rand_test_cost(void) {
 
-	printf("\tRunning Speed test...(This may take a while)\n");
-	long clockEnd;
-	long clockStart;
-	clockStart = clock();
-	for (unsigned long i = 0; i<100200; i++)
-	{
-		int rand = TRandInteger(randtest_min_range, randtest_max_range);
-	}
-	clockEnd = clock();
-	printf("\tExpected time to wait: %.2f seconds\n", ((double)clockEnd - (double)clockStart) / (double)CLOCKS_PER_SEC/(double)100200 *(double)rand_test_len);
-	clockStart = clock();
+	printf("\tRunning Speed test...(This may take a while)");
+	double clockEnd;
+	double clockStart;
+	TTimeInitialise();
+	
+	clockStart = TTimeComputeTime();
 	for (unsigned long i = 0; i<rand_test_len; i++)
 	{
 		int rand = TRandInteger(randtest_min_range, randtest_max_range);
 	}
-	clockEnd = clock();
+	clockEnd = TTimeComputeTime();
 	double diff = clockEnd - clockStart;
-	printf("\tAverage generation time of one random number: %Lf nanoseconds\n\n",(( (long double) diff / (long double)CLOCKS_PER_SEC )/ (long double)rand_test_len)* (long double)1E9);
+	printf("\r\t\t\t\t\t\t\t\r\tAverage generation time of one random number: %Lf nanoseconds\n\n",( (long double) diff / (long double)rand_test_len)* (long double)1E9);
 }
+
 #if !DEBUG
 	//#pragma optimize("",off)
 #endif
